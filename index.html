@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IndyTrain — Independent Media Cadet School</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+<div class="auth-wrap">
+<div class="auth-left"><div class="auth-lc">
+  <div class="auth-brand">Indy<span>Train</span></div>
+  <div class="auth-tagline">Independent Media Cadet School</div>
+  <h1>Train smarter.<br><em>Report better.</em></h1>
+  <p>South Africa's premier digital journalism training platform. Master the craft, earn certified skills, and join a community of next-generation storytellers.</p>
+  <div class="auth-feats">
+    <div class="auth-feat"><div class="auth-feat-icon">🎓</div> Professional journalism modules</div>
+    <div class="auth-feat"><div class="auth-feat-icon">🏅</div> Earn badges &amp; downloadable certificates</div>
+    <div class="auth-feat"><div class="auth-feat-icon">💬</div> Live community chat with other cadets</div>
+    <div class="auth-feat"><div class="auth-feat-icon">🎥</div> Video lessons + interactive quizzes</div>
+  </div>
+</div></div>
+<div class="auth-right">
+  <div class="auth-fw" id="login-form">
+    <h2>Welcome back</h2><p>Sign in to continue your training</p>
+    <div class="form-group"><label>Email address</label><input type="email" placeholder="you@imcs.co.za" id="login-email" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="form-group"><label>Password</label><input type="password" placeholder="••••••••" id="login-pass" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn btn-dark btn-lg" onclick="doLogin()" style="width:100%;justify-content:center">Sign In</button>
+    <div class="auth-switch">Don't have an account? <a onclick="showReg()">Create one</a></div>
+    <div class="auth-switch mt-1"><a onclick="loginAdmin()" style="font-size:.72rem;color:var(--muted)">← Sign in as Admin (demo)</a></div>
+  </div>
+  <div class="auth-fw hidden" id="reg-form">
+    <h2>Join IndyTrain</h2><p>Create your cadet account</p>
+    <div class="form-group"><label>Full Name</label><input type="text" placeholder="Your full name" id="reg-name"></div>
+    <div class="form-group"><label>Email address</label><input type="email" placeholder="you@imcs.co.za" id="reg-email"></div>
+    <div class="form-group"><label>Password</label><input type="password" placeholder="Choose a password" id="reg-pass"></div>
+    <button class="btn btn-dark btn-lg" onclick="doReg()" style="width:100%;justify-content:center">Create Account</button>
+    <div class="auth-switch">Already have an account? <a onclick="showLogin()">Sign in</a></div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+<aside id="sidebar">
+  <div class="sidebar-brand"><div class="brand-logo">
+    <div class="brand-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+    <div class="brand-name">IndyTrain<span>Independent Media Cadet School</span></div>
+  </div></div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <div class="nav-item active" onclick="nav('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
+    <div class="nav-item" onclick="nav('courses')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Learning Modules</div>
+    <div class="nav-item" onclick="nav('programs')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>My Programs</div>
+    <div class="nav-section">Community</div>
+    <div class="nav-item" onclick="nav('chat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Member Chat</div>
+    <div class="nav-item" onclick="nav('resources')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Resources</div>
+    <div class="nav-section">Account</div>
+    <div class="nav-item" onclick="nav('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</div>
+    <div class="nav-item" onclick="nav('contact')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Contact</div>
+    <div id="admin-nav" class="hidden">
+      <div class="nav-section">Admin</div>
+      <div class="nav-item admin-item" onclick="nav('admin')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Admin Panel</div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-mini" onclick="nav('profile')">
+      <div class="ava" id="sb-ava">?</div>
+      <div style="flex:1;overflow:hidden"><div class="user-mini-name" id="sb-name">Loading…</div><div class="user-mini-role" id="sb-role">Cadet</div></div>
+    </div>
+    <div class="nav-item logout-item" onclick="doLogout()" style="margin-top:.5rem;border-radius:8px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Log Out
+    </div>
+  </div>
+</aside>
+
+<div id="main-content">
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="icon-btn" id="menu-btn" onclick="toggleSB()" style="display:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <span class="page-title" id="pg-title">Dashboard</span>
+    <div class="search-bar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search courses…" oninput="searchCourses(this.value)"></div>
+  </div>
+  <div class="topbar-right">
+    <button class="btn btn-primary btn-sm" onclick="nav('courses')">Browse Modules</button>
+    <div class="ava" onclick="nav('profile')" style="cursor:pointer" id="top-ava">?</div>
+  </div>
+</header>
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="hero-section"><div class="hero-content">
+    <div class="hero-eyebrow">Welcome back</div>
+    <h1>Continue your <em>journalism</em> journey</h1>
+    <p>At the Independent Media Cadet School, we're committed to nurturing South Africa's next generation of journalists through practical training, mentorship, and digital learning.</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary btn-lg" onclick="nav('courses')">Browse Modules</button>
+      <button class="btn btn-lg" style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.15)" onclick="nav('programs')">My Progress</button>
+    </div>
+    <div class="hero-stats-row">
+      <div><div class="hsn" id="h-total">0</div><div class="hsl">Courses</div></div>
+      <div><div class="hsn">4.8★</div><div class="hsl">Rating</div></div>
+      <div><div class="hsn">IMCS</div><div class="hsl">Platform</div></div>
+      <div><div class="hsn">100%</div><div class="hsl">Online</div></div>
+    </div>
+  </div></div>
+  <div class="cw">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Enrolled Courses</div><div class="stat-value" id="s-enrolled">0</div><div class="stat-change">Your enrollments</div></div>
+      <div class="stat-card"><div class="stat-label">Completed</div><div class="stat-value" id="s-completed">0</div><div class="stat-change">Courses finished</div></div>
+      <div class="stat-card"><div class="stat-label">Badges Earned</div><div class="stat-value" id="s-badges">0</div><div class="stat-change">Keep learning</div></div>
+      <div class="stat-card"><div class="stat-label">Certificates</div><div class="stat-value" id="s-certs">0</div><div class="stat-change">Achievements</div></div>
+    </div>
+    <div class="section-hdr mt-3"><h2>Your Courses</h2><button class="btn btn-secondary btn-sm" onclick="nav('courses')">View All</button></div>
+    <div id="dash-enrolled" style="color:var(--muted);font-size:.875rem;padding:.5rem 0">Enroll in a course to get started. <a href="#" onclick="nav('courses')" style="color:var(--gold)">Browse modules →</a></div>
+    <div class="courses-grid" id="dash-grid" style="display:none"></div>
+  </div>
+</div>
+
+<!-- COURSES -->
+<div class="page flex-col" id="page-courses">
+  <div class="cw">
+    <div class="section-hdr"><h2>Learning Modules</h2></div>
+    <div class="filter-row" id="course-filters"></div>
+    <div class="courses-grid" id="courses-grid"></div>
+  </div>
+</div>
+
+<!-- COURSE DETAIL -->
+<div class="page flex-col" id="page-course-detail">
+  <div class="cd-header">
+    <div class="breadcrumb" onclick="nav('courses')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Learning Modules</span></div>
+    <h1 id="cd-title">Course Title</h1>
+    <div id="cd-about"></div>
+    <div style="display:flex;gap:1.25rem;margin-top:1.1rem;flex-wrap:wrap" id="cd-meta"></div>
+  </div>
+  <div class="cd-body">
+    <div>
+      <h3 style="font-size:.9rem;font-weight:700;margin-bottom:.875rem">Course Content</h3>
+      <div id="cd-modules"></div>
+      <div style="margin-top:1.25rem">
+        <h3 style="font-size:.9rem;font-weight:700;margin-bottom:.875rem">📝 Knowledge Quiz</h3>
+        <div class="card"><div class="card-body" style="text-align:center;padding:1.75rem">
+          <div style="font-size:2.5rem;margin-bottom:.75rem">📝</div>
+          <h3 style="margin-bottom:.4rem;font-size:1rem">Test Your Knowledge</h3>
+          <p style="color:var(--muted);font-size:.82rem;margin-bottom:1rem">Complete the quiz to earn your course badge and a downloadable certificate.</p>
+          <button class="btn btn-primary" onclick="startQuiz(CUR)">Start Quiz →</button>
+        </div></div>
+      </div>
+    </div>
+    <div><div class="cd-sidebar">
+      <div id="vid-area" class="vid-area"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg><span>Video lesson will appear here</span></div>
+      <div class="enroll-card">
+        <div class="enroll-price">Free</div>
+        <div class="enroll-sub">Included with your cadet enrollment</div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" id="enroll-btn" onclick="enrollCourse()">Enroll in Course</button>
+        <div style="margin-top:.875rem;display:flex;flex-direction:column;gap:.4rem;font-size:.75rem;color:var(--muted)">
+          <div>✓ Full course access</div><div>✓ Badge on completion</div><div>✓ Downloadable certificate</div><div>✓ Community access</div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="page flex-col" id="page-quiz">
+  <div class="cw">
+    <div class="breadcrumb" style="display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:var(--muted);margin-bottom:1.25rem;cursor:pointer" onclick="backToCourse()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Back to Course</div>
+    <div class="quiz-container">
+      <div style="margin-bottom:1.5rem"><h2 id="quiz-title" style="font-size:1.25rem;font-weight:800;margin-bottom:.2rem">Quiz</h2><p style="color:var(--muted);font-size:.82rem">Score 70% or higher to earn your badge and certificate</p></div>
+      <div id="quiz-body"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MY PROGRAMS -->
+<div class="page flex-col" id="page-programs">
+  <div class="cw">
+    <div class="section-hdr"><h2>My Programs</h2></div>
+    <div class="prog-tabs">
+      <button class="prog-tab active" onclick="switchPT('enrolled',this)">In Progress</button>
+      <button class="prog-tab" onclick="switchPT('completed',this)">Completed</button>
+      <button class="prog-tab" onclick="switchPT('all',this)">All Available</button>
+    </div>
+    <div class="courses-grid" id="prog-grid"></div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="page flex-col" id="page-profile">
+  <div class="profile-header">
+    <div class="paw">
+      <div class="ava-lg" id="prof-ava">?</div>
+      <div class="pae" onclick="document.getElementById('ava-input').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+    </div>
+    <div class="profile-info">
+      <h2 id="prof-name"></h2>
+      <div class="role-tag" id="prof-role">Cadet</div>
+      <p id="prof-email" style="color:rgba(255,255,255,.5);font-size:.82rem"></p>
+      <div class="psr">
+        <div><div class="psn" id="ps-en">0</div><div class="psl">Enrolled</div></div>
+        <div><div class="psn" id="ps-co">0</div><div class="psl">Completed</div></div>
+        <div><div class="psn" id="ps-ba">0</div><div class="psl">Badges</div></div>
+        <div><div class="psn" id="ps-ce">0</div><div class="psl">Certs</div></div>
+      </div>
+    </div>
+    <div style="margin-left:auto"><button class="btn btn-sm" style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2)" onclick="toggleEditProf()">Edit Profile</button></div>
+  </div>
+  <div class="cw">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+      <div class="card"><div class="card-header"><h3>🏅 Badges Earned</h3></div><div class="card-body"><div class="badges-grid" id="prof-badges"></div></div></div>
+      <div class="card"><div class="card-header"><h3>🎓 Certificates</h3></div><div class="card-body"><div id="prof-certs" style="display:flex;flex-direction:column;gap:.875rem"></div></div></div>
+    </div>
+    <div class="card mt-2" id="edit-prof" style="display:none">
+      <div class="card-header"><h3>👤 Edit Profile</h3><button class="btn btn-secondary btn-sm" onclick="toggleEditProf()">Close</button></div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="form-group"><label>Full Name</label><input type="text" id="edit-name"></div>
+          <div class="form-group"><label>Email</label><input type="email" id="edit-email"></div>
+          <div class="form-group"><label>Bio</label><textarea id="edit-bio" placeholder="Tell us about yourself…" style="min-height:75px"></textarea></div>
+          <div class="form-group"><label>Location</label><input type="text" id="edit-loc" placeholder="Cape Town, SA"></div>
+        </div>
+        <button class="btn btn-primary" onclick="saveProf()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT -->
+<div class="page" id="page-chat" style="flex-direction:row;padding:0">
+  <div class="chat-layout w-full">
+    <div class="chat-sb">
+      <div class="chat-sb-hdr">Channels <button class="btn btn-primary btn-sm btn-icon" style="font-size:1rem">+</button></div>
+      <div id="chat-rooms"></div>
+    </div>
+    <div class="chat-main">
+      <div class="chat-hdr"><div class="chat-hdr-icon" id="chat-icon">💬</div><div><div style="font-size:.875rem;font-weight:700" id="chat-rname">#General</div><div style="font-size:.72rem;color:var(--muted)" id="chat-rdesc">All cadets</div></div></div>
+      <div class="msgs-area" id="msgs-area"></div>
+      <div class="chat-input-area">
+        <textarea class="chat-input" id="chat-input" placeholder="Type a message…" rows="1" onkeydown="chatKey(event)"></textarea>
+        <button class="btn btn-primary btn-icon" onclick="sendMsg()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESOURCES -->
+<div class="page flex-col" id="page-resources">
+  <div class="cw"><div class="section-hdr"><h2>Resources</h2></div><div class="res-grid" id="res-grid"></div></div>
+</div>
+
+<!-- CONTACT -->
+<div class="page flex-col" id="page-contact">
+  <div class="cw"><div class="section-hdr"><h2>Contact Us</h2></div>
+  <div class="contact-grid">
+    <div class="card"><div class="card-header"><h3>Send a Message</h3></div><div class="card-body">
+      <div class="form-group"><label>Name</label><input type="text" placeholder="Your full name"></div>
+      <div class="form-group"><label>Email</label><input type="email" placeholder="your@email.com"></div>
+      <div class="form-group"><label>Subject</label><input type="text" placeholder="How can we help?"></div>
+      <div class="form-group"><label>Message</label><textarea placeholder="Write your message…"></textarea></div>
+      <button class="btn btn-primary" onclick="toast('Message sent! We\'ll be in touch.','success')">Send Message</button>
+    </div></div>
+    <div>
+      <div class="card mb-2"><div class="card-header"><h3>Contact Info</h3></div><div class="card-body" style="display:flex;flex-direction:column;gap:1.1rem">
+        <div style="display:flex;gap:.875rem;align-items:flex-start"><div style="width:38px;height:38px;background:var(--paper);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem">📧</div><div><div style="font-weight:600;font-size:.82rem">Email</div><div style="color:var(--muted);font-size:.8rem"><a href="mailto:Info@imcs.co.za" style="color:var(--gold)">Info@imcs.co.za</a></div></div></div>
+        <div style="display:flex;gap:.875rem;align-items:flex-start"><div style="width:38px;height:38px;background:var(--paper);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem">📍</div><div><div style="font-weight:600;font-size:.82rem">Address</div><div style="color:var(--muted);font-size:.8rem">4 Bree Street, Portside, Cape Town</div></div></div>
+        <div style="display:flex;gap:.875rem;align-items:flex-start"><div style="width:38px;height:38px;background:var(--paper);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem">🔗</div><div><div style="font-weight:600;font-size:.82rem;margin-bottom:.4rem">Follow Us</div><div style="display:flex;gap:.5rem"><a href="https://www.linkedin.com/company/independent-media" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">LinkedIn</a><a href="https://www.facebook.com/IndependentMedia" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">Facebook</a><a href="https://www.instagram.com/independentmediagroup" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">Instagram</a></div></div></div>
+      </div></div>
+      <div class="card" style="background:linear-gradient(135deg,#0a0a0f,#1a1512);color:#fff;border-color:#2a2a2a"><div class="card-body" style="padding:1.5rem"><div style="font-size:1.8rem;margin-bottom:.6rem">🎓</div><h3 style="margin-bottom:.4rem;font-size:.95rem">"Great stories shape perspectives."</h3><p style="color:rgba(255,255,255,.45);font-size:.78rem;line-height:1.6">Compelling content resonates on a profound level, transcending barriers and inspiring change.</p></div></div>
+    </div>
+  </div></div>
+</div>
+
+<!-- ADMIN -->
+<div class="page flex-col" id="page-admin">
+  <div class="admin-tabs">
+    <div class="admin-tab active" onclick="switchAT('videos',this)">Courses &amp; Videos</div>
+    <div class="admin-tab" onclick="switchAT('create',this)">Create Course</div>
+    <div class="admin-tab" onclick="switchAT('resources',this)">Resources</div>
+  </div>
+  <div class="cw" id="admin-content"></div>
+</div>
+
+</div></div>
+
+<!-- CERT MODAL -->
+<div class="modal-overlay hidden" id="cert-modal">
+  <div class="modal-box">
+    <div class="modal-header"><h3>🎓 Course Certificate</h3><button class="modal-close" onclick="closeCert()">✕</button></div>
+    <div class="modal-body">
+      <div class="certificate" id="cert-preview">
+        <div class="cert-border"></div>
+        <div class="cert-logo">✦ IndyTrain ✦</div>
+        <div class="cert-title">Certificate of Completion</div>
+        <div style="font-size:.82rem;color:var(--muted);margin-bottom:1rem">This is to certify that</div>
+        <div class="cert-main" id="cert-name"></div>
+        <div class="cert-sub">has successfully completed the course</div>
+        <div class="cert-course-name" id="cert-course"></div>
+        <div style="font-size:.8rem;color:var(--muted)">Independent Media Cadet School · IndyTrain</div>
+        <div class="cert-footer">
+          <div style="text-align:center"><div style="font-style:italic;font-size:.85rem;font-weight:600">IMCS Editorial Board</div><div class="cert-sig-line"></div><div>Programme Director</div></div>
+          <div style="text-align:center"><div style="font-size:1.75rem">🏅</div><div style="font-size:.7rem;color:var(--muted);margin-top:.2rem" id="cert-date"></div></div>
+          <div style="text-align:center"><div style="font-style:italic;font-size:.85rem;font-weight:600">IndyTrain Platform</div><div class="cert-sig-line"></div><div>Verified Certificate</div></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:.75rem;margin-top:1.1rem;justify-content:center">
+        <button class="btn btn-primary" onclick="dlCert()">⬇ Download / Print</button>
+        <button class="btn btn-secondary" onclick="closeCert()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+<input type="file" id="vid-input" accept="video/*" style="display:none" onchange="handleVidFile(event)">
+<input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImgFile(event)">
+<input type="file" id="ava-input" accept="image/*" style="display:none" onchange="handleAva(event)">
+
+<!-- SCRIPTS: data first, then app logic -->
+<script src="data/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
