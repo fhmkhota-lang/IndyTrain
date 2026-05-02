@@ -6,7 +6,7 @@
 <title>IndyTrain — Independent Media Cadet School</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
@@ -281,9 +281,13 @@
 <!-- ADMIN -->
 <div class="page flex-col" id="page-admin">
   <div class="admin-tabs">
-    <div class="admin-tab active" onclick="switchAT('videos',this)">Courses &amp; Videos</div>
-    <div class="admin-tab" onclick="switchAT('create',this)">Create Course</div>
-    <div class="admin-tab" onclick="switchAT('resources',this)">Resources</div>
+    <div class="admin-tab active" onclick="switchAT('users',this)">👥 Users</div>
+    <div class="admin-tab" onclick="switchAT('videos',this)">🎥 Courses &amp; Videos</div>
+    <div class="admin-tab" onclick="switchAT('create',this)">➕ Create Course</div>
+    <div class="admin-tab" onclick="switchAT('resources',this)">📚 Resources</div>
+    <div class="admin-tab" onclick="switchAT('announce',this)">📢 Announcements</div>
+    <div class="admin-tab" onclick="switchAT('branding',this)">🎨 Branding</div>
+    <div class="admin-tab" onclick="switchAT('analytics',this)">📊 Analytics</div>
   </div>
   <div class="cw" id="admin-content"></div>
 </div>
@@ -322,9 +326,10 @@
 <input type="file" id="vid-input" accept="video/*" style="display:none" onchange="handleVidFile(event)">
 <input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImgFile(event)">
 <input type="file" id="ava-input" accept="image/*" style="display:none" onchange="handleAva(event)">
+<input type="file" id="logo-input" accept="image/*,.svg" style="display:none" onchange="handleLogoFile(event)">
 
 <!-- SCRIPTS: data first, then app logic -->
-<script src="data.js"></script>
-<script src="app.js"></script>
+<script src="data/data.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
