@@ -1,4 +1,4 @@
-// IndyTrain — combined data + app (auto-generated)
+// IndyTrain — combined data + app
 /* ============================================================
    IndyTrain — data.js
    Edit this file to add/update courses, resources, chat rooms.
@@ -551,11 +551,73 @@ const CHAT_ROOMS = [
 ];
 
 /* ============================================================
-   IndyTrain — app.js
-   Edit this file for feature/behaviour changes.
+   IndyTrain — app.js (Supabase backend)
    ============================================================ */
 
-// ── STATE ──
+// ── SUPABASE CONFIG ──
+const SUPA_URL = 'https://zbwstfwqzkwbqvmlhxqu.supabase.co';
+const SUPA_KEY = 'sb_publishable_EqtIMj0jivC1n-7kdwTVtg_tRgXLSRY';
+
+// Lightweight Supabase REST client — no npm needed
+const sb = {
+  async query(table, opts={}) {
+    let url = `${SUPA_URL}/rest/v1/${table}`;
+    const params = [];
+    if (opts.select)  params.push(`select=${opts.select}`);
+    if (opts.eq)      Object.entries(opts.eq).forEach(([k,v]) => params.push(`${k}=eq.${encodeURIComponent(v)}`));
+    if (opts.neq)     Object.entries(opts.neq).forEach(([k,v]) => params.push(`${k}=neq.${encodeURIComponent(v)}`));
+    if (opts.order)   params.push(`order=${opts.order}`);
+    if (opts.limit)   params.push(`limit=${opts.limit}`);
+    if (params.length) url += '?' + params.join('&');
+    const res = await fetch(url, {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer '+SUPA_KEY, 'Content-Type': 'application/json' }
+    });
+    if (!res.ok) { const e=await res.text(); throw new Error(e); }
+    return res.json();
+  },
+  async insert(table, data, opts={}) {
+    const url = `${SUPA_URL}/rest/v1/${table}`;
+    const headers = { 'apikey': SUPA_KEY, 'Authorization': 'Bearer '+SUPA_KEY, 'Content-Type': 'application/json' };
+    if (opts.upsert) { headers['Prefer'] = 'resolution=merge-duplicates'; }
+    else             { headers['Prefer'] = 'return=representation'; }
+    const res = await fetch(url, { method: opts.upsert ? 'POST' : 'POST', headers, body: JSON.stringify(data) });
+    if (!res.ok) { const e=await res.text(); throw new Error(e); }
+    return res.json();
+  },
+  async upsert(table, data) {
+    const url = `${SUPA_URL}/rest/v1/${table}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer '+SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) { const e=await res.text(); throw new Error(e); }
+    return res.json();
+  },
+  async update(table, data, eq) {
+    let url = `${SUPA_URL}/rest/v1/${table}?`;
+    url += Object.entries(eq).map(([k,v]) => `${k}=eq.${encodeURIComponent(v)}`).join('&');
+    const res = await fetch(url, {
+      method: 'PATCH',
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer '+SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) { const e=await res.text(); throw new Error(e); }
+    return res.json();
+  },
+  async delete(table, eq) {
+    let url = `${SUPA_URL}/rest/v1/${table}?`;
+    url += Object.entries(eq).map(([k,v]) => `${k}=eq.${encodeURIComponent(v)}`).join('&');
+    const res = await fetch(url, {
+      method: 'DELETE',
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer '+SUPA_KEY }
+    });
+    if (!res.ok) { const e=await res.text(); throw new Error(e); }
+    return true;
+  }
+};
+
+// ── SESSION STATE ──
 let U = null, CUR = null, ROOM = 'general';
 let ENROLLED = [], COMPLETED = [], BADGES = [];
 let PROG = {};
@@ -566,33 +628,21 @@ let ADMIN_TAB = 'users';
 let CMSGS = {};
 let CUSTOM = [];
 let MC = 0, QC = 0;
+let DB_USERS = [];        // admin-only: cached user list
+let DB_ANNOUNCEMENTS = [];
 
-// ── BRANDING STATE (admin-editable) ──
 let BRAND = {
   name: 'IndyTrain',
   tagline: 'Independent Media Cadet School',
-  logoUrl: null,       // null = use text logo
+  logoUrl: null,
   primaryColor: '#c8a84b',
 };
 
-// ── USER REGISTRY ──
-// status: 'active' | 'pending' | 'inactive'
-// 'pending' = registered but awaiting admin approval
-// INVITED = email addresses pre-approved by admin (auto-approve on register)
-let USERS = [
-  { id:1, name:'Faheem Khota', email:'faheem.khota@iol.co.za', role:'admin', status:'active', enrolled:0, completed:0, joined:'2026-01-01', password:'admin' },
-];
-let INVITED_EMAILS = []; // pre-approved emails added by admin
-
-// ── ANNOUNCEMENTS ──
-let ANNOUNCEMENTS = [];
-
-// ── HELPERS ──
 const allC = () => [...COURSES, ...CUSTOM];
 
 function initChat() {
   CMSGS = {
-    general:    [{ u:'Admin', i:'AD', msg:'Welcome to ' + BRAND.name + '! 🎉 Your community hub for all training.', t:'9:00 AM', own:false }],
+    general:    [{ u:'Admin', i:'AD', msg:'Welcome to '+BRAND.name+'! 🎉 Your community hub for all training.', t:'9:00 AM', own:false }],
     editorial:  [{ u:'Admin', i:'AD', msg:'Welcome to Editorial. Share tips and ask questions here.', t:'9:00 AM', own:false }],
     sales:      [{ u:'Admin', i:'AD', msg:'Welcome to Sales. Discuss commercial modules and client strategies here.', t:'9:00 AM', own:false }],
     digital:    [{ u:'Admin', i:'AD', msg:'Welcome to Digital. Discuss social media, SEO, and multimedia here.', t:'9:00 AM', own:false }],
@@ -601,103 +651,143 @@ function initChat() {
 }
 
 // ── AUTH ──
-function doLogin() {
+async function doLogin() {
   const emailVal = document.getElementById('login-email').value.trim().toLowerCase();
   const passVal  = document.getElementById('login-pass').value;
-  if (!emailVal || !passVal) { toast('Please enter your email and password','error'); return; }
-
-  // Check hardcoded admin credentials first
-  if ((emailVal === 'admin' || emailVal === 'faheem.khota@iol.co.za') && passVal === 'admin') {
-    U = { name:'Faheem Khota', email:'faheem.khota@iol.co.za', role:'admin', ini:'FK' };
-    startApp(); return;
-  }
-
-  // Also allow admin@imcs.co.za as fallback admin
-  if (emailVal === 'admin@imcs.co.za' && passVal === 'admin') {
-    U = { name:'Faheem Khota', email:'faheem.khota@iol.co.za', role:'admin', ini:'FK' };
-    startApp(); return;
-  }
-
-  // Look up registered user
-  const found = USERS.find(u => u.email.toLowerCase() === emailVal);
-  if (!found) { toast('No account found with that email. Please register or contact your admin.','error'); return; }
-  if (found.password && found.password !== passVal) { toast('Incorrect password.','error'); return; }
-  if (found.status === 'pending') {
-    toast('Your account is awaiting admin approval. Please check back soon.','error'); return;
-  }
-  if (found.status === 'inactive') {
-    toast('Your account has been deactivated. Please contact your admin.','error'); return;
-  }
-  U = { name:found.name, email:found.email, role:found.role, ini:found.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) };
-  startApp();
+  if (!emailVal||!passVal) { toast('Please enter your email and password','error'); return; }
+  setLoading(true, 'Signing in…');
+  try {
+    // Hardcoded admin shortcut
+    if ((emailVal==='admin'||emailVal==='faheem.khota@iol.co.za') && passVal==='admin') {
+      U = { name:'Faheem Khota', email:'faheem.khota@iol.co.za', role:'admin', ini:'FK', dbId:null };
+      await loadUserSession();
+      await startApp();
+      return;
+    }
+    const users = await sb.query('users', { eq:{ email: emailVal } });
+    if (!users.length) { toast('No account found with that email.','error'); return; }
+    const user = users[0];
+    if (user.password !== passVal) { toast('Incorrect password.','error'); return; }
+    if (user.status==='pending')   { toast('Your account is awaiting admin approval.','error'); return; }
+    if (user.status==='inactive')  { toast('Your account has been deactivated. Contact your admin.','error'); return; }
+    U = { name:user.name, email:user.email, role:user.role, ini:user.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2), dbId:user.id };
+    await loadUserSession();
+    await startApp();
+  } catch(e) { toast('Login error: '+e.message,'error'); }
+  finally { setLoading(false); }
 }
 
-function loginAdmin() {
-  U = { name:'Faheem Khota', email:'faheem.khota@iol.co.za', role:'admin', ini:'FK' };
-  startApp();
-}
-
-function doReg() {
+async function doReg() {
   const n = document.getElementById('reg-name').value.trim();
   const e = document.getElementById('reg-email').value.trim().toLowerCase();
   const p = document.getElementById('reg-pass').value;
   if (!n||!e||!p) { toast('Please fill in all fields','error'); return; }
-  if (USERS.find(u => u.email.toLowerCase() === e)) {
-    toast('An account with this email already exists.','error'); return;
-  }
-
-  // Check if email was pre-approved by admin (invited)
-  const isInvited = INVITED_EMAILS.map(x=>x.toLowerCase()).includes(e);
-  const status = isInvited ? 'active' : 'pending';
-
-  USERS.push({
-    id: Date.now(), name:n, email:e, role:'cadet',
-    status, enrolled:0, completed:0,
-    joined: new Date().toISOString().slice(0,10),
-    password: p
-  });
-
-  if (isInvited) {
-    // Remove from invite list — used
-    INVITED_EMAILS = INVITED_EMAILS.filter(x => x.toLowerCase() !== e);
-    U = { name:n, email:e, role:'cadet', ini:n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) };
-    startApp();
-  } else {
-    // Show pending message — do NOT log them in
-    showPendingScreen(n);
-  }
-}
-
-function showPendingScreen(name) {
-  document.getElementById('login-form').classList.add('hidden');
-  document.getElementById('reg-form').classList.add('hidden');
-  // Show a pending message in the auth right panel
-  const right = document.querySelector('.auth-right');
-  right.innerHTML = `
-    <div class="auth-fw" style="text-align:center">
-      <div style="font-size:3rem;margin-bottom:1rem">⏳</div>
-      <h2 style="margin-bottom:.5rem">Request Submitted!</h2>
-      <p style="color:var(--muted);margin-bottom:1.5rem">Thanks, <strong>${name}</strong>! Your account is pending approval by an administrator. You'll be able to log in once approved.</p>
-      <p style="font-size:.78rem;color:var(--muted)">Please check back later or contact <a href="mailto:Info@imcs.co.za" style="color:var(--gold)">Info@imcs.co.za</a> if you have any questions.</p>
-      <button class="btn btn-secondary btn-lg" style="margin-top:1.5rem;width:100%;justify-content:center" onclick="location.reload()">Back to Login</button>
-    </div>`;
+  setLoading(true, 'Creating account…');
+  try {
+    // Check if already registered
+    const existing = await sb.query('users', { eq:{email:e} });
+    if (existing.length) { toast('An account with this email already exists.','error'); return; }
+    // Check if invited
+    const invited = await sb.query('invited_emails', { eq:{email:e} });
+    const status = invited.length ? 'active' : 'pending';
+    await sb.insert('users', { name:n, email:e, password:p, role:'cadet', status, enrolled:0, completed:0, joined:new Date().toISOString().slice(0,10) });
+    if (invited.length) {
+      await sb.delete('invited_emails', {email:e});
+      const user = (await sb.query('users', {eq:{email:e}}))[0];
+      U = { name:n, email:e, role:'cadet', ini:n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2), dbId:user.id };
+      await loadUserSession();
+      await startApp();
+    } else {
+      showPendingScreen(n);
+    }
+  } catch(e2) { toast('Registration error: '+e2.message,'error'); }
+  finally { setLoading(false); }
 }
 
 function doLogout() {
-  U=null; ENROLLED=[]; COMPLETED=[]; BADGES=[]; PROG={}; QS={}; CUR=null;
+  U=null; ENROLLED=[]; COMPLETED=[]; BADGES=[]; PROG={}; QS={}; CUR=null; DB_USERS=[];
   document.getElementById('app').classList.add('hidden');
   document.getElementById('auth-screen').classList.remove('hidden');
   document.getElementById('login-email').value='';
   document.getElementById('login-pass').value='';
   showLogin();
 }
+
+function showPendingScreen(name) {
+  document.getElementById('login-form').classList.add('hidden');
+  document.getElementById('reg-form').classList.add('hidden');
+  const right = document.querySelector('.auth-right');
+  right.innerHTML = `
+    <div class="auth-fw" style="text-align:center">
+      <div style="font-size:3rem;margin-bottom:1rem">⏳</div>
+      <h2 style="margin-bottom:.5rem">Request Submitted!</h2>
+      <p style="color:var(--muted);margin-bottom:1.5rem">Thanks, <strong>${name}</strong>! Your account is pending approval. You'll be able to log in once an admin approves you.</p>
+      <p style="font-size:.78rem;color:var(--muted)">Contact <a href="mailto:Info@imcs.co.za" style="color:var(--gold)">Info@imcs.co.za</a> if you have any questions.</p>
+      <button class="btn btn-secondary btn-lg" style="margin-top:1.5rem;width:100%;justify-content:center" onclick="location.reload()">Back to Login</button>
+    </div>`;
+}
+
 function showReg()   { document.getElementById('login-form').classList.add('hidden');  document.getElementById('reg-form').classList.remove('hidden'); }
 function showLogin() { document.getElementById('reg-form').classList.add('hidden');    document.getElementById('login-form').classList.remove('hidden'); }
 
-function startApp() {
+// ── LOAD USER SESSION (enrollments, badges, progress) ──
+async function loadUserSession() {
+  if (!U?.dbId) return;
+  try {
+    const enr = await sb.query('enrollments', { eq:{user_id:U.dbId} });
+    ENROLLED  = enr.map(e=>e.course_id);
+    COMPLETED = enr.filter(e=>e.completed).map(e=>e.course_id);
+    PROG      = {};
+    enr.forEach(e=>{ PROG[e.course_id]=e.progress; });
+    const bdg = await sb.query('badges', { eq:{user_id:U.dbId} });
+    BADGES    = bdg.map(b=>b.course_id);
+  } catch(e) { console.warn('Session load error:', e); }
+}
+
+// ── LOADING OVERLAY ──
+function setLoading(on, msg='') {
+  let ov = document.getElementById('loading-overlay');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'loading-overlay';
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(10,10,15,.7);backdrop-filter:blur(4px);z-index:900;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;gap:1rem';
+    ov.innerHTML = `<div style="width:36px;height:36px;border:3px solid rgba(200,168,75,.3);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite"></div><div id="loading-msg" style="font-size:.875rem;color:rgba(255,255,255,.7)"></div>`;
+    const style = document.createElement('style');
+    style.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+    document.head.appendChild(style);
+    document.body.appendChild(ov);
+  }
+  ov.style.display = on ? 'flex' : 'none';
+  const m = document.getElementById('loading-msg');
+  if (m) m.textContent = msg;
+}
+
+// ── START APP ──
+async function startApp() {
   initChat();
   document.getElementById('auth-screen').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
+  // Load branding from DB
+  try {
+    const b = await sb.query('branding', { eq:{id:1} });
+    if (b.length) {
+      BRAND.name = b[0].name;
+      BRAND.tagline = b[0].tagline;
+      BRAND.primaryColor = b[0].primary_color;
+      BRAND.logoUrl = b[0].logo_url || null;
+    }
+  } catch(e) {}
+  // Load video/image overrides
+  try {
+    const vids = await sb.query('video_overrides');
+    vids.forEach(v => { VID_OVERRIDES[v.course_id] = { url:v.url, type:v.type }; });
+    const imgs = await sb.query('image_overrides');
+    imgs.forEach(i => { IMG_OVERRIDES[i.course_id] = i.url; });
+  } catch(e) {}
+  // Load announcements
+  try {
+    DB_ANNOUNCEMENTS = await sb.query('announcements', { order:'created_at.desc' });
+  } catch(e) {}
   applyBranding();
   syncUI();
   if (U.role==='admin') {
@@ -710,143 +800,111 @@ function startApp() {
   nav('dashboard');
 }
 
-function updatePendingBadge() {
-  // Show a badge on the Admin nav item when there are pending users
-  const adminNavItem = document.querySelector('.nav-item.admin-item');
-  if (!adminNavItem) return;
-  const pending = USERS.filter(u => u.status === 'pending').length;
-  const existing = adminNavItem.querySelector('.nbadge');
-  if (existing) existing.remove();
-  if (pending > 0) {
-    const badge = document.createElement('span');
-    badge.className = 'nbadge';
-    badge.style.background = '#ef4444';
-    badge.style.color = '#fff';
-    badge.textContent = pending;
-    adminNavItem.appendChild(badge);
-  }
-}
-
 // ── BRANDING ──
 function applyBranding() {
-  // Update CSS primary colour
   document.documentElement.style.setProperty('--gold', BRAND.primaryColor);
-  // Sidebar brand name
   const bn = document.querySelector('.brand-name');
   if (bn) {
-    if (BRAND.logoUrl) {
-      bn.innerHTML = `<img src="${BRAND.logoUrl}" style="height:28px;object-fit:contain;max-width:160px" alt="logo">`;
-    } else {
-      bn.innerHTML = `${BRAND.name}<span>${BRAND.tagline}</span>`;
-    }
+    if (BRAND.logoUrl) bn.innerHTML = `<img src="${BRAND.logoUrl}" style="height:28px;object-fit:contain;max-width:160px" alt="logo">`;
+    else bn.innerHTML = `${BRAND.name}<span>${BRAND.tagline}</span>`;
   }
-  // Auth page brand
-  const ab = document.querySelector('.auth-brand');
-  if (ab) {
-    if (BRAND.logoUrl) {
-      ab.innerHTML = `<img src="${BRAND.logoUrl}" style="height:36px;object-fit:contain" alt="logo">`;
-    } else {
-      const [first, ...rest] = BRAND.name.split('');
-      ab.innerHTML = `${BRAND.name.slice(0,-BRAND.name.length/2)}<span>${BRAND.name.slice(BRAND.name.length/2)}</span>`;
-      ab.textContent = '';
-      ab.innerHTML = BRAND.name.slice(0, Math.ceil(BRAND.name.length/2)) + `<span>${BRAND.name.slice(Math.ceil(BRAND.name.length/2))}</span>`;
-    }
-  }
-  // Page title
   document.title = BRAND.name + ' — ' + BRAND.tagline;
 }
 
 function syncUI() {
-  ['sb-ava','top-ava'].forEach(id => document.getElementById(id).textContent = U.ini);
-  document.getElementById('sb-name').textContent = U.name;
-  document.getElementById('sb-role').textContent = U.role==='admin' ? 'Administrator' : 'Cadet';
-  document.getElementById('prof-ava').textContent = U.ini;
-  document.getElementById('prof-name').textContent = U.name;
-  document.getElementById('prof-email').textContent = U.email;
-  document.getElementById('prof-role').textContent = U.role==='admin' ? 'Administrator' : 'Cadet';
-  document.getElementById('cert-name').textContent = U.name;
-  document.getElementById('edit-name').value = U.name;
-  document.getElementById('edit-email').value = U.email;
+  ['sb-ava','top-ava'].forEach(id=>document.getElementById(id).textContent=U.ini);
+  document.getElementById('sb-name').textContent=U.name;
+  document.getElementById('sb-role').textContent=U.role==='admin'?'Administrator':'Cadet';
+  document.getElementById('prof-ava').textContent=U.ini;
+  document.getElementById('prof-name').textContent=U.name;
+  document.getElementById('prof-email').textContent=U.email;
+  document.getElementById('prof-role').textContent=U.role==='admin'?'Administrator':'Cadet';
+  document.getElementById('cert-name').textContent=U.name;
+  document.getElementById('edit-name').value=U.name;
+  document.getElementById('edit-email').value=U.email;
 }
 
-// ── NAVIGATION ──
+async function updatePendingBadge() {
+  try {
+    const pending = await sb.query('users', { eq:{status:'pending'} });
+    const adminNavItem = document.querySelector('.nav-item.admin-item');
+    if (!adminNavItem) return;
+    const existing = adminNavItem.querySelector('.nbadge');
+    if (existing) existing.remove();
+    if (pending.length>0) {
+      const badge=document.createElement('span'); badge.className='nbadge';
+      badge.style.cssText='background:#ef4444;color:#fff'; badge.textContent=pending.length;
+      adminNavItem.appendChild(badge);
+    }
+  } catch(e){}
+}
+
+// ── NAV ──
 function nav(p) {
-  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
-  const el = document.getElementById('page-'+p); if (el) el.classList.add('active');
-  const ni = document.querySelector(`.nav-item[onclick="nav('${p}')"]`); if (ni) ni.classList.add('active');
-  const TT = { dashboard:'Dashboard', courses:'Learning Modules', programs:'My Programs', chat:'Member Chat', resources:'Resources', profile:'My Profile', contact:'Contact Us', admin:'Admin Panel', 'course-detail':'Course Detail', quiz:'Quiz' };
-  document.getElementById('pg-title').textContent = TT[p]||p;
-  if (p==='profile')  renderProfile();
-  if (p==='programs') renderProgs('enrolled');
-  if (p==='admin')    renderAdmin();
-  if (p==='chat')     renderMsgs();
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+  const el=document.getElementById('page-'+p); if(el) el.classList.add('active');
+  const ni=document.querySelector(`.nav-item[onclick="nav('${p}')"]`); if(ni) ni.classList.add('active');
+  const TT={dashboard:'Dashboard',courses:'Learning Modules',programs:'My Programs',chat:'Member Chat',resources:'Resources',profile:'My Profile',contact:'Contact Us',admin:'Admin Panel','course-detail':'Course Detail',quiz:'Quiz'};
+  document.getElementById('pg-title').textContent=TT[p]||p;
+  if(p==='profile')  renderProfile();
+  if(p==='programs') renderProgs('enrolled');
+  if(p==='admin')    renderAdmin();
+  if(p==='chat')     renderMsgs();
   window.scrollTo(0,0);
 }
 function toggleSB() { document.getElementById('sidebar').classList.toggle('open'); }
 
 // ── DASHBOARD ──
 function renderDash() {
-  document.getElementById('h-total').textContent = allC().length;
-  document.getElementById('s-enrolled').textContent = ENROLLED.length;
-  document.getElementById('s-completed').textContent = COMPLETED.length;
-  document.getElementById('s-badges').textContent = BADGES.length;
-  document.getElementById('s-certs').textContent = COMPLETED.length;
-  const g = document.getElementById('dash-grid'); g.innerHTML='';
-  const di = document.getElementById('dash-enrolled');
-  // Announcements banner
-  const existing = document.getElementById('announce-banner');
-  if (existing) existing.remove();
-  if (ANNOUNCEMENTS.length>0) {
-    const latest = ANNOUNCEMENTS[ANNOUNCEMENTS.length-1];
-    const banner = document.createElement('div');
-    banner.id = 'announce-banner';
-    banner.style.cssText = 'background:linear-gradient(135deg,#1a2a0f,#2a3a1a);border:1px solid rgba(200,168,75,.3);border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:.875rem;color:#fff';
-    banner.innerHTML = `<span style="font-size:1.5rem">📢</span><div style="flex:1"><div style="font-size:.82rem;font-weight:700;color:var(--gold)">${latest.title}</div><div style="font-size:.78rem;color:rgba(255,255,255,.65);margin-top:.15rem">${latest.body}</div></div><button onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:1.1rem;cursor:pointer;padding:.25rem">✕</button>`;
+  document.getElementById('h-total').textContent=allC().length;
+  document.getElementById('s-enrolled').textContent=ENROLLED.length;
+  document.getElementById('s-completed').textContent=COMPLETED.length;
+  document.getElementById('s-badges').textContent=BADGES.length;
+  document.getElementById('s-certs').textContent=COMPLETED.length;
+  const g=document.getElementById('dash-grid'); g.innerHTML='';
+  const di=document.getElementById('dash-enrolled');
+  // Announcement banner
+  const existing=document.getElementById('announce-banner'); if(existing) existing.remove();
+  if(DB_ANNOUNCEMENTS.length>0) {
+    const latest=DB_ANNOUNCEMENTS[0];
+    const banner=document.createElement('div'); banner.id='announce-banner';
+    banner.style.cssText='background:linear-gradient(135deg,#1a2a0f,#2a3a1a);border:1px solid rgba(200,168,75,.3);border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:.875rem;color:#fff';
+    banner.innerHTML=`<span style="font-size:1.5rem">📢</span><div style="flex:1"><div style="font-size:.82rem;font-weight:700;color:var(--gold)">${latest.title}</div><div style="font-size:.78rem;color:rgba(255,255,255,.65);margin-top:.15rem">${latest.body}</div></div><button onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:1.1rem;cursor:pointer;padding:.25rem">✕</button>`;
     document.querySelector('#page-dashboard .cw').insertBefore(banner, document.querySelector('#page-dashboard .stats-grid'));
   }
-  if (ENROLLED.length===0) {
-    di.style.display='block'; g.style.display='none';
-  } else {
-    di.style.display='none'; g.style.display='';
-    ENROLLED.slice(0,3).forEach(id=>{ const c=allC().find(x=>x.id===id); if(c) g.appendChild(makeCard(c,true)); });
-  }
+  if(ENROLLED.length===0) { di.style.display='block'; g.style.display='none'; }
+  else { di.style.display='none'; g.style.display=''; ENROLLED.slice(0,3).forEach(id=>{const c=allC().find(x=>x.id===id);if(c)g.appendChild(makeCard(c,true));}); }
 }
 
 // ── COURSES ──
 function renderCourses() {
-  const cats = ['all','Editorial','Sales',...new Set(CUSTOM.map(c=>c.cat).filter(c=>!['Editorial','Sales'].includes(c)))];
-  const fr = document.getElementById('course-filters'); fr.innerHTML='';
+  const cats=['all','Editorial','Sales',...new Set(CUSTOM.map(c=>c.cat).filter(c=>!['Editorial','Sales'].includes(c)))];
+  const fr=document.getElementById('course-filters'); fr.innerHTML='';
   cats.forEach((cat,i)=>{
     const ch=document.createElement('div'); ch.className='fchip'+(i===0?' active':'');
-    ch.textContent=cat==='all'?'All Programs':cat;
-    ch.onclick=()=>filterC(cat,ch); fr.appendChild(ch);
+    ch.textContent=cat==='all'?'All Programs':cat; ch.onclick=()=>filterC(cat,ch); fr.appendChild(ch);
   });
   const g=document.getElementById('courses-grid'); g.innerHTML='';
   allC().forEach(c=>g.appendChild(makeCard(c)));
 }
-
 function filterC(cat,el) {
   document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('active')); el.classList.add('active');
   const g=document.getElementById('courses-grid'); g.innerHTML='';
   (cat==='all'?allC():allC().filter(c=>c.cat===cat)).forEach(c=>g.appendChild(makeCard(c)));
 }
-
 function searchCourses(val) {
-  const g=document.getElementById('courses-grid'); if(!g) return;
-  g.innerHTML='';
+  const g=document.getElementById('courses-grid'); if(!g) return; g.innerHTML='';
   const v=val.toLowerCase();
   (v?allC().filter(c=>c.title.toLowerCase().includes(v)||c.cat.toLowerCase().includes(v)||(c.about||'').toLowerCase().includes(v)):allC()).forEach(c=>g.appendChild(makeCard(c)));
 }
-
 function getThumb(c) {
-  if (IMG_OVERRIDES[c.id]) return IMG_OVERRIDES[c.id];
-  if (typeof COURSE_IMAGES!=='undefined' && COURSE_IMAGES[c.id]) return COURSE_IMAGES[c.id];
+  if(IMG_OVERRIDES[c.id]) return IMG_OVERRIDES[c.id];
+  if(typeof COURSE_IMAGES!=='undefined'&&COURSE_IMAGES[c.id]) return COURSE_IMAGES[c.id];
   return null;
 }
-
-function makeCard(c, showP=false) {
-  const isE=ENROLLED.includes(c.id), isDone=COMPLETED.includes(c.id), p=PROG[c.id]||0;
+function makeCard(c,showP=false) {
+  const isE=ENROLLED.includes(c.id),isDone=COMPLETED.includes(c.id),p=PROG[c.id]||0;
   const thumb=getThumb(c);
   const div=document.createElement('div'); div.className='course-card';
   div.innerHTML=`
@@ -885,16 +943,12 @@ function openCourse(id) {
   document.getElementById('enroll-btn').textContent=ENROLLED.includes(id)?'Continue Learning':'Enroll Now';
   renderMods();
   const va=document.getElementById('vid-area');
-  const vidUrl=(VID_OVERRIDES[id]||{}).url || (typeof DEFAULT_VIDS!=='undefined'?DEFAULT_VIDS[id]:null);
+  const vidUrl=(VID_OVERRIDES[id]||{}).url||(typeof DEFAULT_VIDS!=='undefined'?DEFAULT_VIDS[id]:null);
   va.className='vid-area';
-  if (vidUrl) {
-    va.innerHTML=`<iframe src="${vidUrl}" allowfullscreen allow="autoplay" style="width:100%;height:100%;border:none"></iframe>`;
-  } else {
-    va.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg><span>Video lesson will appear here</span>`;
-  }
+  if(vidUrl) va.innerHTML=`<iframe src="${vidUrl}" allowfullscreen allow="autoplay" style="width:100%;height:100%;border:none"></iframe>`;
+  else va.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg><span>Video lesson will appear here</span>`;
   nav('course-detail');
 }
-
 function renderMods() {
   const list=document.getElementById('cd-modules'); list.innerHTML='';
   const done=COMPLETED.includes(CUR.id);
@@ -902,30 +956,31 @@ function renderMods() {
     const div=document.createElement('div'); div.className='module-item';
     div.innerHTML=`
       <div class="mhdr" onclick="toggleMod(this)">
-        <div class="mnum ${done?'done':''}">${i+1}</div>
-        <div class="mtitle">${mod.name}</div>
+        <div class="mnum ${done?'done':''}">${i+1}</div><div class="mtitle">${mod.name}</div>
         <div class="msteps-lbl">${mod.steps.length} step${mod.steps.length!==1?'s':''}</div>
         <svg class="mchev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
       <div class="steps-list hidden">
-        ${mod.steps.map(s=>`
-          <div class="step-item">
-            <div class="step-check ${done?'done':''}">${done?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`:''}</div>
-            <div><div class="step-t">${typeof s==='string'?s:s.t}</div>${typeof s==='object'&&s.d?`<div class="step-d">${s.d}</div>`:''}</div>
-          </div>`).join('')}
+        ${mod.steps.map(s=>`<div class="step-item">
+          <div class="step-check ${done?'done':''}">${done?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`:''}</div>
+          <div><div class="step-t">${typeof s==='string'?s:s.t}</div>${typeof s==='object'&&s.d?`<div class="step-d">${s.d}</div>`:''}</div>
+        </div>`).join('')}
       </div>`;
     list.appendChild(div);
   });
 }
-
 function toggleMod(el) { const l=el.nextElementSibling,c=el.querySelector('.mchev'); l.classList.toggle('hidden'); c.classList.toggle('open'); }
 
-function enrollCourse() {
-  if(!CUR) return;
-  if(!ENROLLED.includes(CUR.id)){ ENROLLED.push(CUR.id); PROG[CUR.id]=0; }
+async function enrollCourse() {
+  if(!CUR||!U?.dbId) return;
+  if(!ENROLLED.includes(CUR.id)) {
+    try {
+      await sb.upsert('enrollments', { user_id:U.dbId, course_id:CUR.id, progress:0, completed:false });
+      ENROLLED.push(CUR.id); PROG[CUR.id]=0;
+      await sb.update('users', { enrolled:ENROLLED.length }, { id:U.dbId });
+    } catch(e) { toast('Error enrolling: '+e.message,'error'); return; }
+  }
   document.getElementById('enroll-btn').textContent='Continue Learning';
-  // Update user record
-  const ur=USERS.find(u=>u.email===U.email); if(ur) ur.enrolled=ENROLLED.length;
   renderDash(); toast('Enrolled in '+CUR.title+'!','success');
 }
 
@@ -935,13 +990,12 @@ function startQuiz(c) {
   QS={c,qs:c.quiz,cur:0,ans:[],done:false};
   nav('quiz'); renderQuiz();
 }
-
 function renderQuiz() {
   const body=document.getElementById('quiz-body');
   document.getElementById('quiz-title').textContent=QS.c.title+' — Quiz';
-  if(QS.done){
+  if(QS.done) {
     const sc=QS.ans.filter((a,i)=>a===QS.qs[i].ans).length;
-    const pct=Math.round(sc/QS.qs.length*100), pass=pct>=70;
+    const pct=Math.round(sc/QS.qs.length*100),pass=pct>=70;
     body.innerHTML=`
       <div class="question-card" style="text-align:center;padding:2.25rem">
         <div class="score-circle"><div class="score-num">${pct}%</div><div class="score-lbl">${sc}/${QS.qs.length}</div></div>
@@ -972,18 +1026,23 @@ function renderQuiz() {
       <button class="btn btn-primary btn-sm" id="qnxt" onclick="nextQ()" ${QS.ans[QS.cur]===undefined?'disabled':''}>${QS.cur===QS.qs.length-1?'Submit Quiz':'Next →'}</button>
     </div>`;
 }
-function pickOpt(i,el) { QS.ans[QS.cur]=i; el.closest('.opts').querySelectorAll('.opt-btn').forEach(b=>b.classList.remove('selected')); el.classList.add('selected'); const n=document.getElementById('qnxt'); if(n) n.removeAttribute('disabled'); }
+function pickOpt(i,el) { QS.ans[QS.cur]=i; el.closest('.opts').querySelectorAll('.opt-btn').forEach(b=>b.classList.remove('selected')); el.classList.add('selected'); const n=document.getElementById('qnxt'); if(n)n.removeAttribute('disabled'); }
 function nextQ() { if(QS.ans[QS.cur]===undefined)return; if(QS.cur<QS.qs.length-1){QS.cur++;renderQuiz();}else{QS.done=true;renderQuiz();} }
 function prevQ() { if(QS.cur>0){QS.cur--;renderQuiz();} }
 function backToCourse() { nav('course-detail'); }
-function awardAll() {
+async function awardAll() {
   const cid=QS.c.id;
-  if(!COMPLETED.includes(cid)) COMPLETED.push(cid);
-  if(!BADGES.includes(cid)) BADGES.push(cid);
-  if(!ENROLLED.includes(cid)) ENROLLED.push(cid);
-  PROG[cid]=100;
-  const ur=USERS.find(u=>u.email===U.email); if(ur){ ur.enrolled=ENROLLED.length; ur.completed=COMPLETED.length; }
-  renderDash(); toast('🏅 Badge earned! 🎓 Certificate ready!','success'); openCert(cid);
+  if(!U?.dbId) return;
+  try {
+    await sb.upsert('enrollments', { user_id:U.dbId, course_id:cid, progress:100, completed:true });
+    await sb.upsert('badges',      { user_id:U.dbId, course_id:cid });
+    if(!COMPLETED.includes(cid)) COMPLETED.push(cid);
+    if(!BADGES.includes(cid))    BADGES.push(cid);
+    if(!ENROLLED.includes(cid))  ENROLLED.push(cid);
+    PROG[cid]=100;
+    await sb.update('users', { enrolled:ENROLLED.length, completed:COMPLETED.length }, { id:U.dbId });
+    renderDash(); toast('🏅 Badge earned! 🎓 Certificate ready!','success'); openCert(cid);
+  } catch(e) { toast('Error saving progress: '+e.message,'error'); }
 }
 
 // ── PROFILE ──
@@ -997,11 +1056,16 @@ function renderProfile() {
   allC().forEach(c=>{ const earned=BADGES.includes(c.id); const d=document.createElement('div'); d.className='badge-item'; d.innerHTML=`<div class="badge-circle ${earned?'':'locked'}" title="${c.title}">${c.badge||'📚'}</div><div class="badge-name">${c.title.split(':')[0].split(' ')[0]}</div>`; bg.appendChild(d); });
   const cl=document.getElementById('prof-certs'); cl.innerHTML='';
   if(!COMPLETED.length){ cl.innerHTML='<div style="color:var(--muted);font-size:.82rem;text-align:center;padding:1.25rem">Complete a course to earn your first certificate!</div>'; return; }
-  COMPLETED.forEach(id=>{ const c=allC().find(x=>x.id===id); if(!c)return; const d=document.createElement('div'); d.className='cert-item'; d.innerHTML=`<div class="cert-icon">🎓</div><div style="flex:1"><div style="font-weight:700;font-size:.875rem;margin-bottom:.1rem">${c.title}</div><div style="font-size:.75rem;color:var(--muted)">${BRAND.name} · IMCS · Completed</div></div><button class="btn btn-secondary btn-sm" onclick="openCert(${id})">Download</button>`; cl.appendChild(d); });
+  COMPLETED.forEach(id=>{ const c=allC().find(x=>x.id===id); if(!c)return; const d=document.createElement('div'); d.className='cert-item'; d.innerHTML=`<div class="cert-icon">🎓</div><div style="flex:1"><div style="font-weight:700;font-size:.875rem;margin-bottom:.1rem">${c.title}</div><div style="font-size:.75rem;color:var(--muted)">${BRAND.name} · Completed</div></div><button class="btn btn-secondary btn-sm" onclick="openCert(${id})">Download</button>`; cl.appendChild(d); });
 }
 function toggleEditProf() { const c=document.getElementById('edit-prof'); c.style.display=c.style.display==='none'?'block':'none'; }
-function saveProf() { const n=document.getElementById('edit-name').value||U.name; U.name=n; U.ini=n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2); const ur=USERS.find(u=>u.email===U.email); if(ur) ur.name=n; syncUI(); document.getElementById('edit-prof').style.display='none'; toast('Profile updated!','success'); }
-function handleAva(e) { const f=e.target.files[0]; if(!f)return; const url=URL.createObjectURL(f); ['prof-ava','sb-ava','top-ava'].forEach(id=>{ const el=document.getElementById(id); el.innerHTML=`<img src="${url}" alt="avatar">`; }); toast('Photo updated!','success'); }
+async function saveProf() {
+  const n=document.getElementById('edit-name').value||U.name;
+  U.name=n; U.ini=n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  if(U.dbId) { try { await sb.update('users',{name:n},{id:U.dbId}); }catch(e){} }
+  syncUI(); document.getElementById('edit-prof').style.display='none'; toast('Profile updated!','success');
+}
+function handleAva(e) { const f=e.target.files[0]; if(!f)return; const url=URL.createObjectURL(f); ['prof-ava','sb-ava','top-ava'].forEach(id=>{const el=document.getElementById(id);el.innerHTML=`<img src="${url}" alt="avatar">`;}); toast('Photo updated!','success'); }
 
 // ── CERTIFICATE ──
 function openCert(cid) { const c=allC().find(x=>x.id===cid); if(!c)return; document.getElementById('cert-course').textContent=c.title; document.getElementById('cert-name').textContent=U.name; document.getElementById('cert-date').textContent='Issued '+new Date().toLocaleDateString('en-ZA',{year:'numeric',month:'long',day:'numeric'}); document.getElementById('cert-modal').classList.remove('hidden'); }
@@ -1009,8 +1073,8 @@ function closeCert() { document.getElementById('cert-modal').classList.add('hidd
 function dlCert() {
   const win=window.open('','_blank');
   const html=document.getElementById('cert-preview').outerHTML;
-  win.document.write(`<!DOCTYPE html><html><head><title>Certificate — ${BRAND.name}</title><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet"><style>body{margin:0;padding:2rem;font-family:'Poppins',sans-serif;background:#fff}:root{--gold:${BRAND.primaryColor};--muted:#6b7280;--border:#e5e3dc;--ink:#0a0a0f}.certificate{background:linear-gradient(135deg,#fefef9,#fffef0);border:2px solid var(--gold);border-radius:12px;padding:2.5rem;text-align:center;position:relative;max-width:680px;margin:0 auto}.cert-border{position:absolute;inset:10px;border:1px solid rgba(200,168,75,.3);border-radius:8px}.cert-logo{font-size:.9rem;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.12em;margin-bottom:1.25rem}.cert-title{font-size:.7rem;text-transform:uppercase;letter-spacing:.2em;color:var(--muted);margin-bottom:.4rem}.cert-main{font-size:1.8rem;font-weight:800;margin-bottom:.4rem}.cert-sub{font-size:.85rem;color:var(--muted);margin-bottom:1.25rem}.cert-course-name{font-size:1.25rem;font-weight:800;color:var(--gold);margin-bottom:1.25rem;border-bottom:2px solid rgba(200,168,75,.3);padding-bottom:.875rem}.cert-footer{display:flex;justify-content:space-between;align-items:flex-end;margin-top:1.75rem;padding-top:1.25rem;border-top:1px solid var(--border);font-size:.72rem;color:var(--muted)}.cert-sig-line{width:90px;height:1px;background:var(--ink);margin:.4rem auto .2rem}</style></head><body>${html}<script>window.print()<\/script></body></html>`);
-  win.document.close(); toast('Certificate opened — use Ctrl+P / Cmd+P to save as PDF!','success');
+  win.document.write(`<!DOCTYPE html><html><head><title>Certificate</title><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet"><style>body{margin:0;padding:2rem;font-family:'Poppins',sans-serif}:root{--gold:${BRAND.primaryColor};--muted:#6b7280;--border:#e5e3dc;--ink:#0a0a0f}.certificate{background:linear-gradient(135deg,#fefef9,#fffef0);border:2px solid var(--gold);border-radius:12px;padding:2.5rem;text-align:center;position:relative;max-width:680px;margin:0 auto}.cert-border{position:absolute;inset:10px;border:1px solid rgba(200,168,75,.3);border-radius:8px}.cert-logo{font-size:.9rem;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.12em;margin-bottom:1.25rem}.cert-title{font-size:.7rem;text-transform:uppercase;letter-spacing:.2em;color:var(--muted);margin-bottom:.4rem}.cert-main{font-size:1.8rem;font-weight:800;margin-bottom:.4rem}.cert-sub{font-size:.85rem;color:var(--muted);margin-bottom:1.25rem}.cert-course-name{font-size:1.25rem;font-weight:800;color:var(--gold);margin-bottom:1.25rem;border-bottom:2px solid rgba(200,168,75,.3);padding-bottom:.875rem}.cert-footer{display:flex;justify-content:space-between;align-items:flex-end;margin-top:1.75rem;padding-top:1.25rem;border-top:1px solid var(--border);font-size:.72rem;color:var(--muted)}.cert-sig-line{width:90px;height:1px;background:var(--ink);margin:.4rem auto .2rem}</style></head><body>${html}<script>window.print()<\/script></body></html>`);
+  win.document.close(); toast('Certificate opened — Ctrl+P / Cmd+P to save as PDF!','success');
 }
 
 // ── MY PROGRAMS ──
@@ -1026,25 +1090,15 @@ function renderProgs(tab) {
 function switchPT(tab,el) { document.querySelectorAll('.prog-tab').forEach(t=>t.classList.remove('active')); el.classList.add('active'); renderProgs(tab); }
 
 // ── CHAT ──
-function renderRooms() {
-  const list=document.getElementById('chat-rooms'); list.innerHTML='';
-  CHAT_ROOMS.forEach(r=>{ const d=document.createElement('div'); d.className='cri-wrap'+(r.id===ROOM?' active':''); d.innerHTML=`<div class="cri-icon">${r.icon}</div><div style="flex:1;overflow:hidden"><div class="cr-name">#${r.name}</div><div class="cr-prev">${r.prev}</div></div>`; d.onclick=()=>switchRoom(r.id); list.appendChild(d); });
-}
+function renderRooms() { const list=document.getElementById('chat-rooms'); list.innerHTML=''; CHAT_ROOMS.forEach(r=>{ const d=document.createElement('div'); d.className='cri-wrap'+(r.id===ROOM?' active':''); d.innerHTML=`<div class="cri-icon">${r.icon}</div><div style="flex:1;overflow:hidden"><div class="cr-name">#${r.name}</div><div class="cr-prev">${r.prev}</div></div>`; d.onclick=()=>switchRoom(r.id); list.appendChild(d); }); }
 function switchRoom(id) { ROOM=id; const r=CHAT_ROOMS.find(x=>x.id===id); document.getElementById('chat-rname').textContent='#'+r.name; document.getElementById('chat-rdesc').textContent=r.desc; document.getElementById('chat-icon').textContent=r.icon; renderRooms(); renderMsgs(); }
-function renderMsgs() {
-  const area=document.getElementById('msgs-area'); area.innerHTML='';
-  (CMSGS[ROOM]||[]).forEach(m=>{ const d=document.createElement('div'); d.className='msg'+(m.own?' own':''); d.innerHTML=`${!m.own?`<div class="msg-ava" style="background:${sclr(m.u)}">${m.i||m.u.slice(0,2).toUpperCase()}</div>`:''}<div>${!m.own?`<div style="font-size:.72rem;font-weight:600;margin-bottom:.15rem;color:var(--muted)">${m.u}</div>`:''}<div class="msg-bubble">${m.msg}</div><div class="msg-meta">${m.t}</div></div>${m.own?`<div class="msg-ava" style="background:var(--ink);color:#fff">${U.ini}</div>`:''}`; area.appendChild(d); });
-  area.scrollTop=area.scrollHeight;
-}
+function renderMsgs() { const area=document.getElementById('msgs-area'); area.innerHTML=''; (CMSGS[ROOM]||[]).forEach(m=>{ const d=document.createElement('div'); d.className='msg'+(m.own?' own':''); d.innerHTML=`${!m.own?`<div class="msg-ava" style="background:${sclr(m.u)}">${m.i||m.u.slice(0,2).toUpperCase()}</div>`:''}<div>${!m.own?`<div style="font-size:.72rem;font-weight:600;margin-bottom:.15rem;color:var(--muted)">${m.u}</div>`:''}<div class="msg-bubble">${m.msg}</div><div class="msg-meta">${m.t}</div></div>${m.own?`<div class="msg-ava" style="background:var(--ink);color:#fff">${U.ini}</div>`:''}`; area.appendChild(d); }); area.scrollTop=area.scrollHeight; }
 function sclr(s) { const c=['#c8a84b','#2c3e50','#8B4513','#1a3a5c','#4a1a5c','#1a5c3a','#8e44ad']; let h=0; for(let i=0;i<s.length;i++) h=s.charCodeAt(i)+((h<<5)-h); return c[Math.abs(h)%c.length]; }
 function sendMsg() { const inp=document.getElementById('chat-input'); const txt=inp.value.trim(); if(!txt)return; if(!CMSGS[ROOM])CMSGS[ROOM]=[]; CMSGS[ROOM].push({u:U.name,i:U.ini,msg:txt,t:new Date().toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'}),own:true}); inp.value=''; renderMsgs(); }
 function chatKey(e) { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();} }
 
 // ── RESOURCES ──
-function renderRes() {
-  const g=document.getElementById('res-grid'); g.innerHTML='';
-  RESOURCES.forEach((r,i)=>{ const d=document.createElement('div'); d.className='res-card'; d.innerHTML=`<div class="res-thumb" style="background:linear-gradient(135deg,#2c3e50,#1a2a3a)">${r.emoji}</div><div class="res-body"><div class="res-type">${r.type}</div><div class="res-title">${r.title}</div><div class="res-desc">${r.desc}</div><div style="margin-top:.75rem"><a href="${r.url}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" onclick="event.stopPropagation()">Open →</a></div></div>`; g.appendChild(d); });
-}
+function renderRes() { const g=document.getElementById('res-grid'); g.innerHTML=''; RESOURCES.forEach((r,i)=>{ const d=document.createElement('div'); d.className='res-card'; d.innerHTML=`<div class="res-thumb" style="background:linear-gradient(135deg,#2c3e50,#1a2a3a)">${r.emoji}</div><div class="res-body"><div class="res-type">${r.type}</div><div class="res-title">${r.title}</div><div class="res-desc">${r.desc}</div><div style="margin-top:.75rem"><a href="${r.url}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" onclick="event.stopPropagation()">Open →</a></div></div>`; g.appendChild(d); }); }
 
 // ════════════════════════════════════════════════════════════
 // ADMIN PANEL
@@ -1052,54 +1106,57 @@ function renderRes() {
 function renderAdmin() { renderAC(ADMIN_TAB); }
 function switchAT(tab,el) { document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active')); el.classList.add('active'); ADMIN_TAB=tab; renderAC(tab); }
 
-function renderAC(tab) {
+async function renderAC(tab) {
   const c=document.getElementById('admin-content');
+  c.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;padding:3rem;color:var(--muted)"><div style="text-align:center"><div style="font-size:1.5rem;margin-bottom:.5rem">⏳</div><div>Loading…</div></div></div>`;
 
   // ── USERS ──
   if (tab==='users') {
-    const searchVal = window._userSearch||'';
-    const pending   = USERS.filter(u => u.status === 'pending');
-    const filtered  = USERS.filter(u => {
-      const matchSearch = !searchVal || u.name.toLowerCase().includes(searchVal) || u.email.toLowerCase().includes(searchVal);
-      return matchSearch;
-    });
+    let allUsers=[], pending=[];
+    try {
+      allUsers = await sb.query('users', { order:'joined.asc' });
+      pending  = allUsers.filter(u=>u.status==='pending');
+    } catch(e) { c.innerHTML=`<div style="color:var(--red);padding:1.25rem">Error loading users: ${e.message}</div>`; return; }
+
+    const searchVal=window._userSearch||'';
+    const filterVal=window._userFilter||'all';
+    let display=allUsers;
+    if(searchVal) display=display.filter(u=>u.name.toLowerCase().includes(searchVal)||u.email.toLowerCase().includes(searchVal));
+    if(filterVal==='pending')  display=display.filter(u=>u.status==='pending');
+    if(filterVal==='active')   display=display.filter(u=>u.status==='active'&&u.role!=='admin');
+    if(filterVal==='admin')    display=display.filter(u=>u.role==='admin');
+    if(filterVal==='inactive') display=display.filter(u=>u.status==='inactive');
 
     c.innerHTML=`
-      ${pending.length>0?`
-      <div style="background:linear-gradient(135deg,#fff8e1,#fffde7);border:1px solid #f59e0b;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:.875rem">
+      ${pending.length>0?`<div style="background:linear-gradient(135deg,#fff8e1,#fffde7);border:1px solid #f59e0b;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:.875rem">
         <span style="font-size:1.5rem">⏳</span>
         <div style="flex:1"><div style="font-weight:700;font-size:.875rem;color:#92400e">${pending.length} user${pending.length>1?'s':''} awaiting approval</div>
-        <div style="font-size:.78rem;color:#b45309;margin-top:.1rem">Review and approve or reject below.</div></div>
+        <div style="font-size:.78rem;color:#b45309">Review and approve or reject below. Filter by "Pending Approval" to see them.</div></div>
       </div>`:''}
-
       <div class="section-hdr">
-        <h2>User Management <span style="font-size:.8rem;font-weight:400;color:var(--muted)">(${USERS.filter(u=>u.status==='active').length} active · ${pending.length} pending)</span></h2>
+        <h2>User Management <span style="font-size:.8rem;font-weight:400;color:var(--muted)">(${allUsers.filter(u=>u.status==='active').length} active · ${pending.length} pending)</span></h2>
         <div style="display:flex;gap:.5rem">
           <button class="btn btn-secondary btn-sm" onclick="showBatchInvite()">📧 Batch Invite</button>
           <button class="btn btn-primary btn-sm" onclick="showAddUserModal()">+ Add User</button>
         </div>
       </div>
-
       <div style="display:flex;gap:.75rem;margin-bottom:1.25rem;flex-wrap:wrap">
         <div class="search-bar" style="max-width:280px;background:#fff">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input type="text" placeholder="Search users…" value="${searchVal}" oninput="window._userSearch=this.value;renderAC('users')" style="border:none;outline:none;font-size:.82rem;width:100%;background:none">
         </div>
         <select onchange="window._userFilter=this.value;renderAC('users')" style="padding:.45rem .8rem;border:1px solid var(--border);border-radius:8px;font-size:.82rem;outline:none;background:#fff">
-          <option value="all" ${(window._userFilter||'all')==='all'?'selected':''}>All Users</option>
-          <option value="pending" ${(window._userFilter||'')==='pending'?'selected':''}>Pending Approval</option>
-          <option value="active"  ${(window._userFilter||'')==='active'?'selected':''}>Active</option>
-          <option value="admin"   ${(window._userFilter||'')==='admin'?'selected':''}>Admins</option>
-          <option value="inactive"${(window._userFilter||'')==='inactive'?'selected':''}>Deactivated</option>
+          <option value="all"      ${filterVal==='all'?'selected':''}>All Users</option>
+          <option value="pending"  ${filterVal==='pending'?'selected':''}>Pending Approval</option>
+          <option value="active"   ${filterVal==='active'?'selected':''}>Active Cadets</option>
+          <option value="admin"    ${filterVal==='admin'?'selected':''}>Admins</option>
+          <option value="inactive" ${filterVal==='inactive'?'selected':''}>Deactivated</option>
         </select>
       </div>
-
       <div class="table-wrap"><table>
         <thead><tr><th>User</th><th>Email</th><th>Role</th><th>Status</th><th>Enrolled</th><th>Joined</th><th>Actions</th></tr></thead>
         <tbody id="user-tbody"></tbody>
       </table></div>
-
-      <!-- ADD USER FORM -->
       <div id="add-user-modal" style="display:none;margin-top:1.25rem" class="card">
         <div class="card-header"><h3>Add New User</h3><button class="btn btn-secondary btn-sm" onclick="document.getElementById('add-user-modal').style.display='none'">Cancel</button></div>
         <div class="card-body">
@@ -1112,71 +1169,37 @@ function renderAC(tab) {
           <button class="btn btn-primary" onclick="addUser()">Add User</button>
         </div>
       </div>
-
-      <!-- BATCH INVITE FORM -->
       <div id="batch-invite-modal" style="display:none;margin-top:1.25rem" class="card">
         <div class="card-header"><h3>📧 Batch Invite by Email</h3><button class="btn btn-secondary btn-sm" onclick="document.getElementById('batch-invite-modal').style.display='none'">Cancel</button></div>
         <div class="card-body">
-          <p style="font-size:.82rem;color:var(--muted);margin-bottom:1rem">Add email addresses below (one per line, or comma-separated). These emails will be pre-approved — when users register with these addresses they will go straight in without needing approval.</p>
+          <p style="font-size:.82rem;color:var(--muted);margin-bottom:1rem">Add email addresses below (one per line or comma-separated). These emails will be pre-approved — users who register with them go straight in without needing manual approval.</p>
           <div class="form-group"><label>Email Addresses</label><textarea id="invite-emails" placeholder="jane@imcs.co.za&#10;thabo@imcs.co.za&#10;sarah@imcs.co.za" style="min-height:120px;font-family:monospace;font-size:.82rem"></textarea></div>
-          ${INVITED_EMAILS.length>0?`<div style="margin-bottom:1rem"><div style="font-size:.78rem;font-weight:600;margin-bottom:.4rem">Currently pre-approved (${INVITED_EMAILS.length}):</div><div style="display:flex;flex-wrap:wrap;gap:.4rem">${INVITED_EMAILS.map((e,i)=>`<span style="background:#dcfce7;color:#16a34a;padding:2px 8px;border-radius:20px;font-size:.72rem;display:flex;align-items:center;gap:.3rem">${e}<button onclick="INVITED_EMAILS.splice(${i},1);renderAC('users')" style="background:none;border:none;cursor:pointer;color:#16a34a;font-size:.8rem;padding:0;line-height:1">✕</button></span>`).join('')}</div></div>`:''}
           <button class="btn btn-primary" onclick="saveBatchInvite()">Save Pre-approved Emails</button>
         </div>
       </div>`;
 
-    // Populate table
-    const tbody = document.getElementById('user-tbody');
-    const filterVal = window._userFilter || 'all';
-    let display = filtered;
-    if (filterVal === 'pending')  display = filtered.filter(u => u.status==='pending');
-    if (filterVal === 'active')   display = filtered.filter(u => u.status==='active' && u.role!=='admin');
-    if (filterVal === 'admin')    display = filtered.filter(u => u.role==='admin');
-    if (filterVal === 'inactive') display = filtered.filter(u => u.status==='inactive');
-
-    display.forEach(u => {
-      const isMe = u.email === U.email;
-      const isPending = u.status === 'pending';
-      const tr = document.createElement('tr');
-      if (isPending) tr.style.background = '#fffbeb';
-      tr.innerHTML = `
+    const tbody=document.getElementById('user-tbody');
+    if(!display.length) { tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem">No users found.</td></tr>`; }
+    display.forEach(u=>{
+      const isMe=u.email===U.email;
+      const isPending=u.status==='pending';
+      const tr=document.createElement('tr'); if(isPending) tr.style.background='#fffbeb';
+      tr.innerHTML=`
         <td><div style="display:flex;align-items:center;gap:.65rem">
           <div class="ava" style="background:${sclr(u.name)};color:#fff">${u.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}</div>
           <div><div style="font-weight:600">${u.name}</div>${isMe?'<div style="font-size:.68rem;color:var(--gold)">← You</div>':''}</div>
         </div></td>
         <td style="color:var(--muted);font-size:.82rem">${u.email}</td>
-        <td>
-          ${isMe
-            ? `<span style="font-size:.78rem;font-weight:600;color:var(--gold)">Admin</span>`
-            : `<select onchange="changeUserRole(${u.id},this.value)" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:6px;font-size:.75rem;background:#fff">
-                <option value="cadet" ${u.role==='cadet'?'selected':''}>Cadet</option>
-                <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
-               </select>`}
-        </td>
-        <td>
-          ${isPending
-            ? `<span class="sbadge pending">⏳ Pending</span>`
-            : u.status==='inactive'
-              ? `<span class="sbadge inactive">Inactive</span>`
-              : `<span class="sbadge active">Active</span>`}
-        </td>
+        <td>${isMe?`<span style="font-size:.78rem;font-weight:600;color:var(--gold)">Admin</span>`:`<select onchange="changeUserRole('${u.id}',this.value)" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:6px;font-size:.75rem;background:#fff"><option value="cadet" ${u.role==='cadet'?'selected':''}>Cadet</option><option value="admin" ${u.role==='admin'?'selected':''}>Admin</option></select>`}</td>
+        <td>${isPending?`<span class="sbadge pending">⏳ Pending</span>`:u.status==='inactive'?`<span class="sbadge inactive">Inactive</span>`:`<span class="sbadge active">Active</span>`}</td>
         <td>${u.enrolled}</td>
         <td style="color:var(--muted);font-size:.75rem">${u.joined}</td>
         <td><div style="display:flex;gap:.35rem;flex-wrap:wrap">
-          ${isPending
-            ? `<button class="btn btn-sm" style="background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0" onclick="approveUser(${u.id})">✓ Approve</button>
-               <button class="btn btn-danger btn-sm" onclick="rejectUser(${u.id})">✗ Reject</button>`
-            : !isMe
-              ? `<button class="btn btn-sm" style="background:${u.status==='active'?'#fee2e2':'#dcfce7'};color:${u.status==='active'?'#dc2626':'#16a34a'};border:1px solid ${u.status==='active'?'#fecaca':'#bbf7d0'}" onclick="toggleUserStatus(${u.id})">${u.status==='active'?'Deactivate':'Activate'}</button>`
-              : ''}
-          ${!isMe&&!isPending?`<button class="btn btn-secondary btn-sm" onclick="resetUserPass(${u.id})">Reset Pass</button>`:''}
+          ${isPending?`<button class="btn btn-sm" style="background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0" onclick="approveUser('${u.id}','${u.name}')">✓ Approve</button><button class="btn btn-danger btn-sm" onclick="rejectUser('${u.id}','${u.name}')">✗ Reject</button>`:!isMe?`<button class="btn btn-sm" style="background:${u.status==='active'?'#fee2e2':'#dcfce7'};color:${u.status==='active'?'#dc2626':'#16a34a'};border:1px solid ${u.status==='active'?'#fecaca':'#bbf7d0'}" onclick="toggleUserStatus('${u.id}','${u.status}')">${u.status==='active'?'Deactivate':'Activate'}</button>`:''}
+          ${!isMe&&!isPending?`<button class="btn btn-secondary btn-sm" onclick="resetUserPass('${u.id}','${u.name}')">Reset Pass</button>`:''}
         </div></td>`;
       tbody.appendChild(tr);
     });
-
-    if (display.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem">No users found.</td></tr>`;
-    }
-
 
   // ── COURSES & VIDEOS ──
   } else if (tab==='videos') {
@@ -1205,28 +1228,20 @@ function renderAC(tab) {
                   <button class="vtab" onclick="switchVT(${course.id},'gdrive',this)">🔗 Drive Link</button>
                   <button class="vtab" onclick="switchVT(${course.id},'library',this)">📺 Library</button>
                 </div>
-                <div id="vp-file-${course.id}">
-                  <button class="btn btn-primary btn-sm" onclick="trigVid(${course.id})">⬆ Upload Video</button>
-                  <div style="font-size:.7rem;color:var(--muted);margin-top:.3rem">MP4, MOV, WebM</div>
-                </div>
+                <div id="vp-file-${course.id}"><button class="btn btn-primary btn-sm" onclick="trigVid(${course.id})">⬆ Upload Video</button><div style="font-size:.7rem;color:var(--muted);margin-top:.3rem">MP4, MOV, WebM</div></div>
                 <div id="vp-gdrive-${course.id}" style="display:none">
-                  <div style="display:flex;gap:.75rem;align-items:flex-end">
-                    <div class="form-group" style="margin:0;flex:1"><input type="text" id="gdi-${course.id}" placeholder="Paste Google Drive share link…" value="${ov&&ov.type==='gdrive'?ov.url:''}"></div>
-                    <button class="btn btn-primary btn-sm" onclick="saveGD(${course.id})">Save</button>
-                  </div>
+                  <div style="display:flex;gap:.75rem;align-items:flex-end"><div class="form-group" style="margin:0;flex:1"><input type="text" id="gdi-${course.id}" placeholder="Paste Google Drive share link…" value="${ov&&ov.type==='gdrive'?ov.url:''}"></div><button class="btn btn-primary btn-sm" onclick="saveGD(${course.id})">Save</button></div>
                   <div style="font-size:.7rem;color:var(--muted);margin-top:.3rem">Set sharing to "Anyone with the link can view" first.</div>
                 </div>
                 <div id="vp-library-${course.id}" style="display:none">
                   <div style="font-size:.78rem;font-weight:600;margin-bottom:.5rem">Available videos:</div>
-                  <div style="display:flex;flex-direction:column;gap:.35rem;max-height:180px;overflow-y:auto">
-                    ${typeof EXTRA_VIDS!=='undefined'?EXTRA_VIDS.map(v=>`<button class="btn btn-secondary btn-sm" style="justify-content:flex-start;text-align:left" onclick="useLib(${course.id},'${GD(v.id)}','${v.n}')">▶ ${v.n}</button>`).join(''):''}
-                  </div>
+                  <div style="display:flex;flex-direction:column;gap:.35rem;max-height:180px;overflow-y:auto">${typeof EXTRA_VIDS!=='undefined'?EXTRA_VIDS.map(v=>`<button class="btn btn-secondary btn-sm" style="justify-content:flex-start;text-align:left" onclick="useLib(${course.id},'${GD(v.id)}','${v.n}')">▶ ${v.n}</button>`).join(''):''}</div>
                 </div>
                 ${ov?`<button class="btn btn-danger btn-sm" style="margin-top:.5rem" onclick="rmVid(${course.id})">Restore Default</button>`:''}
               </div>
               <div>
                 <div style="font-size:.75rem;font-weight:600;margin-bottom:.4rem;color:${IMG_OVERRIDES[course.id]?'#2563eb':imgUrl?'var(--success)':'#f59e0b'}">🖼 ${IMG_OVERRIDES[course.id]?'Custom image':'Default image'}</div>
-                ${imgUrl?`<img src="${imgUrl}" style="width:100%;height:80px;object-fit:cover;border-radius:6px;margin-bottom:.5rem" alt="thumb">`:'<div style="width:100%;height:80px;background:var(--paper);border:1px dashed var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.75rem;margin-bottom:.5rem">No image set</div>'}
+                ${imgUrl?`<img src="${imgUrl}" style="width:100%;height:80px;object-fit:cover;border-radius:6px;margin-bottom:.5rem" alt="thumb">`:'<div style="width:100%;height:80px;background:var(--paper);border:1px dashed var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.75rem;margin-bottom:.5rem">No image</div>'}
                 <button class="btn btn-secondary btn-sm" onclick="trigImg(${course.id})">⬆ Upload Image</button>
                 ${IMG_OVERRIDES[course.id]?`<button class="btn btn-danger btn-sm" style="margin-left:.4rem" onclick="rmImg(${course.id})">Remove</button>`:''}
               </div>
@@ -1250,23 +1265,15 @@ function renderAC(tab) {
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
             <div class="form-group"><label>Title</label><input type="text" id="rf-title" placeholder="Resource title"></div>
             <div class="form-group"><label>Type</label><select id="rf-type"><option>Guide</option><option>Document</option><option>Video</option><option>Quiz</option><option>Tool</option><option>Template</option></select></div>
-            <div class="form-group"><label>Emoji Icon</label><input type="text" id="rf-emoji" placeholder="📄" maxlength="4"></div>
+            <div class="form-group"><label>Emoji</label><input type="text" id="rf-emoji" placeholder="📄" maxlength="4"></div>
             <div class="form-group"><label>URL</label><input type="url" id="rf-url" placeholder="https://…"></div>
-            <div class="form-group" style="grid-column:1/-1"><label>Description</label><textarea id="rf-desc" placeholder="Brief description…" style="min-height:70px"></textarea></div>
+            <div class="form-group" style="grid-column:1/-1"><label>Description</label><textarea id="rf-desc" style="min-height:70px"></textarea></div>
           </div>
           <button class="btn btn-primary" onclick="saveResource()">Save Resource</button>
         </div>
       </div>`;
     const tbody=document.getElementById('res-tbody');
-    RESOURCES.forEach((r,i)=>{
-      const tr=document.createElement('tr');
-      tr.innerHTML=`<td style="font-size:1.3rem">${r.emoji}</td><td><strong>${r.title}</strong></td><td><span class="sbadge active">${r.type}</span></td><td><a href="${r.url}" target="_blank" style="color:var(--gold);font-size:.78rem">${r.url.length>40?r.url.slice(0,40)+'…':r.url}</a></td>
-        <td><div style="display:flex;gap:.35rem">
-          <button class="btn btn-secondary btn-sm" onclick="editResource(${i})">Edit</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteResource(${i})">Delete</button>
-        </div></td>`;
-      tbody.appendChild(tr);
-    });
+    RESOURCES.forEach((r,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td style="font-size:1.3rem">${r.emoji}</td><td><strong>${r.title}</strong></td><td><span class="sbadge active">${r.type}</span></td><td><a href="${r.url}" target="_blank" style="color:var(--gold);font-size:.78rem">${r.url.length>40?r.url.slice(0,40)+'…':r.url}</a></td><td><div style="display:flex;gap:.35rem"><button class="btn btn-secondary btn-sm" onclick="editResource(${i})">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteResource(${i})">Delete</button></div></td>`; tbody.appendChild(tr); });
 
   // ── CREATE COURSE ──
   } else if (tab==='create') {
@@ -1277,9 +1284,9 @@ function renderAC(tab) {
           <div class="form-group" style="margin:0"><label>Course Title *</label><input type="text" id="nc-title" placeholder="e.g. Client Relationship Management"></div>
           <div class="form-group" style="margin:0"><label>Category *</label><select id="nc-cat"><option value="">Select category</option><option>Editorial</option><option>Sales</option><option>Digital</option><option>AI</option><option>Operations</option><option>Leadership</option></select></div>
           <div class="form-group" style="margin:0"><label>Custom Category</label><input type="text" id="nc-ccat" placeholder="e.g. Photojournalism"></div>
-          <div class="form-group" style="margin:0"><label>Emoji Icon</label><input type="text" id="nc-emoji" placeholder="📸" maxlength="4"></div>
+          <div class="form-group" style="margin:0"><label>Emoji</label><input type="text" id="nc-emoji" placeholder="📸" maxlength="4"></div>
           <div class="form-group" style="margin:0"><label>Colour</label><input type="color" id="nc-color" value="#2c3e50" style="height:38px;padding:3px 6px"></div>
-          <div class="form-group" style="margin:0"><label>Estimated Duration</label><input type="text" id="nc-dur" placeholder="~2 hrs"></div>
+          <div class="form-group" style="margin:0"><label>Duration</label><input type="text" id="nc-dur" placeholder="~2 hrs"></div>
         </div>
         <div class="form-group"><label>About / Description *</label><textarea id="nc-about" placeholder="Describe what cadets will learn…" style="min-height:100px"></textarea></div>
         <div style="margin-bottom:1rem">
@@ -1300,55 +1307,38 @@ function renderAC(tab) {
       <div class="section-hdr"><h2>Platform Branding</h2></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
         <div class="card"><div class="card-header"><h3>Platform Identity</h3></div><div class="card-body">
-          <div class="form-group"><label>Platform Name</label><input type="text" id="b-name" value="${BRAND.name}" placeholder="e.g. IndyTrain"></div>
-          <div class="form-group"><label>Tagline</label><input type="text" id="b-tagline" value="${BRAND.tagline}" placeholder="e.g. Independent Media Cadet School"></div>
-          <div class="form-group"><label>Primary / Accent Colour</label>
-            <div style="display:flex;gap:.75rem;align-items:center">
-              <input type="color" id="b-color" value="${BRAND.primaryColor}" style="height:38px;padding:3px 6px;width:60px">
-              <input type="text" id="b-color-hex" value="${BRAND.primaryColor}" placeholder="#c8a84b" style="width:120px" oninput="document.getElementById('b-color').value=this.value">
-            </div>
-          </div>
-          <div class="form-group"><label>Logo Image <span style="font-size:.7rem;color:var(--muted)">(replaces text name in sidebar)</span></label>
+          <div class="form-group"><label>Platform Name</label><input type="text" id="b-name" value="${BRAND.name}"></div>
+          <div class="form-group"><label>Tagline</label><input type="text" id="b-tagline" value="${BRAND.tagline}"></div>
+          <div class="form-group"><label>Accent Colour</label><div style="display:flex;gap:.75rem;align-items:center"><input type="color" id="b-color" value="${BRAND.primaryColor}" style="height:38px;padding:3px 6px;width:60px"><input type="text" id="b-color-hex" value="${BRAND.primaryColor}" style="width:120px" oninput="document.getElementById('b-color').value=this.value"></div></div>
+          <div class="form-group"><label>Logo Image <span style="font-size:.7rem;color:var(--muted)">(replaces text name)</span></label>
             ${BRAND.logoUrl?`<img src="${BRAND.logoUrl}" style="height:48px;object-fit:contain;display:block;margin-bottom:.5rem;background:var(--paper);border-radius:6px;padding:.25rem" alt="logo">`:''}
             <button class="btn btn-secondary btn-sm" onclick="document.getElementById('logo-input').click()">⬆ Upload Logo</button>
-            ${BRAND.logoUrl?`<button class="btn btn-danger btn-sm" style="margin-left:.5rem" onclick="BRAND.logoUrl=null;applyBranding();renderAC('branding');toast('Logo removed')">Remove Logo</button>`:''}
-            <div style="font-size:.7rem;color:var(--muted);margin-top:.3rem">PNG or SVG recommended. Transparent background works best.</div>
+            ${BRAND.logoUrl?`<button class="btn btn-danger btn-sm" style="margin-left:.5rem" onclick="removeLogo()">Remove</button>`:''}
           </div>
           <button class="btn btn-primary" onclick="saveBranding()">Apply Branding</button>
         </div></div>
         <div class="card"><div class="card-header"><h3>Live Preview</h3></div><div class="card-body">
           <div style="background:var(--sidebar);border-radius:10px;padding:1.25rem;color:#fff;margin-bottom:1rem">
             <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem">
-              <div id="preview-icon" style="width:36px;height:36px;background:${BRAND.primaryColor};border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                ${BRAND.logoUrl?`<img src="${BRAND.logoUrl}" style="height:22px;object-fit:contain" alt="logo">`:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>'}
-              </div>
-              <div>
-                <div id="preview-name" style="font-size:1rem;font-weight:800">${BRAND.name}</div>
-                <div id="preview-tag" style="font-size:.6rem;opacity:.6;text-transform:uppercase;letter-spacing:.05em">${BRAND.tagline}</div>
-              </div>
+              <div id="preview-icon" style="width:36px;height:36px;background:${BRAND.primaryColor};border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">${BRAND.logoUrl?`<img src="${BRAND.logoUrl}" style="height:22px;object-fit:contain" alt="logo">`:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>'}</div>
+              <div><div id="preview-name" style="font-size:1rem;font-weight:800">${BRAND.name}</div><div id="preview-tag" style="font-size:.6rem;opacity:.6;text-transform:uppercase;letter-spacing:.05em">${BRAND.tagline}</div></div>
             </div>
-            <div style="height:1px;background:rgba(255,255,255,.1);margin-bottom:.875rem"></div>
-            <div style="font-size:.75rem;opacity:.5;margin-bottom:.5rem">NAVIGATION PREVIEW</div>
-            ${['Dashboard','Learning Modules','My Programs','Member Chat'].map((n,i)=>`<div style="display:flex;align-items:center;gap:.6rem;padding:.4rem .5rem;border-radius:6px;font-size:.78rem;color:rgba(255,255,255,.55);${i===0?'background:rgba(255,255,255,.1);color:#fff':''}">${n}</div>`).join('')}
+            ${['Dashboard','Learning Modules','My Programs'].map((n,i)=>`<div style="padding:.4rem .5rem;border-radius:6px;font-size:.78rem;color:rgba(255,255,255,.55);${i===0?'background:rgba(255,255,255,.1);color:#fff':''}">${n}</div>`).join('')}
           </div>
           <div style="padding:.875rem;background:var(--paper);border-radius:8px;border:1px solid var(--border)">
-            <div style="font-size:.72rem;color:var(--muted);margin-bottom:.5rem">ACCENT COLOUR PREVIEW</div>
-            <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-              <button class="btn btn-sm" id="preview-btn" style="background:${BRAND.primaryColor};color:#000">Primary Button</button>
-              <span style="padding:2px 8px;border-radius:20px;font-size:.72rem;background:${BRAND.primaryColor};color:#000">Badge</span>
-              <div style="width:100%;height:3px;background:${BRAND.primaryColor};border-radius:2px;margin-top:.25rem"></div>
-            </div>
+            <button class="btn btn-sm" id="preview-btn" style="background:${BRAND.primaryColor};color:#000">Primary Button</button>
+            <span style="margin-left:.5rem;padding:2px 8px;border-radius:20px;font-size:.72rem;background:${BRAND.primaryColor};color:#000">Badge</span>
           </div>
-          <p style="font-size:.75rem;color:var(--muted);margin-top:.875rem">Changes apply instantly across the platform when you click <strong>Apply Branding</strong>.</p>
         </div></div>
       </div>`;
-    // Live preview sync
     document.getElementById('b-name').oninput=function(){ document.getElementById('preview-name').textContent=this.value; };
     document.getElementById('b-tagline').oninput=function(){ document.getElementById('preview-tag').textContent=this.value; };
     document.getElementById('b-color').oninput=function(){ document.getElementById('b-color-hex').value=this.value; document.getElementById('preview-btn').style.background=this.value; document.getElementById('preview-icon').style.background=this.value; };
 
   // ── ANNOUNCEMENTS ──
   } else if (tab==='announce') {
+    let anns=[];
+    try { anns=await sb.query('announcements',{order:'created_at.desc'}); DB_ANNOUNCEMENTS=anns; } catch(e){}
     c.innerHTML=`
       <div class="section-hdr"><h2>Announcements</h2></div>
       <div class="card mb-2"><div class="card-header"><h3>Send Announcement</h3></div><div class="card-body">
@@ -1357,219 +1347,192 @@ function renderAC(tab) {
         <button class="btn btn-primary" onclick="sendAnnouncement()">📢 Broadcast to All Users</button>
       </div></div>
       <div class="card"><div class="card-header"><h3>Previous Announcements</h3></div><div class="card-body">
-        ${ANNOUNCEMENTS.length===0?'<div style="color:var(--muted);font-size:.82rem">No announcements sent yet.</div>':ANNOUNCEMENTS.slice().reverse().map((a,i)=>`
+        ${anns.length===0?'<div style="color:var(--muted);font-size:.82rem">No announcements yet.</div>':anns.map(a=>`
           <div style="padding:.875rem;border:1px solid var(--border);border-radius:8px;margin-bottom:.6rem;display:flex;gap:.875rem;align-items:flex-start">
             <span style="font-size:1.3rem">📢</span>
-            <div style="flex:1"><div style="font-weight:700;font-size:.875rem">${a.title}</div><div style="font-size:.8rem;color:var(--muted);margin-top:.2rem">${a.body}</div><div style="font-size:.7rem;color:var(--muted);margin-top:.3rem">${a.date}</div></div>
-            <button class="btn btn-danger btn-sm" onclick="deleteAnnouncement(${ANNOUNCEMENTS.length-1-i})">Delete</button>
+            <div style="flex:1"><div style="font-weight:700;font-size:.875rem">${a.title}</div><div style="font-size:.8rem;color:var(--muted);margin-top:.2rem">${a.body}</div><div style="font-size:.7rem;color:var(--muted);margin-top:.3rem">${new Date(a.created_at).toLocaleString('en-ZA')}</div></div>
+            <button class="btn btn-danger btn-sm" onclick="deleteAnnouncement('${a.id}')">Delete</button>
           </div>`).join('')}
       </div></div>`;
 
   // ── ANALYTICS ──
   } else if (tab==='analytics') {
-    const totalEnroll = USERS.reduce((s,u)=>s+u.enrolled,0);
-    const totalComplete = USERS.reduce((s,u)=>s+u.completed,0);
-    const completionRate = totalEnroll>0 ? Math.round(totalComplete/totalEnroll*100) : 0;
-    const courseStats = allC().map(course=>({
-      title:course.title.length>35?course.title.slice(0,35)+'…':course.title,
-      cat:course.cat,
-      enrolled: USERS.filter(u=>u.enrolled>0).length,
-      rating:course.rating
-    })).slice(0,10);
+    let allUsers=[], enrCount=0, compCount=0;
+    try {
+      allUsers = await sb.query('users');
+      const enrs = await sb.query('enrollments');
+      enrCount = enrs.length;
+      compCount = enrs.filter(e=>e.completed).length;
+    } catch(e){}
+    const rate = enrCount>0?Math.round(compCount/enrCount*100):0;
     c.innerHTML=`
       <div class="section-hdr"><h2>Platform Analytics</h2></div>
       <div class="stats-grid" style="margin-bottom:1.75rem">
-        <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-value">${USERS.length}</div><div class="stat-change">Registered cadets</div></div>
+        <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-value">${allUsers.length}</div><div class="stat-change">${allUsers.filter(u=>u.status==='active').length} active</div></div>
         <div class="stat-card"><div class="stat-label">Total Courses</div><div class="stat-value">${allC().length}</div><div class="stat-change">${COURSES.filter(c=>c.cat==='Editorial').length} Editorial · ${COURSES.filter(c=>c.cat==='Sales').length} Sales</div></div>
-        <div class="stat-card"><div class="stat-label">Completion Rate</div><div class="stat-value">${completionRate}%</div><div class="stat-change">${totalComplete} completions</div></div>
-        <div class="stat-card"><div class="stat-label">Custom Courses</div><div class="stat-value">${CUSTOM.length}</div><div class="stat-change">Admin-created</div></div>
+        <div class="stat-card"><div class="stat-label">Total Enrollments</div><div class="stat-value">${enrCount}</div><div class="stat-change">Across all users</div></div>
+        <div class="stat-card"><div class="stat-label">Completion Rate</div><div class="stat-value">${rate}%</div><div class="stat-change">${compCount} completions</div></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
         <div class="card"><div class="card-header"><h3>Courses by Category</h3></div><div class="card-body">
-          ${['Editorial','Sales',...new Set(CUSTOM.map(c=>c.cat))].map(cat=>{
-            const count=allC().filter(c=>c.cat===cat).length;
-            const pct=Math.round(count/allC().length*100);
-            return `<div style="margin-bottom:.875rem"><div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:.3rem"><span style="font-weight:600">${cat}</span><span style="color:var(--muted)">${count} courses</span></div><div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div></div>`;
-          }).join('')}
+          ${['Editorial','Sales',...new Set(CUSTOM.map(c=>c.cat))].map(cat=>{ const count=allC().filter(c=>c.cat===cat).length; const pct=Math.round(count/allC().length*100); return `<div style="margin-bottom:.875rem"><div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:.3rem"><span style="font-weight:600">${cat}</span><span style="color:var(--muted)">${count} courses</span></div><div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div></div>`; }).join('')}
         </div></div>
         <div class="card"><div class="card-header"><h3>User Overview</h3></div><div class="card-body">
           <div style="display:flex;flex-direction:column;gap:.75rem">
-            <div style="display:flex;justify-content:space-between;padding:.75rem;background:var(--paper);border-radius:8px"><span style="font-size:.82rem">Total Registered</span><strong>${USERS.length}</strong></div>
-            <div style="display:flex;justify-content:space-between;padding:.75rem;background:var(--paper);border-radius:8px"><span style="font-size:.82rem">Admins</span><strong>${USERS.filter(u=>u.role==='admin').length}</strong></div>
-            <div style="display:flex;justify-content:space-between;padding:.75rem;background:var(--paper);border-radius:8px"><span style="font-size:.82rem">Active Cadets</span><strong>${USERS.filter(u=>u.role==='cadet'&&u.status==='active').length}</strong></div>
-            <div style="display:flex;justify-content:space-between;padding:.75rem;background:var(--paper);border-radius:8px"><span style="font-size:.82rem">Inactive / Deactivated</span><strong>${USERS.filter(u=>u.status!=='active').length}</strong></div>
+            ${[['Total Registered',allUsers.length],['Active Cadets',allUsers.filter(u=>u.role==='cadet'&&u.status==='active').length],['Pending Approval',allUsers.filter(u=>u.status==='pending').length],['Admins',allUsers.filter(u=>u.role==='admin').length],['Deactivated',allUsers.filter(u=>u.status==='inactive').length]].map(([l,v])=>`<div style="display:flex;justify-content:space-between;padding:.75rem;background:var(--paper);border-radius:8px"><span style="font-size:.82rem">${l}</span><strong>${v}</strong></div>`).join('')}
           </div>
         </div></div>
       </div>`;
   }
 }
 
-// ── USER MANAGEMENT HELPERS ──
+// ── USER MANAGEMENT ──
 function showAddUserModal() { document.getElementById('add-user-modal').style.display='block'; document.getElementById('batch-invite-modal').style.display='none'; }
 function showBatchInvite()  { document.getElementById('batch-invite-modal').style.display='block'; document.getElementById('add-user-modal').style.display='none'; }
 
-function addUser() {
-  const name  = document.getElementById('nu-name').value.trim();
-  const email = document.getElementById('nu-email').value.trim().toLowerCase();
-  const pass  = document.getElementById('nu-pass').value;
-  const role  = document.getElementById('nu-role').value;
-  if (!name||!email) { toast('Please fill in name and email','error'); return; }
-  if (USERS.find(u=>u.email.toLowerCase()===email)) { toast('A user with this email already exists','error'); return; }
-  USERS.push({ id:Date.now(), name, email, role, status:'active', enrolled:0, completed:0, joined:new Date().toISOString().slice(0,10), password:pass||'changeme' });
-  toast('User "'+name+'" added!','success'); renderAC('users');
+async function addUser() {
+  const name=document.getElementById('nu-name').value.trim();
+  const email=document.getElementById('nu-email').value.trim().toLowerCase();
+  const pass=document.getElementById('nu-pass').value;
+  const role=document.getElementById('nu-role').value;
+  if(!name||!email){ toast('Please fill in name and email','error'); return; }
+  try {
+    await sb.insert('users',{name,email,password:pass||'changeme',role,status:'active',enrolled:0,completed:0,joined:new Date().toISOString().slice(0,10)});
+    toast('User "'+name+'" added!','success'); renderAC('users');
+  } catch(e){ toast('Error: '+e.message,'error'); }
 }
 
-function approveUser(id) {
-  const u=USERS.find(x=>x.id===id); if(!u)return;
-  u.status='active';
-  updatePendingBadge();
-  toast('✓ '+u.name+' approved — they can now log in.','success'); renderAC('users'); renderDash();
+async function approveUser(id,name) {
+  try {
+    await sb.update('users',{status:'active'},{id});
+    updatePendingBadge();
+    toast('✓ '+name+' approved!','success'); renderAC('users');
+  } catch(e){ toast('Error: '+e.message,'error'); }
 }
 
-function rejectUser(id) {
-  const u=USERS.find(x=>x.id===id); if(!u)return;
-  if(!confirm('Reject and remove "'+u.name+'"\'s registration request?')) return;
-  USERS.splice(USERS.indexOf(u),1);
-  updatePendingBadge();
-  toast('Registration rejected and removed.'); renderAC('users');
+async function rejectUser(id,name) {
+  if(!confirm('Reject and remove "'+name+'"\'s registration request?')) return;
+  try {
+    await sb.delete('users',{id});
+    updatePendingBadge();
+    toast('Registration rejected.'); renderAC('users');
+  } catch(e){ toast('Error: '+e.message,'error'); }
 }
 
-function changeUserRole(id,role) {
-  const u=USERS.find(x=>x.id===id); if(!u)return;
-  u.role=role;
-  toast(u.name+' is now '+(role==='admin'?'an Admin':'a Cadet'),'success');
+async function changeUserRole(id,role) {
+  try {
+    await sb.update('users',{role},{id});
+    toast('Role updated to '+role,'success');
+  } catch(e){ toast('Error: '+e.message,'error'); }
 }
 
-function toggleUserStatus(id) {
-  const u=USERS.find(x=>x.id===id); if(!u)return;
-  u.status=u.status==='active'?'inactive':'active';
-  renderAC('users'); toast('User '+(u.status==='active'?'activated':'deactivated'));
+async function toggleUserStatus(id,currentStatus) {
+  const newStatus=currentStatus==='active'?'inactive':'active';
+  try {
+    await sb.update('users',{status:newStatus},{id});
+    renderAC('users'); toast('User '+(newStatus==='active'?'activated':'deactivated'));
+  } catch(e){ toast('Error: '+e.message,'error'); }
 }
 
-function resetUserPass(id) {
-  const u=USERS.find(x=>x.id===id); if(!u)return;
-  const np=prompt('Set new password for '+u.name+':');
-  if(!np) return;
-  u.password=np;
-  toast('Password reset for "'+u.name+'"','success');
+async function resetUserPass(id,name) {
+  const np=prompt('Set new password for '+name+':'); if(!np) return;
+  try {
+    await sb.update('users',{password:np},{id});
+    toast('Password reset for "'+name+'"','success');
+  } catch(e){ toast('Error: '+e.message,'error'); }
 }
 
-function enrollUserInAll(id) {
-  const u=USERS.find(x=>x.id===id); if(!u)return;
-  u.enrolled=allC().length; toast('Enrolled '+u.name+' in all courses','success'); renderAC('users');
-}
-
-function saveBatchInvite() {
-  const raw = document.getElementById('invite-emails').value;
-  const emails = raw.split(/[\n,]+/).map(e=>e.trim().toLowerCase()).filter(e=>e.includes('@'));
+async function saveBatchInvite() {
+  const raw=document.getElementById('invite-emails').value;
+  const emails=raw.split(/[\n,]+/).map(e=>e.trim().toLowerCase()).filter(e=>e.includes('@'));
   if(!emails.length){ toast('No valid emails found','error'); return; }
   let added=0;
-  emails.forEach(e=>{ if(!INVITED_EMAILS.includes(e)&&!USERS.find(u=>u.email===e)){ INVITED_EMAILS.push(e); added++; } });
-  toast(added+' email'+(added!==1?'s':'')+' pre-approved. They can register and go straight in.','success');
+  for(const email of emails) {
+    try { await sb.upsert('invited_emails',{email}); added++; } catch(e){}
+  }
+  toast(added+' email'+(added!==1?'s':'')+' pre-approved!','success');
   renderAC('users');
 }
 
 // ── RESOURCE MANAGEMENT ──
-let _editResIdx = null;
-function showAddResource() {
-  _editResIdx=null;
-  document.getElementById('res-form-title').textContent='Add Resource';
-  ['rf-title','rf-url','rf-desc'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('rf-emoji').value='📄';
-  document.getElementById('rf-type').value='Guide';
-  document.getElementById('res-form').style.display='block';
-}
-function editResource(i) {
-  _editResIdx=i; const r=RESOURCES[i];
-  document.getElementById('res-form-title').textContent='Edit Resource';
-  document.getElementById('rf-title').value=r.title;
-  document.getElementById('rf-url').value=r.url;
-  document.getElementById('rf-desc').value=r.desc;
-  document.getElementById('rf-emoji').value=r.emoji;
-  document.getElementById('rf-type').value=r.type;
-  document.getElementById('res-form').style.display='block';
-}
+let _editResIdx=null;
+function showAddResource() { _editResIdx=null; document.getElementById('res-form-title').textContent='Add Resource'; ['rf-title','rf-url','rf-desc'].forEach(id=>document.getElementById(id).value=''); document.getElementById('rf-emoji').value='📄'; document.getElementById('rf-type').value='Guide'; document.getElementById('res-form').style.display='block'; }
+function editResource(i) { _editResIdx=i; const r=RESOURCES[i]; document.getElementById('res-form-title').textContent='Edit Resource'; document.getElementById('rf-title').value=r.title; document.getElementById('rf-url').value=r.url; document.getElementById('rf-desc').value=r.desc; document.getElementById('rf-emoji').value=r.emoji; document.getElementById('rf-type').value=r.type; document.getElementById('res-form').style.display='block'; }
 function saveResource() {
-  const title=document.getElementById('rf-title').value.trim();
-  const url=document.getElementById('rf-url').value.trim();
+  const title=document.getElementById('rf-title').value.trim(); const url=document.getElementById('rf-url').value.trim();
   if(!title||!url){ toast('Please fill in title and URL','error'); return; }
-  const r={ title, url, emoji:document.getElementById('rf-emoji').value||'📄', type:document.getElementById('rf-type').value, desc:document.getElementById('rf-desc').value.trim() };
+  const r={title,url,emoji:document.getElementById('rf-emoji').value||'📄',type:document.getElementById('rf-type').value,desc:document.getElementById('rf-desc').value.trim()};
   if(_editResIdx!==null){ RESOURCES[_editResIdx]=r; toast('Resource updated!','success'); }
   else { RESOURCES.push(r); toast('Resource added!','success'); }
   renderRes(); document.getElementById('res-form').style.display='none'; renderAC('resources');
 }
-function deleteResource(i) {
-  if(!confirm('Delete "'+RESOURCES[i].title+'"?')) return;
-  RESOURCES.splice(i,1); renderRes(); renderAC('resources'); toast('Resource deleted');
-}
+function deleteResource(i) { if(!confirm('Delete "'+RESOURCES[i].title+'"?')) return; RESOURCES.splice(i,1); renderRes(); renderAC('resources'); toast('Resource deleted'); }
 
-// ── BRANDING HELPERS ──
-function saveBranding() {
+// ── BRANDING ──
+async function saveBranding() {
   BRAND.name=document.getElementById('b-name').value||BRAND.name;
   BRAND.tagline=document.getElementById('b-tagline').value||BRAND.tagline;
   BRAND.primaryColor=document.getElementById('b-color').value||BRAND.primaryColor;
-  applyBranding(); toast('Branding applied across platform!','success');
+  try {
+    await sb.upsert('branding',{id:1,name:BRAND.name,tagline:BRAND.tagline,primary_color:BRAND.primaryColor,logo_url:BRAND.logoUrl});
+    applyBranding(); toast('Branding saved!','success');
+  } catch(e){ applyBranding(); toast('Branding applied locally (DB error: '+e.message+')'); }
+}
+async function removeLogo() {
+  BRAND.logoUrl=null;
+  try { await sb.update('branding',{logo_url:null},{id:1}); } catch(e){}
+  applyBranding(); renderAC('branding'); toast('Logo removed');
 }
 function handleLogoFile(e) {
   const f=e.target.files[0]; if(!f) return;
   const reader=new FileReader();
-  reader.onload=evt=>{ BRAND.logoUrl=evt.target.result; applyBranding(); renderAC('branding'); toast('Logo uploaded!','success'); };
+  reader.onload=async evt=>{ BRAND.logoUrl=evt.target.result; try{ await sb.update('branding',{logo_url:BRAND.logoUrl},{id:1}); }catch(ex){} applyBranding(); renderAC('branding'); toast('Logo uploaded!','success'); };
   reader.readAsDataURL(f); e.target.value='';
 }
 
 // ── ANNOUNCEMENTS ──
-function sendAnnouncement() {
+async function sendAnnouncement() {
   const title=document.getElementById('ann-title').value.trim();
   const body=document.getElementById('ann-body').value.trim();
   if(!title||!body){ toast('Please enter a title and message','error'); return; }
-  ANNOUNCEMENTS.push({title,body,date:new Date().toLocaleString('en-ZA')});
-  document.getElementById('ann-title').value=''; document.getElementById('ann-body').value='';
-  toast('📢 Announcement broadcast to all users!','success');
-  renderAC('announce'); renderDash();
+  try {
+    await sb.insert('announcements',{title,body});
+    DB_ANNOUNCEMENTS = await sb.query('announcements',{order:'created_at.desc'});
+    document.getElementById('ann-title').value=''; document.getElementById('ann-body').value='';
+    toast('📢 Announcement sent!','success'); renderAC('announce'); renderDash();
+  } catch(e){ toast('Error: '+e.message,'error'); }
 }
-function deleteAnnouncement(i) { ANNOUNCEMENTS.splice(i,1); renderAC('announce'); renderDash(); toast('Announcement deleted'); }
+async function deleteAnnouncement(id) {
+  try {
+    await sb.delete('announcements',{id});
+    DB_ANNOUNCEMENTS=DB_ANNOUNCEMENTS.filter(a=>a.id!==id);
+    renderAC('announce'); renderDash(); toast('Announcement deleted');
+  } catch(e){ toast('Error: '+e.message,'error'); }
+}
 
-// ── VIDEO MANAGEMENT ──
-function switchVT(cid,type,el) { document.getElementById('vtabs-'+cid).querySelectorAll('.vtab').forEach(t=>t.classList.remove('active')); el.classList.add('active'); ['file','gdrive','library'].forEach(t=>{const p=document.getElementById('vp-'+t+'-'+cid);if(p)p.style.display=t===type?'block':'none';}); }
+// ── VIDEO/IMAGE MANAGEMENT ──
+function switchVT(cid,type,el){ document.getElementById('vtabs-'+cid).querySelectorAll('.vtab').forEach(t=>t.classList.remove('active')); el.classList.add('active'); ['file','gdrive','library'].forEach(t=>{const p=document.getElementById('vp-'+t+'-'+cid);if(p)p.style.display=t===type?'block':'none';}); }
 let PVC=null;
 function trigVid(cid){ PVC=cid; document.getElementById('vid-input').click(); }
-function handleVidFile(e) { const f=e.target.files[0]; if(!f||!PVC)return; const url=URL.createObjectURL(f); VID_OVERRIDES[PVC]={type:'file',url}; const c=allC().find(x=>x.id===PVC); toast('Video uploaded for "'+c.title+'"!','success'); renderAC('videos'); e.target.value=''; }
-function saveGD(cid) { const url=(document.getElementById('gdi-'+cid)||{}).value; if(!url||!url.trim()){toast('Please enter a Google Drive link','error');return;} const clean=url.trim().replace('/view','/preview').replace('open?id=','file/d/').replace(/\/edit.*$/,'/preview'); VID_OVERRIDES[cid]={type:'gdrive',url:clean}; const c=allC().find(x=>x.id===cid); toast('Drive link saved for "'+c.title+'"!','success'); renderAC('videos'); }
-function useLib(cid,url,name) { VID_OVERRIDES[cid]={type:'gdrive',url}; const c=allC().find(x=>x.id===cid); toast('"'+name+'" assigned to "'+c.title+'"!','success'); renderAC('videos'); }
-function rmVid(cid) { delete VID_OVERRIDES[cid]; const c=allC().find(x=>x.id===cid); toast('Default video restored for "'+c.title+'"'); renderAC('videos'); }
-
-// ── IMAGE MANAGEMENT ──
+function handleVidFile(e){ const f=e.target.files[0]; if(!f||!PVC)return; const url=URL.createObjectURL(f); VID_OVERRIDES[PVC]={type:'file',url}; const c=allC().find(x=>x.id===PVC); toast('Video uploaded for "'+c.title+'"!','success'); renderAC('videos'); e.target.value=''; }
+async function saveGD(cid){ const url=(document.getElementById('gdi-'+cid)||{}).value; if(!url||!url.trim()){toast('Please enter a Google Drive link','error');return;} const clean=url.trim().replace('/view','/preview').replace('open?id=','file/d/').replace(/\/edit.*$/,'/preview'); VID_OVERRIDES[cid]={type:'gdrive',url:clean}; try{ await sb.upsert('video_overrides',{course_id:cid,url:clean,type:'gdrive'}); }catch(ex){} const c=allC().find(x=>x.id===cid); toast('Drive link saved for "'+c.title+'"!','success'); renderAC('videos'); }
+async function useLib(cid,url,name){ VID_OVERRIDES[cid]={type:'gdrive',url}; try{ await sb.upsert('video_overrides',{course_id:cid,url,type:'gdrive'}); }catch(ex){} const c=allC().find(x=>x.id===cid); toast('"'+name+'" assigned to "'+c.title+'"!','success'); renderAC('videos'); }
+async function rmVid(cid){ delete VID_OVERRIDES[cid]; try{ await sb.delete('video_overrides',{course_id:cid}); }catch(ex){} const c=allC().find(x=>x.id===cid); toast('Default video restored for "'+c.title+'"'); renderAC('videos'); }
 let PIC=null;
 function trigImg(cid){ PIC=cid; document.getElementById('img-input').click(); }
-function handleImgFile(e) { const f=e.target.files[0]; if(!f||!PIC)return; const reader=new FileReader(); reader.onload=evt=>{ IMG_OVERRIDES[PIC]=evt.target.result; const c=allC().find(x=>x.id===PIC); toast('Image uploaded for "'+c.title+'"!','success'); renderAC('videos'); renderCourses(); renderDash(); }; reader.readAsDataURL(f); e.target.value=''; }
-function rmImg(cid) { delete IMG_OVERRIDES[cid]; const c=allC().find(x=>x.id===cid); toast('Image removed from "'+c.title+'"'); renderAC('videos'); renderCourses(); renderDash(); }
+function handleImgFile(e){ const f=e.target.files[0]; if(!f||!PIC)return; const reader=new FileReader(); reader.onload=async evt=>{ IMG_OVERRIDES[PIC]=evt.target.result; try{ await sb.upsert('image_overrides',{course_id:PIC,url:evt.target.result}); }catch(ex){} const c=allC().find(x=>x.id===PIC); toast('Image uploaded for "'+c.title+'"!','success'); renderAC('videos'); renderCourses(); renderDash(); }; reader.readAsDataURL(f); e.target.value=''; }
+async function rmImg(cid){ delete IMG_OVERRIDES[cid]; try{ await sb.delete('image_overrides',{course_id:cid}); }catch(ex){} const c=allC().find(x=>x.id===cid); toast('Image removed from "'+c.title+'"'); renderAC('videos'); renderCourses(); renderDash(); }
 
 // ── CREATE COURSE ──
-function addMod() { const list=document.getElementById('mod-builder'); if(!list)return; const id=++MC; const d=document.createElement('div'); d.className='mbi'; d.id='mb-'+id; d.innerHTML=`<div class="mbh"><input type="text" placeholder="Module name" id="mn-${id}"><button class="btn btn-danger btn-sm btn-icon" onclick="document.getElementById('mb-${id}').remove()">✕</button></div><div class="sbl" id="ms-${id}"><div class="sbr"><input type="text" placeholder="Step title" class="sti"><button class="btn btn-danger btn-sm btn-icon" onclick="this.parentElement.remove()">✕</button></div></div><div style="padding:.5rem .875rem;border-top:1px solid var(--border)"><button class="btn btn-secondary btn-sm" onclick="addStep(${id})">+ Add Step</button></div>`; list.appendChild(d); }
-function addStep(mid) { const l=document.getElementById('ms-'+mid); if(!l)return; const d=document.createElement('div'); d.className='sbr'; d.innerHTML=`<input type="text" placeholder="Step title" class="sti"><button class="btn btn-danger btn-sm btn-icon" onclick="this.parentElement.remove()">✕</button>`; l.appendChild(d); }
-function addQQ() { const list=document.getElementById('qq-builder'); if(!list)return; const id=++QC; const d=document.createElement('div'); d.className='card mb-2'; d.id='qq-'+id; d.innerHTML=`<div class="card-header"><h3 style="font-size:.82rem">Question ${id}</h3><button class="btn btn-danger btn-sm btn-icon" onclick="document.getElementById('qq-${id}').remove()">✕</button></div><div class="card-body" style="padding:1rem"><div class="form-group"><label>Question text</label><input type="text" id="qqt-${id}" placeholder="Enter your question…"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.75rem"><div class="form-group" style="margin:0"><label>Option A</label><input type="text" id="qqa-${id}"></div><div class="form-group" style="margin:0"><label>Option B</label><input type="text" id="qqb-${id}"></div><div class="form-group" style="margin:0"><label>Option C</label><input type="text" id="qqc-${id}"></div><div class="form-group" style="margin:0"><label>Option D</label><input type="text" id="qqd-${id}"></div></div><div class="form-group" style="margin:0"><label>Correct Answer</label><select id="qqs-${id}"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select></div></div>`; list.appendChild(d); }
-function createCourse() {
-  const title=(document.getElementById('nc-title')||{}).value||'';
-  const cat=(document.getElementById('nc-ccat')||{}).value||(document.getElementById('nc-cat')||{}).value||'';
-  const about=(document.getElementById('nc-about')||{}).value||'';
-  if(!title.trim()||!cat.trim()||!about.trim()){ toast('Please fill in Title, Category, and Description','error'); return; }
-  const emoji=(document.getElementById('nc-emoji')||{}).value||'📚';
-  const color=(document.getElementById('nc-color')||{}).value||'#2c3e50';
-  const dur=(document.getElementById('nc-dur')||{}).value||'~1 hr';
-  const modules=[]; let totalS=0;
-  document.querySelectorAll('.mbi').forEach(mb=>{ const inp=mb.querySelector('input[type="text"]'); const mname=inp?inp.value.trim():'Module'; const steps=[]; mb.querySelectorAll('.sti').forEach(i=>{if(i.value.trim())steps.push({t:i.value.trim(),d:''});}); if(steps.length){modules.push({name:mname,steps});totalS+=steps.length;} });
-  const quiz=[]; document.querySelectorAll('[id^="qqt-"]').forEach(el=>{ const id=el.id.split('-')[1]; const q=el.value.trim(); const a=(document.getElementById('qqa-'+id)||{}).value||''; const b=(document.getElementById('qqb-'+id)||{}).value||''; const cv=(document.getElementById('qqc-'+id)||{}).value||''; const d2=(document.getElementById('qqd-'+id)||{}).value||''; const ans=parseInt((document.getElementById('qqs-'+id)||{}).value||'0'); const opts=[a,b,cv,d2].filter(Boolean); if(q&&opts.length>=2) quiz.push({q,opts,ans:Math.min(ans,opts.length-1)}); });
-  const nid=Date.now();
-  CUSTOM.push({id:nid,title:title.trim(),cat:cat.trim(),emoji,color,about:about.trim(),steps:totalS||1,dur,rating:'New',badge:emoji,modules,quiz});
-  renderDash(); renderCourses(); toast('"'+title.trim()+'" course created!','success');
-  const vtab=document.querySelector('.admin-tab'); if(vtab) vtab.click();
-  resetForm();
-}
-function resetForm() { ['nc-title','nc-about','nc-emoji','nc-dur','nc-ccat'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';}); const cat=document.getElementById('nc-cat'); if(cat)cat.value=''; const col=document.getElementById('nc-color'); if(col)col.value='#2c3e50'; const mb=document.getElementById('mod-builder'); if(mb)mb.innerHTML=''; const qb=document.getElementById('qq-builder'); if(qb)qb.innerHTML=''; MC=0; QC=0; addMod(); }
+function addMod(){ const list=document.getElementById('mod-builder'); if(!list)return; const id=++MC; const d=document.createElement('div'); d.className='mbi'; d.id='mb-'+id; d.innerHTML=`<div class="mbh"><input type="text" placeholder="Module name" id="mn-${id}"><button class="btn btn-danger btn-sm btn-icon" onclick="document.getElementById('mb-${id}').remove()">✕</button></div><div class="sbl" id="ms-${id}"><div class="sbr"><input type="text" placeholder="Step title" class="sti"><button class="btn btn-danger btn-sm btn-icon" onclick="this.parentElement.remove()">✕</button></div></div><div style="padding:.5rem .875rem;border-top:1px solid var(--border)"><button class="btn btn-secondary btn-sm" onclick="addStep(${id})">+ Add Step</button></div>`; list.appendChild(d); }
+function addStep(mid){ const l=document.getElementById('ms-'+mid); if(!l)return; const d=document.createElement('div'); d.className='sbr'; d.innerHTML=`<input type="text" placeholder="Step title" class="sti"><button class="btn btn-danger btn-sm btn-icon" onclick="this.parentElement.remove()">✕</button>`; l.appendChild(d); }
+function addQQ(){ const list=document.getElementById('qq-builder'); if(!list)return; const id=++QC; const d=document.createElement('div'); d.className='card mb-2'; d.id='qq-'+id; d.innerHTML=`<div class="card-header"><h3 style="font-size:.82rem">Question ${id}</h3><button class="btn btn-danger btn-sm btn-icon" onclick="document.getElementById('qq-${id}').remove()">✕</button></div><div class="card-body" style="padding:1rem"><div class="form-group"><label>Question text</label><input type="text" id="qqt-${id}" placeholder="Enter your question…"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.75rem"><div class="form-group" style="margin:0"><label>Option A</label><input type="text" id="qqa-${id}"></div><div class="form-group" style="margin:0"><label>Option B</label><input type="text" id="qqb-${id}"></div><div class="form-group" style="margin:0"><label>Option C</label><input type="text" id="qqc-${id}"></div><div class="form-group" style="margin:0"><label>Option D</label><input type="text" id="qqd-${id}"></div></div><div class="form-group" style="margin:0"><label>Correct Answer</label><select id="qqs-${id}"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select></div></div>`; list.appendChild(d); }
+function createCourse(){ const title=(document.getElementById('nc-title')||{}).value||''; const cat=(document.getElementById('nc-ccat')||{}).value||(document.getElementById('nc-cat')||{}).value||''; const about=(document.getElementById('nc-about')||{}).value||''; if(!title.trim()||!cat.trim()||!about.trim()){toast('Please fill in Title, Category, and Description','error');return;} const emoji=(document.getElementById('nc-emoji')||{}).value||'📚'; const color=(document.getElementById('nc-color')||{}).value||'#2c3e50'; const dur=(document.getElementById('nc-dur')||{}).value||'~1 hr'; const modules=[]; let totalS=0; document.querySelectorAll('.mbi').forEach(mb=>{const inp=mb.querySelector('input[type="text"]'); const mname=inp?inp.value.trim():'Module'; const steps=[]; mb.querySelectorAll('.sti').forEach(i=>{if(i.value.trim())steps.push({t:i.value.trim(),d:''});}); if(steps.length){modules.push({name:mname,steps});totalS+=steps.length;}}); const quiz=[]; document.querySelectorAll('[id^="qqt-"]').forEach(el=>{const id=el.id.split('-')[1]; const q=el.value.trim(); const a=(document.getElementById('qqa-'+id)||{}).value||''; const b=(document.getElementById('qqb-'+id)||{}).value||''; const cv=(document.getElementById('qqc-'+id)||{}).value||''; const d2=(document.getElementById('qqd-'+id)||{}).value||''; const ans=parseInt((document.getElementById('qqs-'+id)||{}).value||'0'); const opts=[a,b,cv,d2].filter(Boolean); if(q&&opts.length>=2)quiz.push({q,opts,ans:Math.min(ans,opts.length-1)});}); const nid=Date.now(); CUSTOM.push({id:nid,title:title.trim(),cat:cat.trim(),emoji,color,about:about.trim(),steps:totalS||1,dur,rating:'New',badge:emoji,modules,quiz}); renderDash(); renderCourses(); toast('"'+title.trim()+'" course created!','success'); const vtab=document.querySelector('.admin-tab'); if(vtab)vtab.click(); resetForm(); }
+function resetForm(){ ['nc-title','nc-about','nc-emoji','nc-dur','nc-ccat'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';}); const cat=document.getElementById('nc-cat'); if(cat)cat.value=''; const col=document.getElementById('nc-color'); if(col)col.value='#2c3e50'; const mb=document.getElementById('mod-builder'); if(mb)mb.innerHTML=''; const qb=document.getElementById('qq-builder'); if(qb)qb.innerHTML=''; MC=0; QC=0; addMod(); }
 
 // ── TOAST ──
-function toast(msg,type='info') { const tc=document.getElementById('toasts'); const t=document.createElement('div'); t.className='toast '+type; t.innerHTML=`<span>${type==='success'?'✓':type==='error'?'✕':'ℹ'}</span><span>${msg}</span>`; tc.appendChild(t); setTimeout(()=>{t.style.animation='sIn .3s ease reverse';setTimeout(()=>t.remove(),280);},3500); }
+function toast(msg,type='info'){ const tc=document.getElementById('toasts'); const t=document.createElement('div'); t.className='toast '+type; t.innerHTML=`<span>${type==='success'?'✓':type==='error'?'✕':'ℹ'}</span><span>${msg}</span>`; tc.appendChild(t); setTimeout(()=>{t.style.animation='sIn .3s ease reverse';setTimeout(()=>t.remove(),280);},3500); }
 
 // ── RESPONSIVE ──
-function chkMob() { document.getElementById('menu-btn').style.display=window.innerWidth<=768?'flex':'none'; }
+function chkMob(){ document.getElementById('menu-btn').style.display=window.innerWidth<=768?'flex':'none'; }
 window.addEventListener('resize',chkMob); chkMob();
