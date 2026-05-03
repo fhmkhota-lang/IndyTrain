@@ -580,7 +580,7 @@ let BRAND = {
 // 'pending' = registered but awaiting admin approval
 // INVITED = email addresses pre-approved by admin (auto-approve on register)
 let USERS = [
-  { id:1, name:'Admin', email:'admin@imcs.co.za', role:'admin', status:'active', enrolled:0, completed:0, joined:'2026-01-01', password:'admin' },
+  { id:1, name:'Faheem Khota', email:'faheem.khota@iol.co.za', role:'admin', status:'active', enrolled:0, completed:0, joined:'2026-01-01', password:'admin' },
 ];
 let INVITED_EMAILS = []; // pre-approved emails added by admin
 
@@ -607,10 +607,14 @@ function doLogin() {
   if (!emailVal || !passVal) { toast('Please enter your email and password','error'); return; }
 
   // Check hardcoded admin credentials first
-  if (emailVal === 'admin' && passVal === 'admin') {
-    const adminUser = USERS.find(u => u.email === 'admin@imcs.co.za');
-    U = { name:'Admin', email:'admin@imcs.co.za', role:'admin', ini:'AD' };
-    if (adminUser) adminUser.status = 'active';
+  if ((emailVal === 'admin' || emailVal === 'faheem.khota@iol.co.za') && passVal === 'admin') {
+    U = { name:'Faheem Khota', email:'faheem.khota@iol.co.za', role:'admin', ini:'FK' };
+    startApp(); return;
+  }
+
+  // Also allow admin@imcs.co.za as fallback admin
+  if (emailVal === 'admin@imcs.co.za' && passVal === 'admin') {
+    U = { name:'Faheem Khota', email:'faheem.khota@iol.co.za', role:'admin', ini:'FK' };
     startApp(); return;
   }
 
@@ -629,8 +633,7 @@ function doLogin() {
 }
 
 function loginAdmin() {
-  // Demo shortcut — signs in as admin without password
-  U = { name:'Admin', email:'admin@imcs.co.za', role:'admin', ini:'AD' };
+  U = { name:'Faheem Khota', email:'faheem.khota@iol.co.za', role:'admin', ini:'FK' };
   startApp();
 }
 
@@ -697,10 +700,31 @@ function startApp() {
   document.getElementById('app').classList.remove('hidden');
   applyBranding();
   syncUI();
-  if (U.role==='admin') document.getElementById('admin-nav').classList.remove('hidden');
-  else document.getElementById('admin-nav').classList.add('hidden');
+  if (U.role==='admin') {
+    document.getElementById('admin-nav').classList.remove('hidden');
+    updatePendingBadge();
+  } else {
+    document.getElementById('admin-nav').classList.add('hidden');
+  }
   renderDash(); renderCourses(); renderRes(); renderRooms(); renderMsgs();
   nav('dashboard');
+}
+
+function updatePendingBadge() {
+  // Show a badge on the Admin nav item when there are pending users
+  const adminNavItem = document.querySelector('.nav-item.admin-item');
+  if (!adminNavItem) return;
+  const pending = USERS.filter(u => u.status === 'pending').length;
+  const existing = adminNavItem.querySelector('.nbadge');
+  if (existing) existing.remove();
+  if (pending > 0) {
+    const badge = document.createElement('span');
+    badge.className = 'nbadge';
+    badge.style.background = '#ef4444';
+    badge.style.color = '#fff';
+    badge.textContent = pending;
+    adminNavItem.appendChild(badge);
+  }
 }
 
 // ── BRANDING ──
@@ -1398,6 +1422,7 @@ function addUser() {
 function approveUser(id) {
   const u=USERS.find(x=>x.id===id); if(!u)return;
   u.status='active';
+  updatePendingBadge();
   toast('✓ '+u.name+' approved — they can now log in.','success'); renderAC('users'); renderDash();
 }
 
@@ -1405,6 +1430,7 @@ function rejectUser(id) {
   const u=USERS.find(x=>x.id===id); if(!u)return;
   if(!confirm('Reject and remove "'+u.name+'"\'s registration request?')) return;
   USERS.splice(USERS.indexOf(u),1);
+  updatePendingBadge();
   toast('Registration rejected and removed.'); renderAC('users');
 }
 
