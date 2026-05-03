@@ -1,7 +1,4 @@
-// ============================================================
-// IndyTrain — combined data.js + app.js (auto-generated)
-// Edit the source files in /data/data.js and /js/app.js
-// ============================================================
+// IndyTrain — combined data + app (auto-generated)
 /* ============================================================
    IndyTrain — data.js
    Edit this file to add/update courses, resources, chat rooms.
@@ -578,10 +575,14 @@ let BRAND = {
   primaryColor: '#c8a84b',
 };
 
-// ── USER REGISTRY (simulated — persists in session) ──
+// ── USER REGISTRY ──
+// status: 'active' | 'pending' | 'inactive'
+// 'pending' = registered but awaiting admin approval
+// INVITED = email addresses pre-approved by admin (auto-approve on register)
 let USERS = [
-  { id: 1,  name: 'Admin',           email: 'admin@imcs.co.za',       role: 'admin',  status: 'active',   enrolled: 0, completed: 0, joined: '2026-01-01' },
+  { id:1, name:'Admin', email:'admin@imcs.co.za', role:'admin', status:'active', enrolled:0, completed:0, joined:'2026-01-01', password:'admin' },
 ];
+let INVITED_EMAILS = []; // pre-approved emails added by admin
 
 // ── ANNOUNCEMENTS ──
 let ANNOUNCEMENTS = [];
@@ -601,29 +602,84 @@ function initChat() {
 
 // ── AUTH ──
 function doLogin() {
-  const e = document.getElementById('login-email').value.trim();
-  if (!e) { toast('Please enter your email address','error'); return; }
-  const n = e.split('@')[0].split('.').map(w => w[0].toUpperCase()+w.slice(1)).join(' ');
-  U = { name:n, email:e, role:'cadet', ini:n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) };
-  // Register user if new
-  if (!USERS.find(u => u.email === e)) {
-    USERS.push({ id: Date.now(), name:n, email:e, role:'cadet', status:'active', enrolled:0, completed:0, joined: new Date().toISOString().slice(0,10) });
+  const emailVal = document.getElementById('login-email').value.trim().toLowerCase();
+  const passVal  = document.getElementById('login-pass').value;
+  if (!emailVal || !passVal) { toast('Please enter your email and password','error'); return; }
+
+  // Check hardcoded admin credentials first
+  if (emailVal === 'admin' && passVal === 'admin') {
+    const adminUser = USERS.find(u => u.email === 'admin@imcs.co.za');
+    U = { name:'Admin', email:'admin@imcs.co.za', role:'admin', ini:'AD' };
+    if (adminUser) adminUser.status = 'active';
+    startApp(); return;
   }
+
+  // Look up registered user
+  const found = USERS.find(u => u.email.toLowerCase() === emailVal);
+  if (!found) { toast('No account found with that email. Please register or contact your admin.','error'); return; }
+  if (found.password && found.password !== passVal) { toast('Incorrect password.','error'); return; }
+  if (found.status === 'pending') {
+    toast('Your account is awaiting admin approval. Please check back soon.','error'); return;
+  }
+  if (found.status === 'inactive') {
+    toast('Your account has been deactivated. Please contact your admin.','error'); return;
+  }
+  U = { name:found.name, email:found.email, role:found.role, ini:found.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) };
   startApp();
 }
+
 function loginAdmin() {
+  // Demo shortcut — signs in as admin without password
   U = { name:'Admin', email:'admin@imcs.co.za', role:'admin', ini:'AD' };
   startApp();
 }
+
 function doReg() {
   const n = document.getElementById('reg-name').value.trim();
-  const e = document.getElementById('reg-email').value.trim();
-  if (!n||!e) { toast('Please fill in all fields','error'); return; }
-  if (USERS.find(u => u.email === e)) { toast('An account with this email already exists.','error'); return; }
-  U = { name:n, email:e, role:'cadet', ini:n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) };
-  USERS.push({ id:Date.now(), name:n, email:e, role:'cadet', status:'active', enrolled:0, completed:0, joined: new Date().toISOString().slice(0,10) });
-  startApp();
+  const e = document.getElementById('reg-email').value.trim().toLowerCase();
+  const p = document.getElementById('reg-pass').value;
+  if (!n||!e||!p) { toast('Please fill in all fields','error'); return; }
+  if (USERS.find(u => u.email.toLowerCase() === e)) {
+    toast('An account with this email already exists.','error'); return;
+  }
+
+  // Check if email was pre-approved by admin (invited)
+  const isInvited = INVITED_EMAILS.map(x=>x.toLowerCase()).includes(e);
+  const status = isInvited ? 'active' : 'pending';
+
+  USERS.push({
+    id: Date.now(), name:n, email:e, role:'cadet',
+    status, enrolled:0, completed:0,
+    joined: new Date().toISOString().slice(0,10),
+    password: p
+  });
+
+  if (isInvited) {
+    // Remove from invite list — used
+    INVITED_EMAILS = INVITED_EMAILS.filter(x => x.toLowerCase() !== e);
+    U = { name:n, email:e, role:'cadet', ini:n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) };
+    startApp();
+  } else {
+    // Show pending message — do NOT log them in
+    showPendingScreen(n);
+  }
 }
+
+function showPendingScreen(name) {
+  document.getElementById('login-form').classList.add('hidden');
+  document.getElementById('reg-form').classList.add('hidden');
+  // Show a pending message in the auth right panel
+  const right = document.querySelector('.auth-right');
+  right.innerHTML = `
+    <div class="auth-fw" style="text-align:center">
+      <div style="font-size:3rem;margin-bottom:1rem">⏳</div>
+      <h2 style="margin-bottom:.5rem">Request Submitted!</h2>
+      <p style="color:var(--muted);margin-bottom:1.5rem">Thanks, <strong>${name}</strong>! Your account is pending approval by an administrator. You'll be able to log in once approved.</p>
+      <p style="font-size:.78rem;color:var(--muted)">Please check back later or contact <a href="mailto:Info@imcs.co.za" style="color:var(--gold)">Info@imcs.co.za</a> if you have any questions.</p>
+      <button class="btn btn-secondary btn-lg" style="margin-top:1.5rem;width:100%;justify-content:center" onclick="location.reload()">Back to Login</button>
+    </div>`;
+}
+
 function doLogout() {
   U=null; ENROLLED=[]; COMPLETED=[]; BADGES=[]; PROG={}; QS={}; CUR=null;
   document.getElementById('app').classList.add('hidden');
@@ -978,53 +1034,125 @@ function renderAC(tab) {
   // ── USERS ──
   if (tab==='users') {
     const searchVal = window._userSearch||'';
-    const filtered = USERS.filter(u=>!searchVal||u.name.toLowerCase().includes(searchVal)||u.email.toLowerCase().includes(searchVal));
+    const pending   = USERS.filter(u => u.status === 'pending');
+    const filtered  = USERS.filter(u => {
+      const matchSearch = !searchVal || u.name.toLowerCase().includes(searchVal) || u.email.toLowerCase().includes(searchVal);
+      return matchSearch;
+    });
+
     c.innerHTML=`
+      ${pending.length>0?`
+      <div style="background:linear-gradient(135deg,#fff8e1,#fffde7);border:1px solid #f59e0b;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:.875rem">
+        <span style="font-size:1.5rem">⏳</span>
+        <div style="flex:1"><div style="font-weight:700;font-size:.875rem;color:#92400e">${pending.length} user${pending.length>1?'s':''} awaiting approval</div>
+        <div style="font-size:.78rem;color:#b45309;margin-top:.1rem">Review and approve or reject below.</div></div>
+      </div>`:''}
+
       <div class="section-hdr">
-        <h2>User Management <span style="font-size:.8rem;font-weight:400;color:var(--muted)">(${USERS.length} total)</span></h2>
-        <button class="btn btn-primary btn-sm" onclick="showAddUserModal()">+ Add User</button>
+        <h2>User Management <span style="font-size:.8rem;font-weight:400;color:var(--muted)">(${USERS.filter(u=>u.status==='active').length} active · ${pending.length} pending)</span></h2>
+        <div style="display:flex;gap:.5rem">
+          <button class="btn btn-secondary btn-sm" onclick="showBatchInvite()">📧 Batch Invite</button>
+          <button class="btn btn-primary btn-sm" onclick="showAddUserModal()">+ Add User</button>
+        </div>
       </div>
+
       <div style="display:flex;gap:.75rem;margin-bottom:1.25rem;flex-wrap:wrap">
-        <div class="search-bar" style="max-width:280px;background:#fff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search users…" value="${searchVal}" oninput="window._userSearch=this.value;renderAC('users')" style="border:none;outline:none;font-size:.82rem;width:100%;background:none"></div>
-        <select onchange="filterUsers(this.value)" style="padding:.45rem .8rem;border:1px solid var(--border);border-radius:8px;font-size:.82rem;outline:none;background:#fff">
-          <option value="all">All Roles</option><option value="admin">Admins</option><option value="cadet">Cadets</option>
+        <div class="search-bar" style="max-width:280px;background:#fff">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Search users…" value="${searchVal}" oninput="window._userSearch=this.value;renderAC('users')" style="border:none;outline:none;font-size:.82rem;width:100%;background:none">
+        </div>
+        <select onchange="window._userFilter=this.value;renderAC('users')" style="padding:.45rem .8rem;border:1px solid var(--border);border-radius:8px;font-size:.82rem;outline:none;background:#fff">
+          <option value="all" ${(window._userFilter||'all')==='all'?'selected':''}>All Users</option>
+          <option value="pending" ${(window._userFilter||'')==='pending'?'selected':''}>Pending Approval</option>
+          <option value="active"  ${(window._userFilter||'')==='active'?'selected':''}>Active</option>
+          <option value="admin"   ${(window._userFilter||'')==='admin'?'selected':''}>Admins</option>
+          <option value="inactive"${(window._userFilter||'')==='inactive'?'selected':''}>Deactivated</option>
         </select>
       </div>
+
       <div class="table-wrap"><table>
-        <thead><tr><th>User</th><th>Email</th><th>Role</th><th>Enrolled</th><th>Completed</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
+        <thead><tr><th>User</th><th>Email</th><th>Role</th><th>Status</th><th>Enrolled</th><th>Joined</th><th>Actions</th></tr></thead>
         <tbody id="user-tbody"></tbody>
       </table></div>
+
+      <!-- ADD USER FORM -->
       <div id="add-user-modal" style="display:none;margin-top:1.25rem" class="card">
         <div class="card-header"><h3>Add New User</h3><button class="btn btn-secondary btn-sm" onclick="document.getElementById('add-user-modal').style.display='none'">Cancel</button></div>
         <div class="card-body">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
             <div class="form-group"><label>Full Name</label><input type="text" id="nu-name" placeholder="Full name"></div>
             <div class="form-group"><label>Email</label><input type="email" id="nu-email" placeholder="email@imcs.co.za"></div>
+            <div class="form-group"><label>Password</label><input type="password" id="nu-pass" placeholder="Set a password"></div>
             <div class="form-group"><label>Role</label><select id="nu-role"><option value="cadet">Cadet</option><option value="admin">Admin</option></select></div>
           </div>
           <button class="btn btn-primary" onclick="addUser()">Add User</button>
         </div>
+      </div>
+
+      <!-- BATCH INVITE FORM -->
+      <div id="batch-invite-modal" style="display:none;margin-top:1.25rem" class="card">
+        <div class="card-header"><h3>📧 Batch Invite by Email</h3><button class="btn btn-secondary btn-sm" onclick="document.getElementById('batch-invite-modal').style.display='none'">Cancel</button></div>
+        <div class="card-body">
+          <p style="font-size:.82rem;color:var(--muted);margin-bottom:1rem">Add email addresses below (one per line, or comma-separated). These emails will be pre-approved — when users register with these addresses they will go straight in without needing approval.</p>
+          <div class="form-group"><label>Email Addresses</label><textarea id="invite-emails" placeholder="jane@imcs.co.za&#10;thabo@imcs.co.za&#10;sarah@imcs.co.za" style="min-height:120px;font-family:monospace;font-size:.82rem"></textarea></div>
+          ${INVITED_EMAILS.length>0?`<div style="margin-bottom:1rem"><div style="font-size:.78rem;font-weight:600;margin-bottom:.4rem">Currently pre-approved (${INVITED_EMAILS.length}):</div><div style="display:flex;flex-wrap:wrap;gap:.4rem">${INVITED_EMAILS.map((e,i)=>`<span style="background:#dcfce7;color:#16a34a;padding:2px 8px;border-radius:20px;font-size:.72rem;display:flex;align-items:center;gap:.3rem">${e}<button onclick="INVITED_EMAILS.splice(${i},1);renderAC('users')" style="background:none;border:none;cursor:pointer;color:#16a34a;font-size:.8rem;padding:0;line-height:1">✕</button></span>`).join('')}</div></div>`:''}
+          <button class="btn btn-primary" onclick="saveBatchInvite()">Save Pre-approved Emails</button>
+        </div>
       </div>`;
-    const tbody=document.getElementById('user-tbody');
-    filtered.forEach(u=>{
-      const isMe=u.email===U.email;
-      const tr=document.createElement('tr');
-      tr.innerHTML=`
-        <td><div style="display:flex;align-items:center;gap:.65rem"><div class="ava" style="background:${sclr(u.name)};color:#fff">${u.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}</div><div><div style="font-weight:600">${u.name}</div>${isMe?'<div style="font-size:.68rem;color:var(--gold)">← You</div>':''}</div></div></td>
-        <td style="color:var(--muted)">${u.email}</td>
-        <td><select onchange="changeUserRole(${u.id},this.value)" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:6px;font-size:.75rem;background:#fff" ${isMe?'disabled':''}>
-          <option value="cadet" ${u.role==='cadet'?'selected':''}>Cadet</option>
-          <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
-        </select></td>
-        <td>${u.enrolled}</td><td>${u.completed}</td>
+
+    // Populate table
+    const tbody = document.getElementById('user-tbody');
+    const filterVal = window._userFilter || 'all';
+    let display = filtered;
+    if (filterVal === 'pending')  display = filtered.filter(u => u.status==='pending');
+    if (filterVal === 'active')   display = filtered.filter(u => u.status==='active' && u.role!=='admin');
+    if (filterVal === 'admin')    display = filtered.filter(u => u.role==='admin');
+    if (filterVal === 'inactive') display = filtered.filter(u => u.status==='inactive');
+
+    display.forEach(u => {
+      const isMe = u.email === U.email;
+      const isPending = u.status === 'pending';
+      const tr = document.createElement('tr');
+      if (isPending) tr.style.background = '#fffbeb';
+      tr.innerHTML = `
+        <td><div style="display:flex;align-items:center;gap:.65rem">
+          <div class="ava" style="background:${sclr(u.name)};color:#fff">${u.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}</div>
+          <div><div style="font-weight:600">${u.name}</div>${isMe?'<div style="font-size:.68rem;color:var(--gold)">← You</div>':''}</div>
+        </div></td>
+        <td style="color:var(--muted);font-size:.82rem">${u.email}</td>
+        <td>
+          ${isMe
+            ? `<span style="font-size:.78rem;font-weight:600;color:var(--gold)">Admin</span>`
+            : `<select onchange="changeUserRole(${u.id},this.value)" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:6px;font-size:.75rem;background:#fff">
+                <option value="cadet" ${u.role==='cadet'?'selected':''}>Cadet</option>
+                <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
+               </select>`}
+        </td>
+        <td>
+          ${isPending
+            ? `<span class="sbadge pending">⏳ Pending</span>`
+            : u.status==='inactive'
+              ? `<span class="sbadge inactive">Inactive</span>`
+              : `<span class="sbadge active">Active</span>`}
+        </td>
+        <td>${u.enrolled}</td>
         <td style="color:var(--muted);font-size:.75rem">${u.joined}</td>
-        <td><span class="sbadge ${u.status}">${u.status.charAt(0).toUpperCase()+u.status.slice(1)}</span></td>
-        <td><div style="display:flex;gap:.35rem">
-          ${!isMe?`<button class="btn btn-sm" style="background:${u.status==='active'?'#fee2e2':'#dcfce7'};color:${u.status==='active'?'#dc2626':'#16a34a'};border:1px solid ${u.status==='active'?'#fecaca':'#bbf7d0'}" onclick="toggleUserStatus(${u.id})">${u.status==='active'?'Deactivate':'Activate'}</button>`:''}
-          <button class="btn btn-secondary btn-sm" onclick="enrollUserInAll(${u.id})">Enroll All</button>
+        <td><div style="display:flex;gap:.35rem;flex-wrap:wrap">
+          ${isPending
+            ? `<button class="btn btn-sm" style="background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0" onclick="approveUser(${u.id})">✓ Approve</button>
+               <button class="btn btn-danger btn-sm" onclick="rejectUser(${u.id})">✗ Reject</button>`
+            : !isMe
+              ? `<button class="btn btn-sm" style="background:${u.status==='active'?'#fee2e2':'#dcfce7'};color:${u.status==='active'?'#dc2626':'#16a34a'};border:1px solid ${u.status==='active'?'#fecaca':'#bbf7d0'}" onclick="toggleUserStatus(${u.id})">${u.status==='active'?'Deactivate':'Activate'}</button>`
+              : ''}
+          ${!isMe&&!isPending?`<button class="btn btn-secondary btn-sm" onclick="resetUserPass(${u.id})">Reset Pass</button>`:''}
         </div></td>`;
       tbody.appendChild(tr);
     });
+
+    if (display.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem">No users found.</td></tr>`;
+    }
+
 
   // ── COURSES & VIDEOS ──
   } else if (tab==='videos') {
@@ -1253,19 +1381,67 @@ function renderAC(tab) {
 }
 
 // ── USER MANAGEMENT HELPERS ──
-function showAddUserModal() { document.getElementById('add-user-modal').style.display='block'; }
+function showAddUserModal() { document.getElementById('add-user-modal').style.display='block'; document.getElementById('batch-invite-modal').style.display='none'; }
+function showBatchInvite()  { document.getElementById('batch-invite-modal').style.display='block'; document.getElementById('add-user-modal').style.display='none'; }
+
 function addUser() {
-  const name=document.getElementById('nu-name').value.trim();
-  const email=document.getElementById('nu-email').value.trim();
-  const role=document.getElementById('nu-role').value;
-  if(!name||!email){ toast('Please fill in name and email','error'); return; }
-  if(USERS.find(u=>u.email===email)){ toast('A user with this email already exists','error'); return; }
-  USERS.push({id:Date.now(),name,email,role,status:'active',enrolled:0,completed:0,joined:new Date().toISOString().slice(0,10)});
+  const name  = document.getElementById('nu-name').value.trim();
+  const email = document.getElementById('nu-email').value.trim().toLowerCase();
+  const pass  = document.getElementById('nu-pass').value;
+  const role  = document.getElementById('nu-role').value;
+  if (!name||!email) { toast('Please fill in name and email','error'); return; }
+  if (USERS.find(u=>u.email.toLowerCase()===email)) { toast('A user with this email already exists','error'); return; }
+  USERS.push({ id:Date.now(), name, email, role, status:'active', enrolled:0, completed:0, joined:new Date().toISOString().slice(0,10), password:pass||'changeme' });
   toast('User "'+name+'" added!','success'); renderAC('users');
 }
-function changeUserRole(id,role) { const u=USERS.find(x=>x.id===id); if(u){ u.role=role; toast('Role updated to '+role); } }
-function toggleUserStatus(id) { const u=USERS.find(x=>x.id===id); if(u){ u.status=u.status==='active'?'inactive':'active'; renderAC('users'); toast('User '+(u.status==='active'?'activated':'deactivated')); } }
-function enrollUserInAll(id) { const u=USERS.find(x=>x.id===id); if(u){ u.enrolled=allC().length; toast('Enrolled user in all courses'); renderAC('users'); } }
+
+function approveUser(id) {
+  const u=USERS.find(x=>x.id===id); if(!u)return;
+  u.status='active';
+  toast('✓ '+u.name+' approved — they can now log in.','success'); renderAC('users'); renderDash();
+}
+
+function rejectUser(id) {
+  const u=USERS.find(x=>x.id===id); if(!u)return;
+  if(!confirm('Reject and remove "'+u.name+'"\'s registration request?')) return;
+  USERS.splice(USERS.indexOf(u),1);
+  toast('Registration rejected and removed.'); renderAC('users');
+}
+
+function changeUserRole(id,role) {
+  const u=USERS.find(x=>x.id===id); if(!u)return;
+  u.role=role;
+  toast(u.name+' is now '+(role==='admin'?'an Admin':'a Cadet'),'success');
+}
+
+function toggleUserStatus(id) {
+  const u=USERS.find(x=>x.id===id); if(!u)return;
+  u.status=u.status==='active'?'inactive':'active';
+  renderAC('users'); toast('User '+(u.status==='active'?'activated':'deactivated'));
+}
+
+function resetUserPass(id) {
+  const u=USERS.find(x=>x.id===id); if(!u)return;
+  const np=prompt('Set new password for '+u.name+':');
+  if(!np) return;
+  u.password=np;
+  toast('Password reset for "'+u.name+'"','success');
+}
+
+function enrollUserInAll(id) {
+  const u=USERS.find(x=>x.id===id); if(!u)return;
+  u.enrolled=allC().length; toast('Enrolled '+u.name+' in all courses','success'); renderAC('users');
+}
+
+function saveBatchInvite() {
+  const raw = document.getElementById('invite-emails').value;
+  const emails = raw.split(/[\n,]+/).map(e=>e.trim().toLowerCase()).filter(e=>e.includes('@'));
+  if(!emails.length){ toast('No valid emails found','error'); return; }
+  let added=0;
+  emails.forEach(e=>{ if(!INVITED_EMAILS.includes(e)&&!USERS.find(u=>u.email===e)){ INVITED_EMAILS.push(e); added++; } });
+  toast(added+' email'+(added!==1?'s':'')+' pre-approved. They can register and go straight in.','success');
+  renderAC('users');
+}
 
 // ── RESOURCE MANAGEMENT ──
 let _editResIdx = null;
