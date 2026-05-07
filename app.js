@@ -883,6 +883,8 @@ function applyBranding() {
   // Page title
   document.title = BRAND.name + ' — ' + BRAND.tagline;
 }
+
+function syncUI() {
   ['sb-ava','top-ava'].forEach(id=>document.getElementById(id).textContent=U.ini);
   document.getElementById('sb-name').textContent=U.name;
   document.getElementById('sb-role').textContent=U.role==='admin'?'Administrator':'Cadet';
