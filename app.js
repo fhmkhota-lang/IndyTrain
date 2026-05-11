@@ -641,6 +641,23 @@ let BRAND = {
   fontFamily: 'Poppins',
   borderRadius: '12px',
   loginHeadline: 'Invest in yourself.<br><em>Grow your career.</em>',
+  // ── CERTIFICATE CONFIG ──
+  cert: {
+    bgFrom:        '#fefef9',
+    bgTo:          '#fffef0',
+    accentColor:   '#c8a84b',
+    logoUrl:       null,         // null = use platform logo
+    headerText:    '✦ IndyTrain ✦',
+    titleText:     'Certificate of Completion',
+    bodyText:      'This is to certify that',
+    subText:       'has successfully completed the course',
+    footerNote:    'Independent Media Cadet School · IndyTrain',
+    sig1Name:      'IMCS Editorial Board',
+    sig1Role:      'Programme Director',
+    sig2Name:      'IndyTrain Platform',
+    sig2Role:      'Verified Certificate',
+    showBorder:    true,
+  },
   loginSubtext: "Whether you're sharpening existing skills, learning something new, or preparing for your next step — IndyTrain gives you the tools, knowledge, and confidence to level up at your own pace.",
   faviconUrl: 'data:image/png;base64,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',
 };
@@ -787,6 +804,9 @@ async function startApp() {
       BRAND.faviconUrl     = b[0].favicon_url    || BRAND.faviconUrl;
       BRAND.loginHeadline  = b[0].login_headline || BRAND.loginHeadline;
       BRAND.loginSubtext   = b[0].login_subtext  || BRAND.loginSubtext;
+      if (b[0].cert_config) {
+        try { Object.assign(BRAND.cert, JSON.parse(b[0].cert_config)); } catch(e) {}
+      }
     }
   } catch(e) {}
   // Load video/image overrides
@@ -1141,13 +1161,74 @@ async function saveProf() {
 function handleAva(e) { const f=e.target.files[0]; if(!f)return; const url=URL.createObjectURL(f); ['prof-ava','sb-ava','top-ava'].forEach(id=>{const el=document.getElementById(id);el.innerHTML=`<img src="${url}" alt="avatar">`;}); toast('Photo updated!','success'); }
 
 // ── CERTIFICATE ──
-function openCert(cid) { const c=allC().find(x=>x.id===cid); if(!c)return; document.getElementById('cert-course').textContent=c.title; document.getElementById('cert-name').textContent=U.name; document.getElementById('cert-date').textContent='Issued '+new Date().toLocaleDateString('en-ZA',{year:'numeric',month:'long',day:'numeric'}); document.getElementById('cert-modal').classList.remove('hidden'); }
+function openCert(cid) {
+  const c = allC().find(x => x.id === cid); if (!c) return;
+  renderCertPreview(c.title, U.name);
+  document.getElementById('cert-modal').classList.remove('hidden');
+}
+
+function renderCertPreview(courseTitle, userName) {
+  const cr = BRAND.cert;
+  const dateStr = 'Issued ' + new Date().toLocaleDateString('en-ZA', {year:'numeric',month:'long',day:'numeric'});
+  const logoHtml = (cr.logoUrl || BRAND.logoUrl)
+    ? `<img src="${cr.logoUrl || BRAND.logoUrl}" style="height:48px;object-fit:contain;margin-bottom:.75rem" alt="logo">`
+    : '';
+  const preview = document.getElementById('cert-preview');
+  if (!preview) return;
+  preview.style.background = `linear-gradient(135deg,${cr.bgFrom},${cr.bgTo})`;
+  preview.style.border = `2px solid ${cr.accentColor}`;
+  preview.innerHTML = `
+    ${cr.showBorder ? `<div class="cert-border" style="border-color:${cr.accentColor}40"></div>` : ''}
+    ${logoHtml}
+    <div class="cert-logo" style="color:${cr.accentColor}">${cr.headerText}</div>
+    <div class="cert-title">${cr.titleText}</div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:1rem">${cr.bodyText}</div>
+    <div class="cert-main" id="cert-name">${userName}</div>
+    <div class="cert-sub">${cr.subText}</div>
+    <div class="cert-course-name" id="cert-course" style="color:${cr.accentColor};border-bottom-color:${cr.accentColor}40">${courseTitle}</div>
+    <div style="font-size:.8rem;color:var(--muted)">${cr.footerNote}</div>
+    <div class="cert-footer">
+      <div style="text-align:center">
+        <div style="font-style:italic;font-size:.85rem;font-weight:600">${cr.sig1Name}</div>
+        <div class="cert-sig-line"></div>
+        <div>${cr.sig1Role}</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:1.75rem">🏅</div>
+        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem" id="cert-date">${dateStr}</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-style:italic;font-size:.85rem;font-weight:600">${cr.sig2Name}</div>
+        <div class="cert-sig-line"></div>
+        <div>${cr.sig2Role}</div>
+      </div>
+    </div>`;
+}
+
 function closeCert() { document.getElementById('cert-modal').classList.add('hidden'); }
+
 function dlCert() {
-  const win=window.open('','_blank');
-  const html=document.getElementById('cert-preview').outerHTML;
-  win.document.write(`<!DOCTYPE html><html><head><title>Certificate</title><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet"><style>body{margin:0;padding:2rem;font-family:'Poppins',sans-serif}:root{--gold:${BRAND.primaryColor};--muted:#6b7280;--border:#e5e3dc;--ink:#0a0a0f}.certificate{background:linear-gradient(135deg,#fefef9,#fffef0);border:2px solid var(--gold);border-radius:12px;padding:2.5rem;text-align:center;position:relative;max-width:680px;margin:0 auto}.cert-border{position:absolute;inset:10px;border:1px solid rgba(200,168,75,.3);border-radius:8px}.cert-logo{font-size:.9rem;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.12em;margin-bottom:1.25rem}.cert-title{font-size:.7rem;text-transform:uppercase;letter-spacing:.2em;color:var(--muted);margin-bottom:.4rem}.cert-main{font-size:1.8rem;font-weight:800;margin-bottom:.4rem}.cert-sub{font-size:.85rem;color:var(--muted);margin-bottom:1.25rem}.cert-course-name{font-size:1.25rem;font-weight:800;color:var(--gold);margin-bottom:1.25rem;border-bottom:2px solid rgba(200,168,75,.3);padding-bottom:.875rem}.cert-footer{display:flex;justify-content:space-between;align-items:flex-end;margin-top:1.75rem;padding-top:1.25rem;border-top:1px solid var(--border);font-size:.72rem;color:var(--muted)}.cert-sig-line{width:90px;height:1px;background:var(--ink);margin:.4rem auto .2rem}</style></head><body>${html}<script>window.print()<\/script></body></html>`);
-  win.document.close(); toast('Certificate opened — Ctrl+P / Cmd+P to save as PDF!','success');
+  const win = window.open('', '_blank');
+  const cr = BRAND.cert;
+  const html = document.getElementById('cert-preview').outerHTML;
+  win.document.write(`<!DOCTYPE html><html><head><title>Certificate</title>
+    <link href="https://fonts.googleapis.com/css2?family=${BRAND.fontFamily||'Poppins'}:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      body{margin:0;padding:2rem;font-family:'${BRAND.fontFamily||'Poppins'}',sans-serif;background:#fff}
+      :root{--gold:${cr.accentColor};--muted:#6b7280;--border:#e5e3dc;--ink:#0a0a0f}
+      .certificate{background:linear-gradient(135deg,${cr.bgFrom},${cr.bgTo});border:2px solid ${cr.accentColor};border-radius:12px;padding:2.5rem;text-align:center;position:relative;max-width:680px;margin:0 auto}
+      .cert-border{position:absolute;inset:10px;border:1px solid ${cr.accentColor}40;border-radius:8px}
+      .cert-logo{font-size:.9rem;font-weight:800;color:${cr.accentColor};text-transform:uppercase;letter-spacing:.12em;margin-bottom:1.25rem}
+      .cert-title{font-size:.7rem;text-transform:uppercase;letter-spacing:.2em;color:var(--muted);margin-bottom:.4rem}
+      .cert-main{font-size:1.8rem;font-weight:800;margin-bottom:.4rem}
+      .cert-sub{font-size:.85rem;color:var(--muted);margin-bottom:1.25rem}
+      .cert-course-name{font-size:1.25rem;font-weight:800;color:${cr.accentColor};margin-bottom:1.25rem;border-bottom:2px solid ${cr.accentColor}40;padding-bottom:.875rem}
+      .cert-footer{display:flex;justify-content:space-between;align-items:flex-end;margin-top:1.75rem;padding-top:1.25rem;border-top:1px solid var(--border);font-size:.72rem;color:var(--muted)}
+      .cert-sig-line{width:90px;height:1px;background:var(--ink);margin:.4rem auto .2rem}
+    </style>
+  </head><body>${html}<script>window.print()<\/script></body></html>`);
+  win.document.close();
+  toast('Certificate opened — Ctrl+P / Cmd+P to save as PDF!', 'success');
 }
 
 // ── MY PROGRAMS ──
@@ -1535,6 +1616,124 @@ async function renderAC(tab) {
           </div>`).join('')}
       </div></div>`;
 
+  // ── CERTIFICATE EDITOR ──
+  } else if (tab==='certificate') {
+    const cr = BRAND.cert;
+    c.innerHTML = `
+      <div class="section-hdr"><h2>Certificate Editor</h2></div>
+      <div style="display:grid;grid-template-columns:1fr 420px;gap:1.25rem;align-items:start">
+
+        <div style="display:flex;flex-direction:column;gap:1.25rem">
+
+          <!-- TEXT -->
+          <div class="card"><div class="card-header"><h3>📝 Certificate Text</h3></div><div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+              <div class="form-group"><label>Header / Badge Text</label>
+                <input type="text" id="cr-header" value="${cr.headerText}" placeholder="✦ IndyTrain ✦" oninput="certPreview()">
+                <div style="font-size:.7rem;color:var(--muted);margin-top:.25rem">Shown at the top of the certificate (e.g. platform name with decorators)</div>
+              </div>
+              <div class="form-group"><label>Title</label>
+                <input type="text" id="cr-title" value="${cr.titleText}" placeholder="Certificate of Completion" oninput="certPreview()">
+              </div>
+              <div class="form-group"><label>"This is to certify that" text</label>
+                <input type="text" id="cr-body" value="${cr.bodyText}" oninput="certPreview()">
+              </div>
+              <div class="form-group"><label>"Has completed" text</label>
+                <input type="text" id="cr-sub" value="${cr.subText}" oninput="certPreview()">
+              </div>
+              <div class="form-group" style="grid-column:1/-1"><label>Footer / Institution Note</label>
+                <input type="text" id="cr-footer" value="${cr.footerNote}" oninput="certPreview()">
+              </div>
+            </div>
+          </div></div>
+
+          <!-- SIGNATURES -->
+          <div class="card"><div class="card-header"><h3>✍️ Signatures</h3></div><div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+              <div>
+                <div style="font-size:.78rem;font-weight:600;margin-bottom:.5rem">Left Signature</div>
+                <div class="form-group"><label>Name</label><input type="text" id="cr-sig1n" value="${cr.sig1Name}" oninput="certPreview()"></div>
+                <div class="form-group"><label>Title / Role</label><input type="text" id="cr-sig1r" value="${cr.sig1Role}" oninput="certPreview()"></div>
+              </div>
+              <div>
+                <div style="font-size:.78rem;font-weight:600;margin-bottom:.5rem">Right Signature</div>
+                <div class="form-group"><label>Name</label><input type="text" id="cr-sig2n" value="${cr.sig2Name}" oninput="certPreview()"></div>
+                <div class="form-group"><label>Title / Role</label><input type="text" id="cr-sig2r" value="${cr.sig2Role}" oninput="certPreview()"></div>
+              </div>
+            </div>
+          </div></div>
+
+          <!-- DESIGN -->
+          <div class="card"><div class="card-header"><h3>🎨 Design</h3></div><div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem">
+              <div class="form-group" style="margin:0">
+                <label>Accent Colour</label>
+                <div style="display:flex;gap:.5rem;align-items:center;margin-top:.35rem">
+                  <input type="color" id="cr-accent" value="${cr.accentColor}" style="height:36px;width:48px;padding:3px;cursor:pointer" oninput="document.getElementById('cr-accent-hex').value=this.value;certPreview()">
+                  <input type="text" id="cr-accent-hex" value="${cr.accentColor}" style="width:90px;font-family:monospace;font-size:.8rem" oninput="if(this.value.match(/^#[0-9a-fA-F]{6}$/)){document.getElementById('cr-accent').value=this.value;certPreview()}">
+                </div>
+              </div>
+              <div class="form-group" style="margin:0">
+                <label>Background Start</label>
+                <div style="display:flex;gap:.5rem;align-items:center;margin-top:.35rem">
+                  <input type="color" id="cr-bg1" value="${cr.bgFrom}" style="height:36px;width:48px;padding:3px;cursor:pointer" oninput="certPreview()">
+                  <input type="text" value="${cr.bgFrom}" style="width:90px;font-family:monospace;font-size:.8rem" oninput="document.getElementById('cr-bg1').value=this.value;certPreview()" id="cr-bg1-hex">
+                </div>
+              </div>
+              <div class="form-group" style="margin:0">
+                <label>Background End</label>
+                <div style="display:flex;gap:.5rem;align-items:center;margin-top:.35rem">
+                  <input type="color" id="cr-bg2" value="${cr.bgTo}" style="height:36px;width:48px;padding:3px;cursor:pointer" oninput="certPreview()">
+                  <input type="text" value="${cr.bgTo}" style="width:90px;font-family:monospace;font-size:.8rem" oninput="document.getElementById('cr-bg2').value=this.value;certPreview()" id="cr-bg2-hex">
+                </div>
+              </div>
+            </div>
+            <div style="margin-top:1rem;display:flex;gap:1.5rem;align-items:center">
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;cursor:pointer">
+                <input type="checkbox" id="cr-border" ${cr.showBorder?'checked':''} onchange="certPreview()" style="width:16px;height:16px">
+                Show inner border frame
+              </label>
+            </div>
+          </div></div>
+
+          <!-- LOGO -->
+          <div class="card"><div class="card-header"><h3>🖼 Certificate Logo</h3></div><div class="card-body">
+            <p style="font-size:.82rem;color:var(--muted);margin-bottom:.875rem">Upload a logo to appear at the top of the certificate. Leave empty to use no logo, or it will fall back to the platform logo if set.</p>
+            <div style="display:flex;gap:1.25rem;align-items:flex-start">
+              <div>
+                ${cr.logoUrl ? `<img src="${cr.logoUrl}" style="height:60px;object-fit:contain;background:var(--paper);border:1px solid var(--border);border-radius:8px;padding:.5rem;display:block;margin-bottom:.5rem" alt="cert logo">` : '<div style="height:60px;width:120px;background:var(--paper);border:1px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.75rem;margin-bottom:.5rem">No logo</div>'}
+                <div style="display:flex;gap:.5rem">
+                  <button class="btn btn-secondary btn-sm" onclick="document.getElementById('cert-logo-input').click()">⬆ Upload Logo</button>
+                  ${cr.logoUrl ? '<button class="btn btn-danger btn-sm" onclick="removeCertLogo()">Remove</button>' : ''}
+                </div>
+              </div>
+              <div style="font-size:.78rem;color:var(--muted);line-height:1.6">
+                <strong>Tips:</strong><br>
+                PNG with transparent background works best.<br>
+                Landscape format (wider than tall) recommended.<br>
+                Will appear above the header text.
+              </div>
+            </div>
+          </div></div>
+
+          <button class="btn btn-primary btn-lg" onclick="saveCertConfig()" style="justify-content:center">✓ Save Certificate Design</button>
+        </div>
+
+        <!-- LIVE PREVIEW -->
+        <div class="card" style="position:sticky;top:70px"><div class="card-header"><h3>👁 Live Preview</h3></div><div class="card-body" style="padding:.75rem">
+          <div id="cert-admin-preview" style="background:linear-gradient(135deg,${cr.bgFrom},${cr.bgTo});border:2px solid ${cr.accentColor};border-radius:10px;padding:1.5rem;text-align:center;position:relative;font-family:inherit;transform:scale(.9);transform-origin:top center">
+          </div>
+          <p style="font-size:.7rem;color:var(--muted);margin-top:.875rem;text-align:center">Preview updates live. This is how certificates will look for all users.</p>
+          <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;margin-top:.5rem" onclick="previewCertFull()">🔍 Open Full Preview</button>
+        </div></div>
+      </div>`;
+
+    // Render admin cert preview
+    certPreview();
+    // Wire up colour hex inputs
+    document.getElementById('cr-bg1').oninput = function(){ document.getElementById('cr-bg1-hex').value=this.value; certPreview(); };
+    document.getElementById('cr-bg2').oninput = function(){ document.getElementById('cr-bg2-hex').value=this.value; certPreview(); };
+
   // ── ANALYTICS ──
   } else if (tab==='analytics') {
     let allUsers=[], enrCount=0, compCount=0;
@@ -1821,7 +2020,90 @@ function deleteCourse(id) {
   if (modal) modal.remove();
   renderCourses(); renderDash(); renderAC('videos');
   toast('Course deleted.','success');
-}{ const tc=document.getElementById('toasts'); const t=document.createElement('div'); t.className='toast '+type; t.innerHTML=`<span>${type==='success'?'✓':type==='error'?'✕':'ℹ'}</span><span>${msg}</span>`; tc.appendChild(t); setTimeout(()=>{t.style.animation='sIn .3s ease reverse';setTimeout(()=>t.remove(),280);},3500); }
+}
+
+// ── TOAST ──
+function toast(msg,type='info') { const tc=document.getElementById('toasts'); const t=document.createElement('div'); t.className='toast '+type; t.innerHTML=`<span>${type==='success'?'✓':type==='error'?'✕':'ℹ'}</span><span>${msg}</span>`; tc.appendChild(t); setTimeout(()=>{t.style.animation='sIn .3s ease reverse';setTimeout(()=>t.remove(),280);},3500); }
+
+// ── CERTIFICATE ADMIN ──
+function certPreview() {
+  const el = document.getElementById('cert-admin-preview');
+  if (!el) return;
+  const cr = {
+    headerText:  document.getElementById('cr-header')?.value   ?? BRAND.cert.headerText,
+    titleText:   document.getElementById('cr-title')?.value    ?? BRAND.cert.titleText,
+    bodyText:    document.getElementById('cr-body')?.value     ?? BRAND.cert.bodyText,
+    subText:     document.getElementById('cr-sub')?.value      ?? BRAND.cert.subText,
+    footerNote:  document.getElementById('cr-footer')?.value   ?? BRAND.cert.footerNote,
+    sig1Name:    document.getElementById('cr-sig1n')?.value    ?? BRAND.cert.sig1Name,
+    sig1Role:    document.getElementById('cr-sig1r')?.value    ?? BRAND.cert.sig1Role,
+    sig2Name:    document.getElementById('cr-sig2n')?.value    ?? BRAND.cert.sig2Name,
+    sig2Role:    document.getElementById('cr-sig2r')?.value    ?? BRAND.cert.sig2Role,
+    accentColor: document.getElementById('cr-accent')?.value   ?? BRAND.cert.accentColor,
+    bgFrom:      document.getElementById('cr-bg1')?.value      ?? BRAND.cert.bgFrom,
+    bgTo:        document.getElementById('cr-bg2')?.value      ?? BRAND.cert.bgTo,
+    showBorder:  document.getElementById('cr-border')?.checked ?? BRAND.cert.showBorder,
+    logoUrl:     BRAND.cert.logoUrl,
+  };
+  const logoHtml = (cr.logoUrl || BRAND.logoUrl)
+    ? `<img src="${cr.logoUrl||BRAND.logoUrl}" style="height:32px;object-fit:contain;margin-bottom:.5rem" alt="logo">`
+    : '';
+  el.style.background = `linear-gradient(135deg,${cr.bgFrom},${cr.bgTo})`;
+  el.style.borderColor = cr.accentColor;
+  el.innerHTML = `
+    ${cr.showBorder?`<div style="position:absolute;inset:8px;border:1px solid ${cr.accentColor}40;border-radius:7px;pointer-events:none"></div>`:''}
+    ${logoHtml}
+    <div style="font-size:.72rem;font-weight:800;color:${cr.accentColor};text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem">${cr.headerText}</div>
+    <div style="font-size:.55rem;text-transform:uppercase;letter-spacing:.15em;color:#6b7280;margin-bottom:.2rem">${cr.titleText}</div>
+    <div style="font-size:.65rem;color:#6b7280;margin-bottom:.5rem">${cr.bodyText}</div>
+    <div style="font-size:1rem;font-weight:800;margin-bottom:.2rem">Recipient Name</div>
+    <div style="font-size:.65rem;color:#6b7280;margin-bottom:.5rem">${cr.subText}</div>
+    <div style="font-size:.82rem;font-weight:800;color:${cr.accentColor};border-bottom:1.5px solid ${cr.accentColor}40;padding-bottom:.4rem;margin-bottom:.6rem">Course Title</div>
+    <div style="font-size:.6rem;color:#6b7280;margin-bottom:.875rem">${cr.footerNote}</div>
+    <div style="display:flex;justify-content:space-between;border-top:1px solid #e5e3dc;padding-top:.6rem;font-size:.55rem;color:#6b7280">
+      <div style="text-align:center"><div style="font-style:italic;font-weight:600;font-size:.62rem">${cr.sig1Name}</div><div style="width:60px;height:1px;background:#0a0a0f;margin:.3rem auto .15rem"></div><div>${cr.sig1Role}</div></div>
+      <div style="text-align:center"><div style="font-size:1.1rem">🏅</div><div style="margin-top:.1rem">${new Date().toLocaleDateString('en-ZA',{year:'numeric',month:'short',day:'numeric'})}</div></div>
+      <div style="text-align:center"><div style="font-style:italic;font-weight:600;font-size:.62rem">${cr.sig2Name}</div><div style="width:60px;height:1px;background:#0a0a0f;margin:.3rem auto .15rem"></div><div>${cr.sig2Role}</div></div>
+    </div>`;
+}
+
+async function saveCertConfig() {
+  BRAND.cert = {
+    headerText:  document.getElementById('cr-header')?.value   || BRAND.cert.headerText,
+    titleText:   document.getElementById('cr-title')?.value    || BRAND.cert.titleText,
+    bodyText:    document.getElementById('cr-body')?.value     || BRAND.cert.bodyText,
+    subText:     document.getElementById('cr-sub')?.value      || BRAND.cert.subText,
+    footerNote:  document.getElementById('cr-footer')?.value   || BRAND.cert.footerNote,
+    sig1Name:    document.getElementById('cr-sig1n')?.value    || BRAND.cert.sig1Name,
+    sig1Role:    document.getElementById('cr-sig1r')?.value    || BRAND.cert.sig1Role,
+    sig2Name:    document.getElementById('cr-sig2n')?.value    || BRAND.cert.sig2Name,
+    sig2Role:    document.getElementById('cr-sig2r')?.value    || BRAND.cert.sig2Role,
+    accentColor: document.getElementById('cr-accent')?.value   || BRAND.cert.accentColor,
+    bgFrom:      document.getElementById('cr-bg1')?.value      || BRAND.cert.bgFrom,
+    bgTo:        document.getElementById('cr-bg2')?.value      || BRAND.cert.bgTo,
+    showBorder:  document.getElementById('cr-border')?.checked ?? BRAND.cert.showBorder,
+    logoUrl:     BRAND.cert.logoUrl,
+  };
+  try {
+    await sb.upsert('branding', { id:1, cert_config: JSON.stringify(BRAND.cert) });
+    toast('Certificate design saved!','success');
+  } catch(e) { toast('Saved locally (DB: '+e.message+')'); }
+}
+
+function removeCertLogo() { BRAND.cert.logoUrl=null; renderAC('certificate'); toast('Certificate logo removed'); }
+
+function handleCertLogoFile(e) {
+  const f=e.target.files[0]; if(!f) return;
+  const reader=new FileReader();
+  reader.onload=evt=>{ BRAND.cert.logoUrl=evt.target.result; renderAC('certificate'); toast('Certificate logo uploaded!','success'); };
+  reader.readAsDataURL(f); e.target.value='';
+}
+
+function previewCertFull() {
+  const c = allC()[0];
+  renderCertPreview(c ? c.title : 'Sample Course Title', U.name);
+  document.getElementById('cert-modal').classList.remove('hidden');
+}
 
 // ── RESPONSIVE ──
 function chkMob(){ document.getElementById('menu-btn').style.display=window.innerWidth<=768?'flex':'none'; }

@@ -679,6 +679,7 @@ tr:hover td { background: var(--paper); }
     <div class="admin-tab" onclick="switchAT('resources',this)">📚 Resources</div>
     <div class="admin-tab" onclick="switchAT('announce',this)">📢 Announcements</div>
     <div class="admin-tab" onclick="switchAT('branding',this)">🎨 Branding</div>
+    <div class="admin-tab" onclick="switchAT('certificate',this)">🎓 Certificate</div>
     <div class="admin-tab" onclick="switchAT('analytics',this)">📊 Analytics</div>
   </div>
   <div class="cw" id="admin-content"></div>
@@ -720,6 +721,7 @@ tr:hover td { background: var(--paper); }
 <input type="file" id="ava-input" accept="image/*" style="display:none" onchange="handleAva(event)">
 <input type="file" id="logo-input" accept="image/*,.svg" style="display:none" onchange="handleLogoFile(event)">
 <input type="file" id="favicon-input" accept="image/*,.ico" style="display:none" onchange="handleFaviconFile(event)">
+<input type="file" id="cert-logo-input" accept="image/*" style="display:none" onchange="handleCertLogoFile(event)">
 
 <!-- SCRIPTS: data first, then app logic -->
 <script src="app.js"></script>
