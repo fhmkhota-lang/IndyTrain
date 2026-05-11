@@ -2086,8 +2086,11 @@ async function saveCertConfig() {
   };
   try {
     await sb.upsert('branding', { id:1, cert_config: JSON.stringify(BRAND.cert) });
-    toast('Certificate design saved!','success');
-  } catch(e) { toast('Saved locally (DB: '+e.message+')'); }
+    toast('✓ Certificate design saved — all users will see this style!', 'success');
+  } catch(e) {
+    toast('DB Error: ' + e.message + ' — run the cert_config SQL patch in Supabase', 'error');
+    console.error('saveCertConfig error:', e);
+  }
 }
 
 function removeCertLogo() { BRAND.cert.logoUrl=null; renderAC('certificate'); toast('Certificate logo removed'); }
