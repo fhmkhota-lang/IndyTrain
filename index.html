@@ -538,12 +538,15 @@ tr:hover td { background: var(--paper); }
       <h3 style="font-size:.9rem;font-weight:700;margin-bottom:.875rem">Course Content</h3>
       <div id="cd-modules"></div>
       <div style="margin-top:1.25rem">
-        <h3 style="font-size:.9rem;font-weight:700;margin-bottom:.875rem">📝 Knowledge Quiz</h3>
+        <h3 style="font-size:.9rem;font-weight:700;margin-bottom:.875rem">📝 Assessment</h3>
         <div class="card"><div class="card-body" style="text-align:center;padding:1.75rem">
           <div style="font-size:2.5rem;margin-bottom:.75rem">📝</div>
           <h3 style="margin-bottom:.4rem;font-size:1rem">Test Your Knowledge</h3>
-          <p style="color:var(--muted);font-size:.82rem;margin-bottom:1rem">Complete the quiz to earn your course badge and a downloadable certificate.</p>
-          <button class="btn btn-primary" onclick="startQuiz(CUR)">Start Quiz →</button>
+          <p style="color:var(--muted);font-size:.82rem;margin-bottom:1rem">Complete the assessment to earn your course badge and a downloadable certificate.</p>
+          <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="startQuiz(CUR)">Start Quiz →</button>
+            ${CUR.quizUrl ? `<a href="${CUR.quizUrl}" target="_blank" rel="noopener" class="btn btn-secondary">📋 Open Questionnaire ↗</a>` : ''}
+          </div>
         </div></div>
       </div>
     </div>

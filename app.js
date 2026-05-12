@@ -370,7 +370,7 @@ const COURSES = [
   // SALES (Training Workflow)
   // ════════════════════════════════
   {
-    id: 101, title: "Welcome to Independent Media Group", cat: "Sales",
+    id: 101, quizUrl: "https://docs.google.com/forms/d/1wXbWQcQkPRDTbl4IyOmLueWL1A1A8oiX5T5gWLxmkkE/viewform", title: "Welcome to Independent Media Group", cat: "Sales",
     emoji: "🏢", color: "#1a3a1a", rating: "5.0", badge: "🏢",
     steps: 1, dur: "~30 min",
     about: "An introduction to the Independent Media Group — our history, values, mission, and the role we play in South Africa's media landscape. Essential onboarding for all new team members.",
@@ -381,7 +381,7 @@ const COURSES = [
     ]
   },
   {
-    id: 102, title: "Introduction to Volt Africa", cat: "Sales",
+    id: 102, quizUrl: "https://docs.google.com/forms/d/1TUwhsraNX6jMV8e6MvTfatz7nbt8Jv9TM6C0NOBRwa4/viewform", title: "Introduction to Volt Africa", cat: "Sales",
     emoji: "⚡", color: "#1a1a5c", rating: "5.0", badge: "⚡",
     steps: 1, dur: "~30 min",
     about: "Learn about Volt Africa — our digital media brand, its audiences, offerings, and how it fits into the broader Independent Media ecosystem. Essential for all client-facing and commercial teams.",
@@ -392,7 +392,7 @@ const COURSES = [
     ]
   },
   {
-    id: 103, title: "Module 1: The Digital Landscape", cat: "Sales",
+    id: 103, quizUrl: "https://docs.google.com/forms/d/1Nt2Z1-C7oqHF3j6VDj7ZQUdS4WhY_BpmjQXTTvWhsXg/viewform", title: "Module 1: The Digital Landscape", cat: "Sales",
     emoji: "🌐", color: "#0f3460", rating: "4.9", badge: "🌐",
     steps: 1, dur: "~45 min",
     about: "Understand the evolving digital media landscape in South Africa and globally. How audiences consume digital content, where advertising spend is shifting, and what it means for Independent Media's commercial strategy.",
@@ -404,7 +404,7 @@ const COURSES = [
     ]
   },
   {
-    id: 104, title: "Module 2: Social Media Landscape", cat: "Sales",
+    id: 104, quizUrl: "https://docs.google.com/forms/d/1qV163lzgqarFYf5yUG4xwOhjtbFkqL2oiaXx9zYWx1c/viewform", title: "Module 2: Social Media Landscape", cat: "Sales",
     emoji: "📲", color: "#16213e", rating: "4.8", badge: "📲",
     steps: 1, dur: "~45 min",
     about: "A deep dive into the social media landscape as it relates to Independent Media's commercial offerings. Covers key platforms, audience behaviour, content formats, and how to position social media as part of a client's media mix.",
@@ -416,7 +416,7 @@ const COURSES = [
     ]
   },
   {
-    id: 105, title: "Module 4: Our Ecosystem — Digital", cat: "Sales",
+    id: 105, quizUrl: "https://docs.google.com/forms/d/1B5FZ448TJ7XZs46NnlsRvLjv5fpN9FM6BpSx4tpk3ps/viewform", title: "Module 4: Our Ecosystem — Digital", cat: "Sales",
     emoji: "💻", color: "#533483", rating: "4.8", badge: "💻",
     steps: 1, dur: "~45 min",
     about: "Explore the full suite of Independent Media's digital platforms and products. Learn how to package digital offerings for clients, understand audience data, and build compelling digital proposals that drive results.",
@@ -428,7 +428,7 @@ const COURSES = [
     ]
   },
   {
-    id: 106, title: "Module 5: Our Ecosystem — Paid Media", cat: "Sales",
+    id: 106, quizUrl: "https://docs.google.com/forms/d/1DiwCSSoLiOwWVbLIjhIpnPfRqGAJb0PvSqdzC_otRWE/viewform", title: "Module 5: Our Ecosystem — Paid Media", cat: "Sales",
     emoji: "💰", color: "#e94560", rating: "4.8", badge: "💰",
     steps: 1, dur: "~45 min",
     about: "Understand Independent Media's paid media offerings including display advertising, native content, sponsored features, and programmatic solutions. Learn how to match client objectives with the right paid media products.",
@@ -440,7 +440,7 @@ const COURSES = [
     ]
   },
   {
-    id: 107, title: "Module 8: Our Ecosystem — Opportunities", cat: "Sales",
+    id: 107, quizUrl: "https://docs.google.com/forms/d/1mzZx9T1qpRFCO8IV7WL5je1ShkVxmUx8mnH674oZMao/viewform", title: "Module 8: Our Ecosystem — Opportunities", cat: "Sales",
     emoji: "🚀", color: "#f5a623", rating: "4.9", badge: "🚀",
     steps: 1, dur: "~45 min",
     about: "Explore the full range of commercial opportunities within the Independent Media ecosystem. Identify the right opportunities for each client, build integrated proposals, and close deals with confidence.",
@@ -451,7 +451,7 @@ const COURSES = [
     ]
   },
   {
-    id: 108, title: "Back End: Workflow", cat: "Sales",
+    id: 108, quizUrl: "https://docs.google.com/forms/d/1g3nT7yhCDaVRKtDyzBNhYdi0g9dGpGJfmEf9um4Vt-M/viewform", title: "Back End: Workflow", cat: "Sales",
     emoji: "⚙️", color: "#2c3e50", rating: "4.7", badge: "⚙️",
     steps: 1, dur: "~45 min",
     about: "Understand the internal workflow processes at Independent Media — from campaign booking and trafficking to delivery and reporting. Essential knowledge for all sales and operations team members to ensure seamless campaign execution.",
@@ -463,7 +463,7 @@ const COURSES = [
     ]
   },
   {
-    id: 109, title: "Back End: Strategy", cat: "Sales",
+    id: 109, quizUrl: "https://docs.google.com/forms/d/1XfYD73Md3A5-XG4G01lsTlE_RzHmd257CBZUkjrkjJI/viewform", title: "Back End: Strategy", cat: "Sales",
     emoji: "🎯", color: "#8e44ad", rating: "4.9", badge: "🎯",
     steps: 1, dur: "~45 min",
     about: "Learn how to think and operate strategically as part of the Independent Media commercial team. Covers understanding client business objectives, building strategic media proposals, and positioning Independent Media's offerings as a strategic partner — not just a vendor.",
@@ -539,6 +539,36 @@ const RESOURCES = [
     desc: "Module 2 assessment: Social Media Landscape.",
     url: "https://forms.gle/mJ2xL22eNStTeQFn6"
   }
+  {
+    title: "Back End: Data & BI",
+    type: "Quiz", emoji: "🗃️",
+    desc: "Back End Data & Business Intelligence questionnaire.",
+    url: "https://docs.google.com/forms/d/1hPcNV-1zpyCi8UruU7ReCZd27vDE3KONZ2H3-5GG7ig/viewform"
+  },
+  {
+    title: "Programmatic Advertising",
+    type: "Quiz", emoji: "📡",
+    desc: "Programmatic advertising knowledge assessment.",
+    url: "https://docs.google.com/forms/d/1Fi0Jk7hE9H_Yb-XFF6UydeyQeS5oGoE_be9XWORbeic/viewform"
+  },
+  {
+    title: "Paid Media — Meta",
+    type: "Quiz", emoji: "📘",
+    desc: "Meta paid media platforms assessment.",
+    url: "https://docs.google.com/forms/d/1Jfx8MGLCRSozOVxyetqDUoP38vQcphOhtjSs6odZrGs/viewform"
+  },
+  {
+    title: "Sandton Times",
+    type: "Quiz", emoji: "📰",
+    desc: "Sandton Times brand and platform questionnaire.",
+    url: "https://docs.google.com/forms/d/1wqFj05FhUvt4G_MSLNOjw4URDUgzyc6h3v0xdhGVYXM/viewform"
+  },
+  {
+    title: "Trello",
+    type: "Quiz", emoji: "📋",
+    desc: "Trello project management tool assessment.",
+    url: "https://docs.google.com/forms/d/1OWxgEyq3VbGMa_fnnmZ_WV3dPQH4UdPdSSZ2i0a8fpI/viewform"
+  },
 ];
 
 // ── CHAT ROOMS ──
@@ -858,10 +888,11 @@ function applyBranding() {
       }
     }
   }
-  // Sidebar brand — icon on left, name+tagline on right (always visible)
+  // Sidebar brand — icon on left, name only on right (no tagline)
   const bn = document.querySelector('.brand-name');
   if (bn) {
-    bn.innerHTML = `${BRAND.name}<span>${BRAND.tagline}</span>`;
+    bn.innerHTML = BRAND.name;
+    bn.querySelector('span') && (bn.querySelector('span').style.display = 'none');
   }
   // Brand icon — show logo image inside the icon box if set
   const bi = document.querySelector('.brand-icon');
