@@ -1042,6 +1042,10 @@ function syncUI() {
   document.getElementById('cert-name').textContent=U.name;
   document.getElementById('edit-name').value=U.name;
   document.getElementById('edit-email').value=U.email;
+  // Personalise the dashboard hero greeting with first name
+  const firstName = U.name.split(' ')[0];
+  const eyebrow = document.getElementById('hero-eyebrow');
+  if (eyebrow) eyebrow.textContent = 'Welcome back, ' + firstName + ' 👋';
 }
 
 async function updatePendingBadge() {
