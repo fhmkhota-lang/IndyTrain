@@ -370,108 +370,152 @@ const COURSES = [
   // SALES (Training Workflow)
   // ════════════════════════════════
   {
-    id: 101, quizUrl: "https://docs.google.com/forms/d/1wXbWQcQkPRDTbl4IyOmLueWL1A1A8oiX5T5gWLxmkkE/viewform", title: "Welcome to Independent Media Group", cat: "Sales",
+    id: 101, title: "Welcome to Independent Media Group", cat: "Sales",
     emoji: "🏢", color: "#1a3a1a", rating: "5.0", badge: "🏢",
     steps: 1, dur: "~30 min",
     about: "An introduction to the Independent Media Group — our history, values, mission, and the role we play in South Africa's media landscape. Essential onboarding for all new team members.",
     modules: [{ name: "Welcome", steps: [{ t: "Welcome to Independent Media Group", d: "Our history, values, mission, and our role in South Africa's media landscape." }] }],
     quiz: [
-      { q: "Independent Media is primarily based in:", opts: ["Johannesburg", "Cape Town", "Durban", "Pretoria"], ans: 0 },
-      { q: "What is the primary mission of Independent Media Group?", opts: ["Entertainment only", "Quality journalism that serves communities across South Africa", "International news only", "Digital advertising only"], ans: 1 }
+      { q: "Which company serves as the exclusive sales partner for Independent Media Group and IOL?", opts: ["Sandton Times", "Mail & Guardian", "Volt Africa", "African Community Property"], ans: 2 },
+      { q: "What is the primary method used to sell to clients across various platforms?", opts: ["Raw reader volume", "Audience-based targeting", "Print-only packages", "Geographical location"], ans: 1 },
+      { q: "What percentage of the group's digital traffic is generated via mobile devices?", opts: ["50%", "23%", "80%", "48%"], ans: 2 },
+      { q: "Independent Media focuses its newspaper coverage on which major South African metropolitan areas?", opts: ["Durban, Johannesburg, Pretoria, and Cape Town", "Soweto, Polokwane, and Bloemfontein", "Port Elizabeth, East London, and George", "Kimberley, Nelspruit, and Rustenburg"], ans: 0 },
+      { q: "Which social media platform has the largest following for the group?", opts: ["X (formerly Twitter)", "TikTok", "Facebook", "Instagram", "YouTube", "LinkedIn"], ans: 2 },
+      { q: "What is the average age distribution of the Independent Media audience?", opts: ["18 to 24", "25 to 34", "35 to 54", "55 and older"], ans: 2 },
+      { q: "Beyond selling internal inventory, what other service does Volt Africa provide as an agency?", opts: ["Printing newspapers", "Buying paid media inventory on behalf of customers", "Writing original editorial content", "Manufacturing cosmetics"], ans: 1 },
+      { q: "Approximately how many unique online users does the group have?", opts: ["5 million", "10 to 15 million", "36 million", "680,000"], ans: 2 }
     ]
   },
   {
-    id: 102, quizUrl: "https://docs.google.com/forms/d/1TUwhsraNX6jMV8e6MvTfatz7nbt8Jv9TM6C0NOBRwa4/viewform", title: "Introduction to Volt Africa", cat: "Sales",
+    id: 102, title: "Introduction to Volt Africa", cat: "Sales",
     emoji: "⚡", color: "#1a1a5c", rating: "5.0", badge: "⚡",
     steps: 1, dur: "~30 min",
     about: "Learn about Volt Africa — our digital media brand, its audiences, offerings, and how it fits into the broader Independent Media ecosystem. Essential for all client-facing and commercial teams.",
     modules: [{ name: "Volt Africa", steps: [{ t: "Introduction to Volt Africa", d: "Volt Africa's audiences, digital offerings, and its position in the Independent Media ecosystem." }] }],
     quiz: [
-      { q: "Volt Africa is primarily a:", opts: ["Print newspaper", "Digital media brand targeting South African audiences", "Radio station", "Television network"], ans: 1 },
-      { q: "Volt Africa is part of which larger media group?", opts: ["Media24", "Naspers", "Independent Media Group", "Times Media"], ans: 2 }
+      { q: "What is the core approach Volt Africa uses to redefine advertising?", opts: ["A digital-only strategy", "A 360° approach integrating print, digital, social, and paid media", "A focus exclusively on traditional print media", "A localised approach focusing only on search engines"], ans: 1 },
+      { q: "Which of these publishers is part of Volt Africa's exclusive 'sell side' network?", opts: ["Facebook and Instagram", "News24 and Times Live", "Independent Media, ACM, Condé Nast, and Mail & Guardian", "YouTube and TikTok"], ans: 2 },
+      { q: "What does operating on the 'buy side' allow Volt Africa to do for its clients?", opts: ["Purchase inventory only within their own publisher network", "Manage print subscriptions for publishers", "Buy inventory outside their network, such as programmatic ads, Google search, and paid social", "Sell their own company shares to investors"], ans: 2 },
+      { q: "How does Volt Africa utilise DV360 for advertising?", opts: ["To create print advertisements for House & Garden", "To run video advertisements on platforms like YouTube", "To manage physical billboards in Sandton", "To track organic search results on Google"], ans: 1 },
+      { q: "What is the ultimate goal of Volt Africa's results-driven campaigns?", opts: ["To focus purely on traditional advertising methods", "To ensure clients reach the right audience at the right time, regardless of platform or content", "To replace digital media with print media", "To limit client reach to a single specific platform"], ans: 1 }
     ]
   },
   {
-    id: 103, quizUrl: "https://docs.google.com/forms/d/1Nt2Z1-C7oqHF3j6VDj7ZQUdS4WhY_BpmjQXTTvWhsXg/viewform", title: "Module 1: The Digital Landscape", cat: "Sales",
+    id: 103, title: "Module 1: The Digital Landscape", cat: "Sales",
     emoji: "🌐", color: "#0f3460", rating: "4.9", badge: "🌐",
     steps: 1, dur: "~45 min",
     about: "Understand the evolving digital media landscape in South Africa and globally. How audiences consume digital content, where advertising spend is shifting, and what it means for Independent Media's commercial strategy.",
     modules: [{ name: "The Digital Landscape", steps: [{ t: "The Digital Landscape", d: "How audiences consume digital content, where advertising spend is shifting, and what it means for our commercial strategy." }] }],
     quiz: [
-      { q: "Digital advertising spend in South Africa has been:", opts: ["Declining steadily", "Growing year on year as audiences shift online", "Remaining flat", "Replaced entirely by print advertising"], ans: 1 },
-      { q: "What is 'programmatic advertising'?", opts: ["Advertising on TV programmes", "Automated buying and selling of digital advertising inventory", "Print advertising with a programme", "Social media advertising only"], ans: 1 },
-      { q: "Which platform type has seen the biggest growth in news consumption?", opts: ["Print newspapers", "Mobile and social media platforms", "Radio", "Billboards"], ans: 1 }
+      { q: "How much time does the average user spend consuming digital content daily?", opts: ["3.5 hours per day", "9.5 hours per week", "9.5 hours per day", "1 hour per day"], ans: 0 },
+      { q: "Which type of content currently dominates user attention and is used by roughly 97% of internet users?", opts: ["Content", "Display", "Social Media", "Video", "DV360"], ans: 3 },
+      { q: "What is user attention driven by?", opts: ["Reach", "Algorithms", "Loyalty"], ans: 1 },
+      { q: "Why do news platforms remain a vital part of a digital strategy despite high usage of social media?", opts: ["They are cheaper than social media", "They offer trusted, credible environments that social media cannot replicate", "They have more users than social media", "They are easier to advertise on"], ans: 1 },
+      { q: "Why is 'Organic Reach' for brands no longer considered a reliable standalone strategy?", opts: ["It costs too much", "Algorithm changes have drastically reduced organic visibility for brands", "It only works for large brands", "It requires too much content"], ans: 1 }
     ]
   },
   {
-    id: 104, quizUrl: "https://docs.google.com/forms/d/1qV163lzgqarFYf5yUG4xwOhjtbFkqL2oiaXx9zYWx1c/viewform", title: "Module 2: Social Media Landscape", cat: "Sales",
+    id: 104, title: "Module 2: Social Media Landscape", cat: "Sales",
     emoji: "📲", color: "#16213e", rating: "4.8", badge: "📲",
     steps: 1, dur: "~45 min",
     about: "A deep dive into the social media landscape as it relates to Independent Media's commercial offerings. Covers key platforms, audience behaviour, content formats, and how to position social media as part of a client's media mix.",
     modules: [{ name: "Social Media Landscape", steps: [{ t: "Social Media Landscape", d: "Key platforms, audience behaviour, content formats, and how to position social media as part of a client's media mix." }] }],
     quiz: [
-      { q: "When pitching social media to a client, the most important factor to lead with is:", opts: ["The number of followers", "Audience alignment — reaching the right people at the right time", "The lowest cost per post", "The platform's global popularity"], ans: 1 },
-      { q: "Which social media metric is most useful for measuring brand awareness campaigns?", opts: ["Conversions", "Reach and impressions", "Cost per click", "Revenue generated"], ans: 1 },
-      { q: "Short-form video content (e.g. Reels, TikTok) is effective because:", opts: ["It is cheaper to produce", "It captures attention quickly and has high organic reach on most platforms", "It replaces all other content formats", "Only young people watch it"], ans: 1 }
+      { q: "What percentage of the adult population in South Africa used social media at the end of 2025?", opts: ["Roughly 50%", "Roughly 65%", "Roughly 75%", "Over 80%"], ans: 1 },
+      { q: "On average, how many different social media apps does a South African user have on their phone?", opts: ["5-6", "7-8", "8-9", "Less than 5"], ans: 1 },
+      { q: "True or False: The gender split of social media users in South Africa is heavily skewed, with 75% being male.", opts: ["True", "False"], ans: 1 },
+      { q: "Approximately how many hours per week does the average user spend on social media?", opts: ["3.5 hours", "4 hours", "4.5 hours", "9 hours"], ans: 3 },
+      { q: "Which platform is currently noted for receiving the most attention and taking 'huge leaps' in the market?", opts: ["Facebook", "YouTube", "TikTok", "Instagram"], ans: 2 },
+      { q: "Why is a single platform social media strategy considered 'weak'?", opts: ["Because algorithms favour brands that post identical content across all platforms", "Because each platform has the same audience, so using more than one is redundant", "Because managing multiple platforms is always cheaper and more efficient", "Because users toggle between multiple platforms; a single-platform strategy misses large portions of audience"], ans: 3 },
+      { q: "What determines what content gets seen or ignored on social media platforms?", opts: ["Reach", "Budget", "Algorithm", "Followers"], ans: 2 },
+      { q: "Which platform is described as the 'backbone of digital campaigns' and carries the most weight for ad spend and ROI?", opts: ["Facebook", "TikTok", "Instagram", "X", "LinkedIn", "WhatsApp"], ans: 0 },
+      { q: "On which platform is user intent often driven by 'search', making it valuable for in-depth storytelling and message retention?", opts: ["YouTube", "Google", "DV360", "Video"], ans: 0 },
+      { q: "Which platform relies on real-time participation in conversations rather than just broadcasting content?", opts: ["YouTube", "Facebook", "X", "TikTok", "LinkedIn"], ans: 2 }
     ]
   },
   {
-    id: 105, quizUrl: "https://docs.google.com/forms/d/1B5FZ448TJ7XZs46NnlsRvLjv5fpN9FM6BpSx4tpk3ps/viewform", title: "Module 4: Our Ecosystem — Digital", cat: "Sales",
+    id: 105, title: "Module 4: Our Ecosystem — Digital", cat: "Sales",
     emoji: "💻", color: "#533483", rating: "4.8", badge: "💻",
     steps: 1, dur: "~45 min",
     about: "Explore the full suite of Independent Media's digital platforms and products. Learn how to package digital offerings for clients, understand audience data, and build compelling digital proposals that drive results.",
     modules: [{ name: "Our Ecosystem — Digital", steps: [{ t: "Our Ecosystem — Digital", d: "The full suite of Independent Media's digital platforms and products. How to package digital offerings for clients and build compelling digital proposals." }] }],
     quiz: [
-      { q: "When selling digital advertising, which is the strongest value proposition for a client?", opts: ["The lowest CPM in the market", "Reaching a qualified, engaged audience that aligns with their target market", "The most ad formats available", "The largest total audience regardless of relevance"], ans: 1 },
-      { q: "What does 'CPM' stand for in digital advertising?", opts: ["Cost Per Month", "Cost Per Mille (cost per thousand impressions)", "Clicks Per Minute", "Content Per Medium"], ans: 1 },
-      { q: "An 'integrated digital campaign' typically includes:", opts: ["One ad format only", "A combination of display, social, video, and content marketing across multiple touchpoints", "Only social media advertising", "Only Google advertising"], ans: 1 }
+      { q: "True or False: Display advertising should primarily be sold as a direct conversion tool.", opts: ["True", "False"], ans: 1 },
+      { q: "What is the 'billboard on a highway' analogy used to describe?", opts: ["High click-through rates (CTR)", "Brand awareness through repeated visibility", "Direct response marketing", "Content marketing strategy"], ans: 1 },
+      { q: "In digital advertising, what does the acronym CPM stand for?", opts: ["Cost per Thousand Impressions", "Cost per Thousand Users"], ans: 0 },
+      { q: "A 'Page Takeover' provides a client with exclusivity on a page or section for what period of time?", opts: ["12 hours", "24 hours", "Not time based, based on amount of impressions sold"], ans: 1 },
+      { q: "Which type of content is written by the publisher's staff, does not show 'partnered' in the URL, and is credited to a 'staff reporter'?", opts: ["Sponsored content", "Partnered content", "Native content"], ans: 2 },
+      { q: "According to the video, how does strong content improve paid media performance?", opts: ["It increases engagement rates (clicks and shares)", "It increases engagement rates (clicks and shares) and lowers the cost per click", "It lowers the cost per click"], ans: 1 },
+      { q: "Why is content considered a 'bridge' in the marketing funnel?", opts: ["Between Awareness and Consideration", "Between Consideration and Conversion", "Between Awareness and Conversion"], ans: 2 },
+      { q: "What is the main difference between 'boosting' a post and a 'paid social campaign'?", opts: ["Boosting uses existing organic posts; paid campaigns are built from scratch with specific objectives", "They are the same — it is just the budget that differs", "Paid campaigns uses existing organic posts for reach; boosted campaigns are built from scratch with specific objectives"], ans: 0 },
+      { q: "Why are hashtags described as 'vital' to a social media campaign?", opts: ["They show what is trending", "They group content together", "They help with Gorilla Marketing"], ans: 1 },
+      { q: "Within how many seconds must a video capture a user's attention before it typically becomes skippable?", opts: ["30 seconds", "5 seconds", "15 seconds"], ans: 1 },
+      { q: "Which platform is built entirely on short-form video for discovery?", opts: ["YouTube", "Instagram", "TikTok", "LinkedIn"], ans: 2 }
     ]
   },
   {
-    id: 106, quizUrl: "https://docs.google.com/forms/d/1DiwCSSoLiOwWVbLIjhIpnPfRqGAJb0PvSqdzC_otRWE/viewform", title: "Module 5: Our Ecosystem — Paid Media", cat: "Sales",
+    id: 106, title: "Module 5: Our Ecosystem — Paid Media", cat: "Sales",
     emoji: "💰", color: "#e94560", rating: "4.8", badge: "💰",
     steps: 1, dur: "~45 min",
     about: "Understand Independent Media's paid media offerings including display advertising, native content, sponsored features, and programmatic solutions. Learn how to match client objectives with the right paid media products.",
     modules: [{ name: "Our Ecosystem — Paid Media", steps: [{ t: "Our Ecosystem — Paid Media", d: "Display advertising, native content, sponsored features, and programmatic solutions. Match client objectives with the right paid media products." }] }],
     quiz: [
-      { q: "'Native advertising' refers to:", opts: ["Advertising that appears on local community websites only", "Paid content that matches the look and feel of the editorial environment it appears in", "Outdoor advertising using local landmarks", "Only print advertising"], ans: 1 },
-      { q: "Which paid media format is generally most effective for brand storytelling?", opts: ["Standard display banner ads", "Sponsored content/native articles", "Pop-up ads", "Pre-roll video only"], ans: 1 },
-      { q: "When a client asks for 'performance-based' advertising, they typically want:", opts: ["Brand awareness with no measurement", "To pay based on measurable outcomes like clicks, leads, or conversions", "The cheapest available option", "Only social media advertising"], ans: 1 }
+      { q: "How does the speaker define 'Paid Media' in relation to a publisher's own platforms?", opts: ["It is internal advertising within platforms like IOL or the Star", "It is targeting an audience that is not on the publisher's own platforms", "It is purely organic content shared on social media", "It is only available for ad agency clients"], ans: 1 },
+      { q: "Why is caution advised when offering paid media services to ad agencies?", opts: ["Because agencies do not understand digital advertising", "Because it is too expensive for agencies to afford", "Because it acts as direct competition to them and could damage the professional relationship", "Because agencies only focus on print media"], ans: 2 },
+      { q: "In the South African digital ad spend landscape, which category accounts for the majority (approximately 70%) of spend?", opts: ["Social Media", "Programmatic Display", "Search", "Native Advertising"], ans: 0 },
+      { q: "What is DV360 (Display & Video 360) described as in the video?", opts: ["A tool specifically for building websites", "A social media platform competing with TikTok", "A central hub to buy digital ads efficiently across multiple platforms at scale", "An offline billboard management system"], ans: 2 },
+      { q: "What is the core focus of Google Ads as described by the speaker?", opts: ["Passively scrolling through content", "Intent-driven marketing that connects with individuals actively searching for products or services", "Reaching audiences only on non-reputable websites", "Strictly video-only content for YouTube"], ans: 1 },
+      { q: "True or False: Google Ads is ineffective for retargeting previous website visitors.", opts: ["True", "False"], ans: 1 },
+      { q: "Which social media platform is mentioned as growing 'exceptionally fast' and sometimes offering a better ROI than Meta?", opts: ["X (formerly Twitter)", "LinkedIn", "TikTok", "Instagram"], ans: 2 },
+      { q: "What does 'Programmatic' advertising mean in the context of system-to-system transactions?", opts: ["A manual process where humans call each other to buy ads", "A system where one automated system buys from another automated system", "Advertising that is only available on radio", "A way to increase wastage in advertising budgets"], ans: 1 },
+      { q: "How does the company charge for managing paid media campaigns?", opts: ["A 20% management fee with no setup costs", "A flat monthly subscription with a 50% discount for agencies", "A R5,000 setup fee and 15% management fee", "A R3,500 setup fee per platform and a 30% management fee"], ans: 3 }
     ]
   },
   {
-    id: 107, quizUrl: "https://docs.google.com/forms/d/1mzZx9T1qpRFCO8IV7WL5je1ShkVxmUx8mnH674oZMao/viewform", title: "Module 8: Our Ecosystem — Opportunities", cat: "Sales",
+    id: 107, title: "Module 8: Our Ecosystem — Opportunities", cat: "Sales",
     emoji: "🚀", color: "#f5a623", rating: "4.9", badge: "🚀",
     steps: 1, dur: "~45 min",
     about: "Explore the full range of commercial opportunities within the Independent Media ecosystem. Identify the right opportunities for each client, build integrated proposals, and close deals with confidence.",
     modules: [{ name: "Our Ecosystem — Opportunities", steps: [{ t: "Our Ecosystem — Opportunities", d: "The full range of commercial opportunities within the Independent Media ecosystem. Identify the right opportunities for each client and build integrated proposals." }] }],
     quiz: [
-      { q: "An 'integrated media proposal' combines:", opts: ["Only print advertising", "Multiple platforms and formats tailored to the client's objectives and target audience", "Only digital advertising", "Only sponsored content"], ans: 1 },
-      { q: "When identifying opportunities for a client, the best starting point is:", opts: ["The cheapest available packages", "Understanding the client's business objectives and target audience", "The most expensive premium packages", "Whatever was sold to the last client"], ans: 1 }
+      { q: "What is the primary key to creating an effective marketing campaign from a large portfolio of products?", opts: ["Quoting only on products you are most familiar with", "Matching the specific product to the client's objective", "Using as many different platforms as possible to increase reach", "Focusing solely on high-reach display advertising"], ans: 1 },
+      { q: "Which product is described as being ideal for 'brand awareness' due to high reach and visibility, despite having a low click-through rate?", opts: ["Sponsored articles", "Paid search", "Display advertising", "Organic social media"], ans: 2 },
+      { q: "Why is 'native advertising' (content) considered highly credible?", opts: ["It uses advanced data targeting", "It is integrated within trusted editorial platforms", "It forces a hard sell to the reader", "It is more cost-effective than print"], ans: 1 },
+      { q: "What is the main difference between 'organic social' and 'boosted social'?", opts: ["Organic is only for video, while boosted is for text", "Organic posts are on owned platforms; boosted posts use paid amplification to reach external audiences", "Boosted social is only for older demographics", "There is no difference; they are the same product"], ans: 1 },
+      { q: "Which products are recommended for 'performance and conversion' objectives?", opts: ["Print magazines and newspapers", "Display banners and billboards", "Paid search, paid social, and retargeting", "Webinars and in-person activations"], ans: 2 },
+      { q: "True or False: Multi-product campaigns can lead to a stronger return on investment and higher client retention.", opts: ["True", "False"], ans: 0 },
+      { q: "True or False: Banners and leaderboards cannot be targeted by demographics or geography.", opts: ["True", "False"], ans: 1 },
+      { q: "True or False: Traditional print media is still valuable for reaching premium audiences and establishing brand authority.", opts: ["True", "False"], ans: 0 },
+      { q: "True or False: Content-led campaigns are designed for an immediate 'hard sell' where customers buy right away.", opts: ["True", "False"], ans: 1 },
+      { q: "True or False: Retargeting involves sending campaigns specifically to people who have already shown interest, such as by abandoning a shopping cart.", opts: ["True", "False"], ans: 0 },
+      { q: "What is the 'most important word' used to describe what clients are actually buying?", opts: ["Solution", "Audience", "Reach", "Budget"], ans: 1 }
     ]
   },
   {
-    id: 108, quizUrl: "https://docs.google.com/forms/d/1g3nT7yhCDaVRKtDyzBNhYdi0g9dGpGJfmEf9um4Vt-M/viewform", title: "Back End: Workflow", cat: "Sales",
+    id: 108, title: "Back End: Workflow", cat: "Sales",
     emoji: "⚙️", color: "#2c3e50", rating: "4.7", badge: "⚙️",
     steps: 1, dur: "~45 min",
     about: "Understand the internal workflow processes at Independent Media — from campaign booking and trafficking to delivery and reporting. Essential knowledge for all sales and operations team members to ensure seamless campaign execution.",
     modules: [{ name: "Workflow", steps: [{ t: "Workflow 2026", d: "Campaign booking and trafficking to delivery and reporting. Essential knowledge for all sales and operations team members." }] }],
     quiz: [
-      { q: "In campaign management, 'trafficking' refers to:", opts: ["Road-based advertising", "The process of setting up and managing digital ad creative in the ad server", "Illegal ad activities", "Print distribution logistics"], ans: 1 },
-      { q: "Why is accurate campaign briefing important?", opts: ["It fills in time before a campaign starts", "It ensures the creative and technical teams can execute the campaign correctly, on time, and on spec", "It is only required for large campaigns", "It is only required for digital campaigns"], ans: 1 },
-      { q: "When a campaign goes live, the next key step is:", opts: ["Immediately booking the next campaign", "Monitoring delivery and performance to ensure it is running correctly", "Waiting until the end of the campaign to review", "Sending an invoice immediately"], ans: 1 }
+      { q: "What are the two items that must be present before any action can be taken?", opts: ["Trello Card and Signed IO", "Signed IO and POP", "Trello Card and Creatives"], ans: 0 },
+      { q: "When a campaign involves multiple departments what should you do?", opts: ["Copy the card to each department board", "Keep the card on your board and tag the relevant people", "Mirror the card to 1 department and they will share it with the other departments", "Mirror the card to each department"], ans: 2 },
+      { q: "What is the standard turnaround time for the strategy department?", opts: ["24 hours", "48 hours", "72 hours"], ans: 1 },
+      { q: "When you sell a content piece — mark all the elements that MUST be on the card.", opts: ["Banners", "Insertion Order", "Copy of the content in pdf format", "Image", "hashtags", "Copy of content in word format", "Video", "URL's"], ans: 1 }
     ]
   },
   {
-    id: 109, quizUrl: "https://docs.google.com/forms/d/1XfYD73Md3A5-XG4G01lsTlE_RzHmd257CBZUkjrkjJI/viewform", title: "Back End: Strategy", cat: "Sales",
+    id: 109, title: "Back End: Strategy", cat: "Sales",
     emoji: "🎯", color: "#8e44ad", rating: "4.9", badge: "🎯",
     steps: 1, dur: "~45 min",
     about: "Learn how to think and operate strategically as part of the Independent Media commercial team. Covers understanding client business objectives, building strategic media proposals, and positioning Independent Media's offerings as a strategic partner — not just a vendor.",
     modules: [{ name: "Strategy", steps: [{ t: "Back End — Strategy", d: "Understanding client business objectives, building strategic media proposals, and positioning Independent Media as a strategic partner." }] }],
     quiz: [
-      { q: "The difference between a vendor and a strategic partner is:", opts: ["Price", "A strategic partner understands the client's business goals and proposes media solutions that help achieve them", "A strategic partner only sells premium products", "There is no difference"], ans: 1 },
-      { q: "A strong media strategy proposal should always include:", opts: ["Only rate cards", "Client objectives, target audience insights, recommended media mix, and expected outcomes", "Only digital advertising options", "Whatever the client has used before"], ans: 1 },
-      { q: "When a client says 'we have no budget', a strategic response is:", opts: ["End the conversation immediately", "Understand their objectives and show how a focused campaign can deliver ROI even with limited budget", "Offer only the cheapest option", "Promise results without any data"], ans: 1 }
+      { q: "Where does the strategy team sit within the business structure?", opts: ["At the end of the production line", "At the center of the business", "Exclusively within the digital department"], ans: 1 },
+      { q: "True or False: The strategy team's primary job is only to plan campaigns.", opts: ["True", "False"], ans: 1 },
+      { q: "The strategy team bridges the gap between which two areas?", opts: ["Creative and Finance", "Sales aspirations and executive realities", "Marketing and Human Resources"], ans: 1 },
+      { q: "At what stage of the business process does the strategy team primarily operate?", opts: ["After the sale is made", "When prospecting", "Pre-Sale"], ans: 2 },
+      { q: "Which of the following is a characteristic of a good strategy according to the video?", opts: ["A broad audience defined as 'anyone with money'", "Using 'cookie-cutter' or 'copy and paste' plans", "A clearly defined target audience and specific roles for each platform"], ans: 2 }
     ]
   }
 ];
@@ -539,39 +583,95 @@ const RESOURCES = [
     desc: "Module 2 assessment: Social Media Landscape.",
     url: "https://forms.gle/mJ2xL22eNStTeQFn6"
   }
+
+  // ════════════════════════════════
+  // ADDITIONAL SALES COURSES
+  // ════════════════════════════════
   {
-    title: "Back End: Data & BI",
-    type: "Quiz", emoji: "🗃️",
-    desc: "Back End Data & Business Intelligence questionnaire.",
-    url: "https://docs.google.com/forms/d/1hPcNV-1zpyCi8UruU7ReCZd27vDE3KONZ2H3-5GG7ig/viewform"
+    id: 110, title: "Trello for Campaign Management", cat: "Sales",
+    emoji: "📋", color: "#0052cc", rating: "New", badge: "📋",
+    steps: 1, dur: "~30 min",
+    about: "Learn how to use Trello to manage campaigns efficiently across departments at Volt Africa. Covers card creation, naming conventions, mirroring, tagging, reporting, and archiving.",
+    modules: [{ name: "Trello Workflow", steps: [{ t: "Trello for Campaign Management", d: "How to use Trello to manage campaigns across departments." }] }],
+    quiz: [
+      { q: "Which of the following is the system NOT used for?", opts: ["Banner campaigns", "Social media (organic or paid)", "Print media requests", "Strategy and information requests"], ans: 3 },
+      { q: "What is the main benefit of using Trello instead of email?", opts: ["It is less daunting for beginners", "It minimises back-and-forth emails between departments", "It automatically builds the insertion orders", "It deletes old campaigns to save space"], ans: 1 },
+      { q: "What specific information must be included in the card's naming convention?", opts: ["Campaign ID, client name, type of campaign (content, social, or display), and start date", "Consultant name, client name, and budget", "Client name, Navigator ID, and department head", "Campaign type and end date"], ans: 0 },
+      { q: "How do you notify a specific team member about a message on a card?", opts: ["Send them a separate email with the card link", "Tag them using the '@' symbol followed by their name in the comments", "Move the card to the 'Completed' folder", "Archive the card and then unarchive it"], ans: 1 },
+      { q: "What is the function of 'mirroring' a card?", opts: ["To create an exact copy that can be deleted later", "To allow different departments to see and work on the same card while keeping all communication synchronised", "To back up the card in case of a server error", "To send the card directly to the client"], ans: 1 },
+      { q: "When does reporting happen?", opts: ["Only at the very end of the campaign", "Once the client asks for an interim report", "As soon as the campaign goes live", "After the consultant uploads the final screenshots"], ans: 3 },
+      { q: "Why should sales representatives download and send reports to clients themselves rather than giving clients direct access to the live link?", opts: ["To prevent clients from seeing internal comments", "Because live data can take a long time to load or show 'no data' errors for third parties", "To ensure the consultant's name is on the document", "Because the live links expire after 24 hours"], ans: 1 },
+      { q: "What should you do with a card once a campaign is finished?", opts: ["Delete it", "Move it to the 'Incoming' list", "Archive it to maintain a searchable filing system", "Leave it on the main board"], ans: 2 },
+      { q: "What attachments MUST be on every card?", opts: ["Proof of payment", "PO", "Insertion Order", "Assets", "Copy of Client's ID"], ans: 2 }
+    ]
   },
   {
-    title: "Programmatic Advertising",
-    type: "Quiz", emoji: "📡",
-    desc: "Programmatic advertising knowledge assessment.",
-    url: "https://docs.google.com/forms/d/1Fi0Jk7hE9H_Yb-XFF6UydeyQeS5oGoE_be9XWORbeic/viewform"
+    id: 111, title: "Sandton Times", cat: "Sales",
+    emoji: "📰", color: "#1a3a5c", rating: "New", badge: "📰",
+    steps: 1, dur: "~30 min",
+    about: "Learn about Sandton Times — its history, platforms, audience, and distribution strategy. Essential for sales teams representing the Sandton Times brand.",
+    modules: [{ name: "Sandton Times", steps: [{ t: "Sandton Times Platform Overview", d: "History, platforms, audience, and distribution strategy." }] }],
+    quiz: [
+      { q: "When was Sandton Times started, and how did it begin?", opts: ["2012 as a print publication", "2010 as a social media account", "2010 as a website"], ans: 2 },
+      { q: "True or False: Sandton Times focuses its coverage on local hard news, such as potholes and ward councillors.", opts: ["True", "False"], ans: 1 },
+      { q: "Name at least four platforms that make up the Sandton Times media universe.", opts: ["Website", "Friend", "Newsletter", "Mobile App", "Radio Show", "Podcast", "Print", "SMS"], ans: 0 },
+      { q: "What is the current total addressable audience across the entire platform?", opts: ["Approx 1 million", "Approx 920 000", "Approx 520 000"], ans: 0 },
+      { q: "What is the 'silver bullet' for the print edition's distribution strategy?", opts: ["Distributed Free with Uber Eats", "Distribute Free with Checkers 60/60", "Knock and Drop"], ans: 1 },
+      { q: "What is the average demographics of the Sandton Times audience?", opts: ["Young professionals and young families, aged 25 to 45, with a slight female bias", "Middle age professionals and families, aged 35 to 55, with a slight male bias", "Professionals, aged 35, with a slight female bias"], ans: 0 }
+    ]
   },
   {
-    title: "Paid Media — Meta",
-    type: "Quiz", emoji: "📘",
-    desc: "Meta paid media platforms assessment.",
-    url: "https://docs.google.com/forms/d/1Jfx8MGLCRSozOVxyetqDUoP38vQcphOhtjSs6odZrGs/viewform"
+    id: 112, title: "Programmatic Advertising", cat: "Sales",
+    emoji: "📡", color: "#2c3e50", rating: "New", badge: "📡",
+    steps: 1, dur: "~30 min",
+    about: "Understand the programmatic advertising ecosystem — DSPs, SSPs, DMPs, RTB, and the different types of programmatic buying. Essential knowledge for all digital sales teams.",
+    modules: [{ name: "Programmatic Advertising", steps: [{ t: "Programmatic Advertising Fundamentals", d: "DSPs, SSPs, DMPs, RTB, and programmatic buying types." }] }],
+    quiz: [
+      { q: "What is the primary function of a Demand-Side Platform (DSP) in the programmatic ecosystem?", opts: ["To host ad inventory for publishers", "To allow advertisers to automate the purchase of ad space across multiple sources", "To manually negotiate ad contracts between brands and websites", "To serve as the primary database for user browsing history"], ans: 1 },
+      { q: "Which type of programmatic ad buying involves an invite-only auction for premium inventory?", opts: ["Programmatic Guaranteed (PG)", "Open Auction", "Private Marketplace (PMP)", "Direct Sales"], ans: 2 },
+      { q: "What is the primary purpose of a Data Management Platform (DMP)?", opts: ["It manages the physical servers for ad networks", "It helps advertisers and publishers store, organise, and activate user data for better targeting", "It replaces the need for an Ad Exchange", "It is used specifically to design creative ad assets"], ans: 1 },
+      { q: "What is the core characteristic of 'Real-Time Bidding' (RTB)?", opts: ["It is a manual process that takes several days to complete", "It involves a long-term contract between a publisher and an advertiser", "It is a technological process where ad impressions are bought and sold in milliseconds", "It is a method used exclusively for social media advertising"], ans: 2 }
+    ]
   },
   {
-    title: "Sandton Times",
-    type: "Quiz", emoji: "📰",
-    desc: "Sandton Times brand and platform questionnaire.",
-    url: "https://docs.google.com/forms/d/1wqFj05FhUvt4G_MSLNOjw4URDUgzyc6h3v0xdhGVYXM/viewform"
+    id: 113, title: "Paid Media — Meta", cat: "Sales",
+    emoji: "📘", color: "#1877f2", rating: "New", badge: "📘",
+    steps: 1, dur: "~45 min",
+    about: "Master Meta paid media — from image text limits and caption best practices to campaign structure, the Learning Phase, Meta Pixel, Lookalike Audiences, and Creative Fatigue. Essential for anyone managing or selling Meta advertising.",
+    modules: [{ name: "Meta Paid Media", steps: [{ t: "Paid Media on Meta Platforms", d: "Campaign structure, budgets, targeting, pixels, and best practices." }] }],
+    quiz: [
+      { q: "What is the maximum recommended percentage of text that should be included on an image for social media optimisation?", opts: ["50%", "20%", "100%", "30%"], ans: 1 },
+      { q: "For a boosted post, what is the ideal character count range for a caption to ensure high engagement?", opts: ["50 to 60 characters", "230 characters", "70 to 80 characters", "No limit"], ans: 2 },
+      { q: "True or False: Converting print ads directly into PDFs for social media posts is the ideal format for high-performing content.", opts: ["True", "False"], ans: 1 },
+      { q: "What are currently the top-performing content formats on publisher titles?", opts: ["Images with links", "Video content", "Carousel ads", "GIFs"], ans: 1 },
+      { q: "What are the three levels of setup within Meta Ads Manager?", opts: ["Campaign level, Adset level, and Ad level", "Campaign level, Budget level, and Ad level", "Campaign level, Adset level, and Budget level"], ans: 0 },
+      { q: "How long does the 'Learning Phase' typically take for Meta's algorithm to gather enough data to find a viable audience?", opts: ["3 days", "6 days", "7 days", "14 days"], ans: 2 },
+      { q: "When should a 'Daily Budget' be used instead of a 'Lifetime Budget'?", opts: ["When there is a start and end date", "Always on Campaign", "When it is a conversion campaign", "When it is a traffic campaign"], ans: 1 },
+      { q: "What is the 'Meta Pixel' and how does it assist in retargeting?", opts: ["A code on a website that tracks user geographical location; it allows users to see ads targeted to that regions", "An article on a website that tracks user behaviour; it allows advertisers to show ads to people who have previously engaged", "A code on a website that tracks user behaviour; it allows advertisers to show ads to people who have previously visited"], ans: 2 },
+      { q: "What is a 'Lookalike Audience'?", opts: ["People that have the behaviour of an existing pool of customers", "People that look similar", "People that have the same behavior as Facebook's customers"], ans: 0 },
+      { q: "What is 'Creative Fatigue' and how does it impact campaign performance?", opts: ["The users are tired and not focusing", "Users have seen an image too many times", "Users don't like the images"], ans: 1 }
+    ]
   },
+
   {
-    title: "Trello",
-    type: "Quiz", emoji: "📋",
-    desc: "Trello project management tool assessment.",
-    url: "https://docs.google.com/forms/d/1OWxgEyq3VbGMa_fnnmZ_WV3dPQH4UdPdSSZ2i0a8fpI/viewform"
+    id: 114, title: "Back End: Data & BI", cat: "Sales",
+    emoji: "🗃️", color: "#16213e", rating: "New", badge: "🗃️",
+    steps: 1, dur: "~30 min",
+    about: "Understand the Lighthouse data platform, how to access reports, when to log support tickets, and how data requests are handled at Volt Africa. Essential for all sales and operations teams.",
+    modules: [{ name: "Data & Business Intelligence", steps: [{ t: "Back End: Data & BI", d: "Lighthouse platform, reports, support tickets, and data request workflows." }] }],
+    quiz: [
+      { q: "What is the name of the new site formulated for data inquiries?", opts: ["Beacon", "Lighthouse", "Vault", "Insight"], ans: 1 },
+      { q: "Which department is the primary custodian for data-related inquiries in the media business?", opts: ["Creative Services", "Research and Analytics", "Editorial", "IT Support"], ans: 1 },
+      { q: "What types of reports are accessible to colleagues once they log into the site?", opts: ["Monthly and annual reports only", "Live data and daily reports only", "Live data, daily, monthly, quarterly, and annual performance summaries", "Only archived reports from previous years"], ans: 2 },
+      { q: "Under what condition should a colleague log a support ticket for a data request?", opts: ["When they forget their login credentials", "For any data request, regardless of whether it is on the site", "When the required data is not available on the Lighthouse platform", "To request creative design for a presentation"], ans: 2 },
+      { q: "What is the standard turnaround time for a data request ticket?", opts: ["12 hours", "24 hours", "48 hours", "One week"], ans: 2 },
+      { q: "How will data typically be delivered following a tailor-made request?", opts: ["In a highly creative and artistic infographic", "As a raw database export only", "In a simplistic form, such as a spreadsheet or generic PowerPoint presentation", "Via a physical printed report"], ans: 2 },
+      { q: "When are urgent data requests prioritised?", opts: ["Whenever a colleague marks them as high priority", "Only with a clear business justification", "Only for senior management", "If the request is made over the phone"], ans: 1 }
+    ]
   },
 ];
 
-// ── CHAT ROOMS ──
+// ── CHAT ROOMS ── ── ──
 const CHAT_ROOMS = [
   { id: "general",   name: "General",   icon: "💬", desc: "All cadets",              prev: "Welcome to IndyTrain!" },
   { id: "editorial", name: "Editorial", icon: "✍️", desc: "Writing & editing",       prev: "Tips on headline writing" },
