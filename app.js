@@ -1149,8 +1149,8 @@ function makeCard(c,showP=false) {
       </div>
       ${showP&&isE&&!isDone?`<div style="margin-top:.6rem"><div class="prog-label"><span>Progress</span><span>${p}%</span></div><div class="prog-track"><div class="prog-fill" style="width:${p}%"></div></div></div>`:''}
       <div class="course-actions">
-        <button class="btn btn-primary btn-sm" onclick="openCourse(${c.id});event.stopPropagation()">${isDone?'Review':isE?'Continue':'Start'}</button>
-        ${isDone?`<button class="btn btn-secondary btn-sm" onclick="openCert(${c.id});event.stopPropagation()">🎓 Cert</button>`:''}
+        <button class="btn btn-primary btn-sm" onclick="openAndEnroll(${c.id});event.stopPropagation()">${isDone?'Review':isE?'Continue':'Start Program'}</button>
+        ${isDone?`<button class="btn btn-secondary btn-sm" onclick="openCert(${c.id});event.stopPropagation()">🎓 Certificate</button>`:''}
       </div>
     </div>`;
   div.onclick=()=>openCourse(c.id); return div;
@@ -1164,7 +1164,9 @@ function openCourse(id) {
     <div class="cdm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>${CUR.steps} step${CUR.steps!==1?'s':''}</div>
     <div class="cdm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${CUR.dur}</div>
     <div class="cdm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${CUR.rating} rating</div>`;
-  document.getElementById('enroll-btn').textContent=ENROLLED.includes(id)?'Continue Learning':'Enroll Now';
+  document.getElementById('enroll-btn').textContent = COMPLETED.includes(id) ? '✓ Completed' : ENROLLED.includes(id) ? 'Continue Learning' : 'Enroll Now';
+  document.getElementById('enroll-btn').style.background = COMPLETED.includes(id) ? 'var(--success)' : ENROLLED.includes(id) ? '' : '';
+  document.getElementById('enroll-btn').disabled = COMPLETED.includes(id);
   renderMods();
   const va=document.getElementById('vid-area');
   const vidUrl=(VID_OVERRIDES[id]||{}).url||(typeof DEFAULT_VIDS!=='undefined'?DEFAULT_VIDS[id]:null);
@@ -1195,17 +1197,37 @@ function renderMods() {
 }
 function toggleMod(el) { const l=el.nextElementSibling,c=el.querySelector('.mchev'); l.classList.toggle('hidden'); c.classList.toggle('open'); }
 
-async function enrollCourse() {
-  if(!CUR||!U?.dbId) return;
-  if(!ENROLLED.includes(CUR.id)) {
-    try {
-      await sb.upsert('enrollments', { user_id:U.dbId, course_id:CUR.id, progress:0, completed:false });
-      ENROLLED.push(CUR.id); PROG[CUR.id]=0;
-      await sb.update('users', { enrolled:ENROLLED.length }, { id:U.dbId });
-    } catch(e) { toast('Error enrolling: '+e.message,'error'); return; }
+// Opens course and auto-enrolls if not already enrolled
+async function openAndEnroll(id) {
+  openCourse(id);
+  if (!ENROLLED.includes(id) && !COMPLETED.includes(id)) {
+    await enrollCourse();
   }
-  document.getElementById('enroll-btn').textContent='Continue Learning';
-  renderDash(); toast('Enrolled in '+CUR.title+'!','success');
+}
+
+async function enrollCourse() {
+  if (!CUR) return;
+  const alreadyEnrolled = ENROLLED.includes(CUR.id);
+  if (!alreadyEnrolled) {
+    ENROLLED.push(CUR.id);
+    PROG[CUR.id] = 0;
+    // Save to DB if we have a user record
+    if (U?.dbId) {
+      try {
+        await sb.upsert('enrollments', { user_id:U.dbId, course_id:CUR.id, progress:0, completed:false });
+        await sb.update('users', { enrolled:ENROLLED.length }, { id:U.dbId });
+      } catch(e) { console.warn('Enroll DB error:', e.message); }
+    }
+    toast('Enrolled in ' + CUR.title + '!', 'success');
+  }
+  // Update button
+  const btn = document.getElementById('enroll-btn');
+  if (btn) {
+    btn.textContent = 'Continue Learning';
+    btn.style.background = 'var(--success)';
+  }
+  renderDash();
+  renderCourses();
 }
 
 // ── QUIZ ──
@@ -1255,18 +1277,25 @@ function nextQ() { if(QS.ans[QS.cur]===undefined)return; if(QS.cur<QS.qs.length-
 function prevQ() { if(QS.cur>0){QS.cur--;renderQuiz();} }
 function backToCourse() { nav('course-detail'); }
 async function awardAll() {
-  const cid=QS.c.id;
-  if(!U?.dbId) return;
-  try {
-    await sb.upsert('enrollments', { user_id:U.dbId, course_id:cid, progress:100, completed:true });
-    await sb.upsert('badges',      { user_id:U.dbId, course_id:cid });
-    if(!COMPLETED.includes(cid)) COMPLETED.push(cid);
-    if(!BADGES.includes(cid))    BADGES.push(cid);
-    if(!ENROLLED.includes(cid))  ENROLLED.push(cid);
-    PROG[cid]=100;
-    await sb.update('users', { enrolled:ENROLLED.length, completed:COMPLETED.length }, { id:U.dbId });
-    renderDash(); toast('🏅 Badge earned! 🎓 Certificate ready!','success'); openCert(cid);
-  } catch(e) { toast('Error saving progress: '+e.message,'error'); }
+  const cid = QS.c.id;
+  // Update local state immediately regardless of DB
+  if (!COMPLETED.includes(cid)) COMPLETED.push(cid);
+  if (!BADGES.includes(cid))    BADGES.push(cid);
+  if (!ENROLLED.includes(cid))  ENROLLED.push(cid);
+  PROG[cid] = 100;
+  // Save to DB if we have a user record
+  if (U?.dbId) {
+    try {
+      await sb.upsert('enrollments', { user_id:U.dbId, course_id:cid, progress:100, completed:true });
+      await sb.upsert('badges',      { user_id:U.dbId, course_id:cid });
+      await sb.update('users', { enrolled:ENROLLED.length, completed:COMPLETED.length }, { id:U.dbId });
+    } catch(e) { console.warn('Award DB error:', e.message); }
+  }
+  renderDash();
+  renderCourses();
+  toast('🏅 Badge earned! 🎓 Certificate ready!', 'success');
+  // Small delay so the toast shows before modal opens
+  setTimeout(() => openCert(cid), 300);
 }
 
 // ── PROFILE ──
