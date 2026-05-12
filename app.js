@@ -956,6 +956,8 @@ async function startApp() {
   }
   renderDash(); renderCourses(); renderRes(); renderRooms(); renderMsgs();
   nav('dashboard');
+  // If a hash was in the URL before login, navigate there
+  applyInitialHash();
 }
 
 // ── BRANDING ──
@@ -1064,19 +1066,55 @@ async function updatePendingBadge() {
 }
 
 // ── NAV ──
-function nav(p) {
+// ── NAVIGATION (hash-based routing) ──
+const PAGE_TITLES = {
+  dashboard:      'Dashboard',
+  courses:        'Learning Modules',
+  programs:       'My Programs',
+  chat:           'Member Chat',
+  resources:      'Resources',
+  profile:        'My Profile',
+  contact:        'Contact Us',
+  admin:          'Admin Panel',
+  'course-detail':'Course Detail',
+  quiz:           'Quiz'
+};
+
+function nav(p, pushState=true) {
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
   const el=document.getElementById('page-'+p); if(el) el.classList.add('active');
   const ni=document.querySelector(`.nav-item[onclick="nav('${p}')"]`); if(ni) ni.classList.add('active');
-  const TT={dashboard:'Dashboard',courses:'Learning Modules',programs:'My Programs',chat:'Member Chat',resources:'Resources',profile:'My Profile',contact:'Contact Us',admin:'Admin Panel','course-detail':'Course Detail',quiz:'Quiz'};
-  document.getElementById('pg-title').textContent=TT[p]||p;
+  const title = PAGE_TITLES[p] || p;
+  document.getElementById('pg-title').textContent = title;
+  document.title = BRAND.name + ' — ' + title;
+  // Update the URL hash without triggering the hashchange event
+  if (pushState && location.hash !== '#' + p) {
+    history.pushState({ page:p }, '', '#' + p);
+  }
   if(p==='profile')  renderProfile();
   if(p==='programs') renderProgs('enrolled');
   if(p==='admin')    renderAdmin();
   if(p==='chat')     renderMsgs();
   window.scrollTo(0,0);
 }
+
+// Handle browser back/forward buttons
+window.addEventListener('popstate', function(e) {
+  if (!U) return; // not logged in
+  const page = (e.state && e.state.page) || location.hash.replace('#','') || 'dashboard';
+  nav(page, false); // false = don't push another history entry
+});
+
+// On load, read hash and navigate to that page if logged in
+function applyInitialHash() {
+  const hash = location.hash.replace('#','');
+  const validPages = Object.keys(PAGE_TITLES);
+  if (hash && validPages.includes(hash)) {
+    nav(hash, false);
+  }
+}
+
 function toggleSB() { document.getElementById('sidebar').classList.toggle('open'); }
 
 // ── DASHBOARD ──
