@@ -517,76 +517,7 @@ const COURSES = [
       { q: "At what stage of the business process does the strategy team primarily operate?", opts: ["After the sale is made", "When prospecting", "Pre-Sale"], ans: 2 },
       { q: "Which of the following is a characteristic of a good strategy according to the video?", opts: ["A broad audience defined as 'anyone with money'", "Using 'cookie-cutter' or 'copy and paste' plans", "A clearly defined target audience and specific roles for each platform"], ans: 2 }
     ]
-  }
-];
-
-// ── RESOURCES ──
-// To update: edit URL, title, desc, or type here.
-const RESOURCES = [
-  {
-    title: "How to Create & Publish a New Article",
-    type: "Guide", emoji: "📝",
-    desc: "Step-by-step walkthrough of publishing content on the IMCS platform using Scribehow.",
-    url: "https://scribehow.com/shared/How_to_Create__Publish_a_New_Article__IMCS"
   },
-  {
-    title: "IMCS Writer's Style Guide",
-    type: "Document", emoji: "📄",
-    desc: "Official editorial style guide: grammar, spelling, AP style, and formatting rules for all IMCS writers.",
-    url: "https://docs.google.com/document/d/1HnLVTNnkXILXnKvOa73Zljkw1Y_pCepiuVNktAmO_7o/view"
-  },
-  {
-    title: "Journalism Ethics Video",
-    type: "Video", emoji: "🎥",
-    desc: "A comprehensive look at journalistic ethics, standards, and real-world ethical dilemmas.",
-    url: "https://www.youtube.com/watch?v=AlrC-XaKwew"
-  },
-  {
-    title: "AP Style Quick Reference",
-    type: "Document", emoji: "📚",
-    desc: "Quick-reference guide to AP style: numbers, titles, abbreviations, and more.",
-    url: "https://www.apstylebook.com/"
-  },
-  {
-    title: "Interview Preparation Checklist",
-    type: "Guide", emoji: "✅",
-    desc: "Everything you need before, during, and after a journalist interview.",
-    url: "https://www.poynter.org/reporting-editing/2016/how-to-prepare-for-an-interview/"
-  },
-  {
-    title: "Google News Publisher Guide",
-    type: "Guide", emoji: "📰",
-    desc: "How to set up and manage your publication in Google News Publisher Centre.",
-    url: "https://support.google.com/news/publisher-center/answer/9607025"
-  },
-  {
-    title: "Training Workflow Document",
-    type: "Document", emoji: "📋",
-    desc: "The full IndyTrain course and module workflow document including all video links.",
-    url: "https://docs.google.com/document/d/1HnLVTNnkXILXnKvOa73Zljkw1Y_pCepiuVNktAmO_7o/view"
-  },
-  {
-    title: "Gemini for Newsrooms Quiz",
-    type: "Quiz", emoji: "🤖",
-    desc: "Official Gemini for Newsrooms assessment via Google Forms.",
-    url: "https://forms.gle/rjfZSEQNACh4VkQ4A"
-  },
-  {
-    title: "Digital Landscape Quiz",
-    type: "Quiz", emoji: "🌐",
-    desc: "Module 1 assessment: The Digital Landscape.",
-    url: "https://forms.gle/xu6M5eiunqGWv4k9A"
-  },
-  {
-    title: "Social Media Landscape Quiz",
-    type: "Quiz", emoji: "📲",
-    desc: "Module 2 assessment: Social Media Landscape.",
-    url: "https://forms.gle/mJ2xL22eNStTeQFn6"
-  }
-
-  // ════════════════════════════════
-  // ADDITIONAL SALES COURSES
-  // ════════════════════════════════
   {
     id: 110, title: "Trello for Campaign Management", cat: "Sales",
     emoji: "📋", color: "#0052cc", rating: "New", badge: "📋",
@@ -668,10 +599,75 @@ const RESOURCES = [
       { q: "How will data typically be delivered following a tailor-made request?", opts: ["In a highly creative and artistic infographic", "As a raw database export only", "In a simplistic form, such as a spreadsheet or generic PowerPoint presentation", "Via a physical printed report"], ans: 2 },
       { q: "When are urgent data requests prioritised?", opts: ["Whenever a colleague marks them as high priority", "Only with a clear business justification", "Only for senior management", "If the request is made over the phone"], ans: 1 }
     ]
-  },
+  }
 ];
 
-// ── CHAT ROOMS ── ── ──
+// ── RESOURCES ──
+// To update: edit URL, title, desc, or type here.
+const RESOURCES = [
+  {
+    title: "How to Create & Publish a New Article",
+    type: "Guide", emoji: "📝",
+    desc: "Step-by-step walkthrough of publishing content on the IMCS platform using Scribehow.",
+    url: "https://scribehow.com/shared/How_to_Create__Publish_a_New_Article__IMCS"
+  },
+  {
+    title: "IMCS Writer's Style Guide",
+    type: "Document", emoji: "📄",
+    desc: "Official editorial style guide: grammar, spelling, AP style, and formatting rules for all IMCS writers.",
+    url: "https://docs.google.com/document/d/1HnLVTNnkXILXnKvOa73Zljkw1Y_pCepiuVNktAmO_7o/view"
+  },
+  {
+    title: "Journalism Ethics Video",
+    type: "Video", emoji: "🎥",
+    desc: "A comprehensive look at journalistic ethics, standards, and real-world ethical dilemmas.",
+    url: "https://www.youtube.com/watch?v=AlrC-XaKwew"
+  },
+  {
+    title: "AP Style Quick Reference",
+    type: "Document", emoji: "📚",
+    desc: "Quick-reference guide to AP style: numbers, titles, abbreviations, and more.",
+    url: "https://www.apstylebook.com/"
+  },
+  {
+    title: "Interview Preparation Checklist",
+    type: "Guide", emoji: "✅",
+    desc: "Everything you need before, during, and after a journalist interview.",
+    url: "https://www.poynter.org/reporting-editing/2016/how-to-prepare-for-an-interview/"
+  },
+  {
+    title: "Google News Publisher Guide",
+    type: "Guide", emoji: "📰",
+    desc: "How to set up and manage your publication in Google News Publisher Centre.",
+    url: "https://support.google.com/news/publisher-center/answer/9607025"
+  },
+  {
+    title: "Training Workflow Document",
+    type: "Document", emoji: "📋",
+    desc: "The full IndyTrain course and module workflow document including all video links.",
+    url: "https://docs.google.com/document/d/1HnLVTNnkXILXnKvOa73Zljkw1Y_pCepiuVNktAmO_7o/view"
+  },
+  {
+    title: "Gemini for Newsrooms Quiz",
+    type: "Quiz", emoji: "🤖",
+    desc: "Official Gemini for Newsrooms assessment via Google Forms.",
+    url: "https://forms.gle/rjfZSEQNACh4VkQ4A"
+  },
+  {
+    title: "Digital Landscape Quiz",
+    type: "Quiz", emoji: "🌐",
+    desc: "Module 1 assessment: The Digital Landscape.",
+    url: "https://forms.gle/xu6M5eiunqGWv4k9A"
+  },
+  {
+    title: "Social Media Landscape Quiz",
+    type: "Quiz", emoji: "📲",
+    desc: "Module 2 assessment: Social Media Landscape.",
+    url: "https://forms.gle/mJ2xL22eNStTeQFn6"
+  }
+];
+
+
 const CHAT_ROOMS = [
   { id: "general",   name: "General",   icon: "💬", desc: "All cadets",              prev: "Welcome to IndyTrain!" },
   { id: "editorial", name: "Editorial", icon: "✍️", desc: "Writing & editing",       prev: "Tips on headline writing" },
