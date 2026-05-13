@@ -1131,7 +1131,8 @@ function toggleSB() { document.getElementById('sidebar').classList.toggle('open'
 
 // ── DASHBOARD ──
 function renderDash() {
-  document.getElementById('h-total').textContent=allC().length;
+  const htotal = document.getElementById('h-total');
+  if (htotal) htotal.textContent = allC().length;
   document.getElementById('s-enrolled').textContent=ENROLLED.length;
   document.getElementById('s-completed').textContent=COMPLETED.length;
   document.getElementById('s-badges').textContent=BADGES.length;
@@ -1757,7 +1758,7 @@ async function renderAC(tab) {
               <div style="font-weight:700;font-size:.875rem">${course.title}</div>
               <div style="display:flex;gap:.35rem">
                 <button class="btn btn-secondary btn-sm" onclick="openEditCourse(${course.id})">✏️ Edit</button>
-                ${course.id > 1000 ? `<button class="btn btn-danger btn-sm" onclick="deleteCourse(${course.id})">🗑 Delete</button>` : ''}
+                <button class="btn btn-danger btn-sm" onclick="deleteCourse(${course.id})">🗑 Delete</button>
               </div>
             </div>
             <div style="font-size:.72rem;color:var(--muted);margin-bottom:.75rem">${course.cat} · ${course.steps} step${course.steps!==1?'s':''}</div>
@@ -2394,9 +2395,8 @@ function openEditCourse(id) {
         <div style="display:flex;gap:.75rem;margin-top:.5rem">
           <button class="btn btn-primary" onclick="saveEditCourse(${id})">Save Changes</button>
           <button class="btn btn-secondary" onclick="document.getElementById('edit-course-modal').remove()">Cancel</button>
-          ${id > 1000 ? `<button class="btn btn-danger" style="margin-left:auto" onclick="deleteCourse(${id})">🗑 Delete Course</button>` : ''}
+          <button class="btn btn-danger" style="margin-left:auto" onclick="deleteCourse(${id})">🗑 Delete Course</button>
         </div>
-        ${id <= 1000 ? '<p style="font-size:.72rem;color:var(--muted);margin-top:.75rem">Note: Built-in courses cannot be deleted to preserve data integrity. Only admin-created courses can be deleted.</p>' : ''}
       </div>
     </div>`;
   document.body.appendChild(modal);
@@ -2424,16 +2424,25 @@ function saveEditCourse(id) {
 }
 
 function deleteCourse(id) {
-  const course = allC().find(c => c.id === id);
+  const course = allC().find(c => Number(c.id) === Number(id));
   if (!course) return;
-  if (id <= 1000) { toast('Built-in courses cannot be deleted.','error'); return; }
   if (!confirm('Delete "' + course.title + '"? This cannot be undone.')) return;
-  const idx = CUSTOM.findIndex(c => c.id === id);
-  if (idx > -1) CUSTOM.splice(idx, 1);
+  // Remove from CUSTOM if it's a custom course
+  const ci = CUSTOM.findIndex(c => Number(c.id) === Number(id));
+  if (ci > -1) CUSTOM.splice(ci, 1);
+  // Remove from built-in COURSES array too
+  const bi = COURSES.findIndex(c => Number(c.id) === Number(id));
+  if (bi > -1) COURSES.splice(bi, 1);
+  // Remove from COURSE_ORDER
+  COURSE_ORDER = COURSE_ORDER.filter(oid => Number(oid) !== Number(id));
+  // Remove from user's enrolled/completed/badges locally
+  ENROLLED  = ENROLLED.filter(eid => Number(eid) !== Number(id));
+  COMPLETED = COMPLETED.filter(cid => Number(cid) !== Number(id));
+  BADGES    = BADGES.filter(bid => Number(bid) !== Number(id));
   const modal = document.getElementById('edit-course-modal');
   if (modal) modal.remove();
   renderCourses(); renderDash(); renderAC('videos');
-  toast('Course deleted.','success');
+  toast('"' + course.title + '" deleted.', 'success');
 }
 
 // ── TOAST ──
