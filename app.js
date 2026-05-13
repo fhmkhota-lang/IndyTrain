@@ -792,10 +792,11 @@ let BRAND = {
 
 const allC = () => {
   const all = [...COURSES, ...CUSTOM];
-  if (!COURSE_ORDER.length) return all;
-  // Sort by COURSE_ORDER, append any not in order at the end
-  const ordered = COURSE_ORDER.map(id => all.find(c => c.id === id)).filter(Boolean);
-  const rest = all.filter(c => !COURSE_ORDER.includes(c.id));
+  if (!COURSE_ORDER || !COURSE_ORDER.length) return all;
+  // Normalise to numbers for safe comparison
+  const order = COURSE_ORDER.map(Number);
+  const ordered = order.map(id => all.find(c => Number(c.id) === id)).filter(Boolean);
+  const rest = all.filter(c => !order.includes(Number(c.id)));
   return [...ordered, ...rest];
 };
 
@@ -894,12 +895,14 @@ async function loadUserSession() {
   if (!U?.dbId) return;
   try {
     const enr = await sb.query('enrollments', { eq:{user_id:U.dbId} });
-    ENROLLED  = enr.map(e=>e.course_id);
-    COMPLETED = enr.filter(e=>e.completed).map(e=>e.course_id);
+    ENROLLED  = enr.map(e => e.course_id);
+    // Supabase returns booleans as true/false OR as 't'/'f' strings — handle both
+    COMPLETED = enr.filter(e => e.completed === true || e.completed === 'true' || e.completed === 't' || e.progress >= 100).map(e => e.course_id);
     PROG      = {};
-    enr.forEach(e=>{ PROG[e.course_id]=e.progress; });
+    enr.forEach(e => { PROG[e.course_id] = e.progress || 0; });
     const bdg = await sb.query('badges', { eq:{user_id:U.dbId} });
-    BADGES    = bdg.map(b=>b.course_id);
+    BADGES    = bdg.map(b => b.course_id);
+    console.log('Session loaded — enrolled:', ENROLLED.length, 'completed:', COMPLETED.length, 'badges:', BADGES.length);
   } catch(e) { console.warn('Session load error:', e); }
 }
 
@@ -1329,23 +1332,31 @@ function prevQ() { if(QS.cur>0){QS.cur--;renderQuiz();} }
 function backToCourse() { nav('course-detail'); }
 async function awardAll() {
   const cid = QS.c.id;
-  // Update local state immediately regardless of DB
+  // Update local state immediately
   if (!COMPLETED.includes(cid)) COMPLETED.push(cid);
   if (!BADGES.includes(cid))    BADGES.push(cid);
   if (!ENROLLED.includes(cid))  ENROLLED.push(cid);
   PROG[cid] = 100;
-  // Save to DB if we have a user record
   if (U?.dbId) {
     try {
-      await sb.upsert('enrollments', { user_id:U.dbId, course_id:cid, progress:100, completed:true });
-      await sb.upsert('badges',      { user_id:U.dbId, course_id:cid });
+      // Use raw fetch to guarantee completed=true is saved as boolean
+      const res = await fetch(SUPA_URL + '/rest/v1/enrollments', {
+        method: 'POST',
+        headers: {
+          'apikey': SUPA_KEY,
+          'Authorization': 'Bearer ' + SUPA_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates'
+        },
+        body: JSON.stringify({ user_id: U.dbId, course_id: cid, progress: 100, completed: true })
+      });
+      if (!res.ok) throw new Error(await res.text());
+      await sb.upsert('badges', { user_id:U.dbId, course_id:cid });
       await sb.update('users', { enrolled:ENROLLED.length, completed:COMPLETED.length }, { id:U.dbId });
     } catch(e) { console.warn('Award DB error:', e.message); }
   }
-  renderDash();
-  renderCourses();
+  renderDash(); renderCourses();
   toast('🏅 Badge earned! 🎓 Certificate ready!', 'success');
-  // Small delay so the toast shows before modal opens
   setTimeout(() => openCert(cid), 300);
 }
 
@@ -1541,7 +1552,7 @@ async function renderAC(tab) {
         </select>
       </div>
       <div class="table-wrap"><table>
-        <thead><tr><th>User</th><th>Email</th><th>Role</th><th>Status</th><th>Enrolled</th><th>Joined</th><th>Actions</th></tr></thead>
+        <thead><tr><th>User</th><th>Email</th><th>Role</th><th>Status</th><th>Enrolled</th><th>Completed</th><th>Joined</th><th>Actions</th></tr></thead>
         <tbody id="user-tbody"></tbody>
       </table></div>
       <div id="add-user-modal" style="display:none;margin-top:1.25rem" class="card">
@@ -1579,7 +1590,8 @@ async function renderAC(tab) {
         <td style="color:var(--muted);font-size:.82rem">${u.email}</td>
         <td>${isMe?`<span style="font-size:.78rem;font-weight:600;color:var(--gold)">Admin</span>`:`<select onchange="changeUserRole('${u.id}',this.value)" style="padding:.3rem .5rem;border:1px solid var(--border);border-radius:6px;font-size:.75rem;background:#fff"><option value="cadet" ${u.role==='cadet'?'selected':''}>Cadet</option><option value="admin" ${u.role==='admin'?'selected':''}>Admin</option></select>`}</td>
         <td>${isPending?`<span class="sbadge pending">⏳ Pending</span>`:u.status==='inactive'?`<span class="sbadge inactive">Inactive</span>`:`<span class="sbadge active">Active</span>`}</td>
-        <td>${u.enrolled}</td>
+        <td>${u.enrolled||0}</td>
+        <td>${u.completed||0}</td>
         <td style="color:var(--muted);font-size:.75rem">${u.joined}</td>
         <td><div style="display:flex;gap:.35rem;flex-wrap:wrap">
           ${isPending?`<button class="btn btn-sm" style="background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0" onclick="approveUser('${u.id}','${u.name}')">✓ Approve</button><button class="btn btn-danger btn-sm" onclick="rejectUser('${u.id}','${u.name}')">✗ Reject</button>`:!isMe?`<button class="btn btn-sm" style="background:${u.status==='active'?'#fee2e2':'#dcfce7'};color:${u.status==='active'?'#dc2626':'#16a34a'};border:1px solid ${u.status==='active'?'#fecaca':'#bbf7d0'}" onclick="toggleUserStatus('${u.id}','${u.status}')">${u.status==='active'?'Deactivate':'Activate'}</button>`:''}
@@ -1666,6 +1678,7 @@ async function renderAC(tab) {
       const label = ov.label || course.title;
       const d = document.createElement('div');
       d.className = 'card';
+      const hasOverride = !!BADGE_OVERRIDES[course.id];
       d.innerHTML = `
         <div class="card-body">
           <div style="display:flex;align-items:center;gap:.875rem;margin-bottom:.875rem">
@@ -1676,6 +1689,7 @@ async function renderAC(tab) {
               <div style="font-weight:700;font-size:.82rem;margin-bottom:.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${course.title}</div>
               <div style="font-size:.7rem;color:var(--muted)">${course.cat}</div>
             </div>
+            ${hasOverride ? `<button class="btn btn-danger btn-sm" style="flex-shrink:0" onclick="deleteBadgeOverride(${course.id})">Reset</button>` : ''}
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
             <div class="form-group" style="margin:0">
@@ -1698,6 +1712,29 @@ async function renderAC(tab) {
         </div>`;
       grid.appendChild(d);
     });
+
+  // ── QUIZ EDITOR ──
+  } else if (tab==='quizeditor') {
+    const quizCourses = allC().filter(c => c.quiz && c.quiz.length > 0);
+    c.innerHTML = `
+      <div class="section-hdr">
+        <h2>Quiz Editor</h2>
+        <button class="btn btn-primary btn-sm" onclick="saveQuizEdits()">✓ Save Quiz</button>
+      </div>
+      <p style="color:var(--muted);font-size:.82rem;margin-bottom:1.25rem">Select a course to edit its quiz questions, answer options, and correct answers. Click the radio button next to an answer to mark it as correct (highlighted gold).</p>
+      <div class="card" style="margin-bottom:1.25rem"><div class="card-body">
+        <div class="form-group" style="margin:0">
+          <label>Select Course to Edit</label>
+          <select id="quiz-course-select" onchange="renderQuizEditor()"
+            style="width:100%;padding:.6rem .875rem;border:1px solid var(--border);border-radius:8px;font-size:.875rem;background:#fff;outline:none">
+            <option value="">— Choose a course —</option>
+            ${quizCourses.map(c => `<option value="${c.id}">${c.title} (${c.quiz.length} questions)</option>`).join('')}
+          </select>
+        </div>
+      </div></div>
+      <div id="quiz-editor-body">
+        <p style="color:var(--muted);padding:1rem">Select a course above to edit its quiz.</p>
+      </div>`;
 
   // ── COURSES & VIDEOS ──
   } else if (tab==='videos') {
@@ -2382,7 +2419,7 @@ function updateOrderNumbers() {
 async function saveCourseOrder() {
   const list = document.getElementById('order-list');
   if (!list) return;
-  COURSE_ORDER = [...list.children].map(el => parseInt(el.dataset.id));
+  COURSE_ORDER = [...list.children].map(el => Number(el.dataset.id));
   try {
     await sb.upsert('branding', { id:1, course_order: JSON.stringify(COURSE_ORDER) });
     toast('Course order saved!', 'success');
@@ -2422,6 +2459,80 @@ async function saveAllBadges() {
   // Refresh profile if open
   if (document.getElementById('page-profile')?.classList.contains('active')) renderProfile();
 }
+
+// ── BADGE DELETE ──
+async function deleteBadgeOverride(cid) {
+  delete BADGE_OVERRIDES[cid];
+  try {
+    await sb.upsert('branding', { id:1, badge_overrides: JSON.stringify(BADGE_OVERRIDES) });
+    toast('Badge reset to default', 'success');
+  } catch(e) { toast('Reset locally'); }
+  renderAC('badges');
+  if (document.getElementById('page-profile')?.classList.contains('active')) renderProfile();
+}
+
+// ── QUIZ EDITOR ──
+function renderQuizEditor() {
+  const sel = document.getElementById('quiz-course-select');
+  if (!sel) return;
+  const cid = Number(sel.value);
+  const course = allC().find(c => Number(c.id) === cid);
+  const container = document.getElementById('quiz-editor-body');
+  if (!container) return;
+  if (!course || !course.quiz || !course.quiz.length) {
+    container.innerHTML = '<p style="color:var(--muted);padding:1rem">Select a course above to edit its quiz.</p>';
+    return;
+  }
+  container.innerHTML = course.quiz.map((q, qi) => `
+    <div class="card" style="margin-bottom:.875rem">
+      <div class="card-body">
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem">
+          <div style="font-size:.78rem;font-weight:700;color:var(--muted);flex-shrink:0">Q${qi+1}</div>
+          <input type="text" id="qq-text-${qi}" value="${q.q.replace(/"/g,'&quot;').replace(/'/g,'&#39;')}"
+            style="flex:1;font-weight:600" placeholder="Question text">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.4rem">
+          ${q.opts.map((opt, oi) => `
+            <label style="display:flex;align-items:center;gap:.6rem;cursor:pointer;padding:.4rem .5rem;border-radius:6px;border:1px solid ${q.ans===oi?'var(--gold)':'var(--border)'};background:${q.ans===oi?'#fffbf0':'#fff'}" id="qq-opt-row-${qi}-${oi}">
+              <input type="radio" name="qq-ans-${qi}" value="${oi}" ${q.ans===oi?'checked':''}
+                style="accent-color:var(--gold);cursor:pointer;width:16px;height:16px;flex-shrink:0"
+                onchange="highlightCorrect(${qi})">
+              <span style="font-size:.72rem;font-weight:700;color:var(--muted);flex-shrink:0">${String.fromCharCode(65+oi)}</span>
+              <input type="text" id="qq-opt-${qi}-${oi}" value="${opt.replace(/"/g,'&quot;').replace(/'/g,'&#39;')}"
+                style="flex:1;border:none;outline:none;background:transparent;font-size:.875rem"
+                placeholder="Option ${String.fromCharCode(65+oi)}">
+            </label>`).join('')}
+        </div>
+        <div style="font-size:.7rem;color:var(--muted);margin-top:.5rem">🟡 Click a radio button to set the correct answer (highlighted in gold)</div>
+      </div>
+    </div>`).join('');
+}
+
+function highlightCorrect(qi) {
+  const checked = document.querySelector(`input[name="qq-ans-${qi}"]:checked`);
+  if (!checked) return;
+  const selOi = parseInt(checked.value);
+  document.querySelectorAll(`[id^="qq-opt-row-${qi}-"]`).forEach(row => {
+    const oi = parseInt(row.id.split('-').pop());
+    row.style.borderColor = oi === selOi ? 'var(--gold)' : 'var(--border)';
+    row.style.background  = oi === selOi ? '#fffbf0' : '#fff';
+  });
+}
+
+async function saveQuizEdits() {
+  const sel = document.getElementById('quiz-course-select');
+  if (!sel || !sel.value) { toast('Select a course first', 'error'); return; }
+  const cid = Number(sel.value);
+  let course = COURSES.find(c => Number(c.id) === cid) || CUSTOM.find(c => Number(c.id) === cid);
+  if (!course) { toast('Course not found', 'error'); return; }
+  course.quiz = course.quiz.map((q, qi) => ({
+    q:    document.getElementById(`qq-text-${qi}`)?.value?.trim() || q.q,
+    opts: q.opts.map((orig, oi) => document.getElementById(`qq-opt-${qi}-${oi}`)?.value?.trim() || orig),
+    ans:  parseInt(document.querySelector(`input[name="qq-ans-${qi}"]:checked`)?.value ?? q.ans),
+  }));
+  toast('✓ Quiz saved!', 'success');
+}
+
 function certPreview() {
   const el = document.getElementById('cert-admin-preview');
   if (!el) return;
