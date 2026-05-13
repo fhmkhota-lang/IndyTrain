@@ -1168,7 +1168,10 @@ function getThumb(c) {
 function makeCard(c,showP=false) {
   const isE=ENROLLED.includes(c.id),isDone=COMPLETED.includes(c.id),p=PROG[c.id]||0;
   const thumb=getThumb(c);
-  const div=document.createElement('div'); div.className='course-card';
+  const div=document.createElement('div');
+  // Remove card-level click — only the button triggers enroll/open
+  div.className='course-card';
+  div.style.cursor='default';
   div.innerHTML=`
     <div class="course-thumb" style="${!thumb?'background:linear-gradient(135deg,'+(c.color||'#2c3e50')+','+(c.color||'#2c3e50')+'99)':''}">
       ${thumb?`<img src="${thumb}" alt="${c.title}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0"><div style="position:absolute;inset:0;background:rgba(0,0,0,.3)"></div>`:
@@ -1187,11 +1190,12 @@ function makeCard(c,showP=false) {
       </div>
       ${showP&&isE&&!isDone?`<div style="margin-top:.6rem"><div class="prog-label"><span>Progress</span><span>${p}%</span></div><div class="prog-track"><div class="prog-fill" style="width:${p}%"></div></div></div>`:''}
       <div class="course-actions">
-        <button class="btn btn-primary btn-sm" onclick="openAndEnroll(${c.id});event.stopPropagation()">${isDone?'Review':isE?'Continue':'Start Program'}</button>
-        ${isDone?`<button class="btn btn-secondary btn-sm" onclick="openCert(${c.id});event.stopPropagation()">🎓 Certificate</button>`:''}
+        <button class="btn btn-primary btn-sm" onclick="openAndEnroll(${c.id})">${isDone?'Review':isE?'Continue':'Start Program'}</button>
+        ${isDone?`<button class="btn btn-secondary btn-sm" onclick="openCert(${c.id})">🎓 Certificate</button>`:''}
       </div>
     </div>`;
-  div.onclick=()=>openCourse(c.id); return div;
+  // No div.onclick — card is NOT clickable, only the button is
+  return div;
 }
 
 function openCourse(id) {
@@ -1344,7 +1348,28 @@ function renderProfile() {
   document.getElementById('ps-ba').textContent=BADGES.length;
   document.getElementById('ps-ce').textContent=COMPLETED.length;
   const bg=document.getElementById('prof-badges'); bg.innerHTML='';
-  allC().forEach(c=>{ const earned=BADGES.includes(c.id); const d=document.createElement('div'); d.className='badge-item'; d.innerHTML=`<div class="badge-circle ${earned?'':'locked'}" title="${c.title}">${c.badge||'📚'}</div><div class="badge-name">${c.title.split(':')[0].split(' ')[0]}</div>`; bg.appendChild(d); });
+  // Use allC() so custom/new courses are always included
+  allC().forEach(c=>{
+    const earned = BADGES.includes(c.id);
+    const d = document.createElement('div');
+    d.className = 'badge-item';
+    // Short name: use first meaningful word(s), max ~10 chars
+    const shortName = c.title
+      .replace(/^Module \d+:/i,'')   // strip "Module N:"
+      .replace(/^Back End:/i,'')      // strip "Back End:"
+      .replace(/^Introduction to /i,'')
+      .replace(/^Welcome to /i,'')
+      .trim()
+      .split(' ').slice(0,2).join(' ');
+    d.innerHTML = `
+      <div class="badge-circle ${earned?'':'locked'}" title="${c.title}" style="${earned?'background:linear-gradient(135deg,'+c.color+','+c.color+'cc)':''}">
+        <span style="font-size:1.4rem">${c.emoji||'📚'}</span>
+        ${earned?'<div style="position:absolute;bottom:-2px;right:-2px;width:18px;height:18px;background:var(--success);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#fff;border:2px solid #fff">✓</div>':''}
+      </div>
+      <div class="badge-name" style="color:${earned?'var(--ink)':'var(--muted)'}">${shortName}</div>`;
+    d.style.position = 'relative';
+    bg.appendChild(d);
+  });
   const cl=document.getElementById('prof-certs'); cl.innerHTML='';
   if(!COMPLETED.length){ cl.innerHTML='<div style="color:var(--muted);font-size:.82rem;text-align:center;padding:1.25rem">Complete a course to earn your first certificate!</div>'; return; }
   COMPLETED.forEach(id=>{ const c=allC().find(x=>x.id===id); if(!c)return; const d=document.createElement('div'); d.className='cert-item'; d.innerHTML=`<div class="cert-icon">🎓</div><div style="flex:1"><div style="font-weight:700;font-size:.875rem;margin-bottom:.1rem">${c.title}</div><div style="font-size:.75rem;color:var(--muted)">${BRAND.name} · Completed</div></div><button class="btn btn-secondary btn-sm" onclick="openCert(${id})">Download</button>`; cl.appendChild(d); });
@@ -2138,7 +2163,7 @@ async function rmImg(cid){ delete IMG_OVERRIDES[cid]; try{ await sb.delete('imag
 function addMod(){ const list=document.getElementById('mod-builder'); if(!list)return; const id=++MC; const d=document.createElement('div'); d.className='mbi'; d.id='mb-'+id; d.innerHTML=`<div class="mbh"><input type="text" placeholder="Module name" id="mn-${id}"><button class="btn btn-danger btn-sm btn-icon" onclick="document.getElementById('mb-${id}').remove()">✕</button></div><div class="sbl" id="ms-${id}"><div class="sbr"><input type="text" placeholder="Step title" class="sti"><button class="btn btn-danger btn-sm btn-icon" onclick="this.parentElement.remove()">✕</button></div></div><div style="padding:.5rem .875rem;border-top:1px solid var(--border)"><button class="btn btn-secondary btn-sm" onclick="addStep(${id})">+ Add Step</button></div>`; list.appendChild(d); }
 function addStep(mid){ const l=document.getElementById('ms-'+mid); if(!l)return; const d=document.createElement('div'); d.className='sbr'; d.innerHTML=`<input type="text" placeholder="Step title" class="sti"><button class="btn btn-danger btn-sm btn-icon" onclick="this.parentElement.remove()">✕</button>`; l.appendChild(d); }
 function addQQ(){ const list=document.getElementById('qq-builder'); if(!list)return; const id=++QC; const d=document.createElement('div'); d.className='card mb-2'; d.id='qq-'+id; d.innerHTML=`<div class="card-header"><h3 style="font-size:.82rem">Question ${id}</h3><button class="btn btn-danger btn-sm btn-icon" onclick="document.getElementById('qq-${id}').remove()">✕</button></div><div class="card-body" style="padding:1rem"><div class="form-group"><label>Question text</label><input type="text" id="qqt-${id}" placeholder="Enter your question…"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.75rem"><div class="form-group" style="margin:0"><label>Option A</label><input type="text" id="qqa-${id}"></div><div class="form-group" style="margin:0"><label>Option B</label><input type="text" id="qqb-${id}"></div><div class="form-group" style="margin:0"><label>Option C</label><input type="text" id="qqc-${id}"></div><div class="form-group" style="margin:0"><label>Option D</label><input type="text" id="qqd-${id}"></div></div><div class="form-group" style="margin:0"><label>Correct Answer</label><select id="qqs-${id}"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select></div></div>`; list.appendChild(d); }
-function createCourse(){ const title=(document.getElementById('nc-title')||{}).value||''; const cat=(document.getElementById('nc-ccat')||{}).value||(document.getElementById('nc-cat')||{}).value||''; const about=(document.getElementById('nc-about')||{}).value||''; if(!title.trim()||!cat.trim()||!about.trim()){toast('Please fill in Title, Category, and Description','error');return;} const emoji=(document.getElementById('nc-emoji')||{}).value||'📚'; const color=(document.getElementById('nc-color')||{}).value||'#2c3e50'; const dur=(document.getElementById('nc-dur')||{}).value||'~1 hr'; const modules=[]; let totalS=0; document.querySelectorAll('.mbi').forEach(mb=>{const inp=mb.querySelector('input[type="text"]'); const mname=inp?inp.value.trim():'Module'; const steps=[]; mb.querySelectorAll('.sti').forEach(i=>{if(i.value.trim())steps.push({t:i.value.trim(),d:''});}); if(steps.length){modules.push({name:mname,steps});totalS+=steps.length;}}); const quiz=[]; document.querySelectorAll('[id^="qqt-"]').forEach(el=>{const id=el.id.split('-')[1]; const q=el.value.trim(); const a=(document.getElementById('qqa-'+id)||{}).value||''; const b=(document.getElementById('qqb-'+id)||{}).value||''; const cv=(document.getElementById('qqc-'+id)||{}).value||''; const d2=(document.getElementById('qqd-'+id)||{}).value||''; const ans=parseInt((document.getElementById('qqs-'+id)||{}).value||'0'); const opts=[a,b,cv,d2].filter(Boolean); if(q&&opts.length>=2)quiz.push({q,opts,ans:Math.min(ans,opts.length-1)});}); const nid=Date.now(); CUSTOM.push({id:nid,title:title.trim(),cat:cat.trim(),emoji,color,about:about.trim(),steps:totalS||1,dur,rating:'New',badge:emoji,modules,quiz}); renderDash(); renderCourses(); toast('"'+title.trim()+'" course created!','success'); const vtab=document.querySelector('.admin-tab'); if(vtab)vtab.click(); resetForm(); }
+function createCourse(){ const title=(document.getElementById('nc-title')||{}).value||''; const cat=(document.getElementById('nc-ccat')||{}).value||(document.getElementById('nc-cat')||{}).value||''; const about=(document.getElementById('nc-about')||{}).value||''; if(!title.trim()||!cat.trim()||!about.trim()){toast('Please fill in Title, Category, and Description','error');return;} const emoji=(document.getElementById('nc-emoji')||{}).value||'📚'; const color=(document.getElementById('nc-color')||{}).value||'#2c3e50'; const dur=(document.getElementById('nc-dur')||{}).value||'~1 hr'; const modules=[]; let totalS=0; document.querySelectorAll('.mbi').forEach(mb=>{const inp=mb.querySelector('input[type="text"]'); const mname=inp?inp.value.trim():'Module'; const steps=[]; mb.querySelectorAll('.sti').forEach(i=>{if(i.value.trim())steps.push({t:i.value.trim(),d:''});}); if(steps.length){modules.push({name:mname,steps});totalS+=steps.length;}}); const quiz=[]; document.querySelectorAll('[id^="qqt-"]').forEach(el=>{const id=el.id.split('-')[1]; const q=el.value.trim(); const a=(document.getElementById('qqa-'+id)||{}).value||''; const b=(document.getElementById('qqb-'+id)||{}).value||''; const cv=(document.getElementById('qqc-'+id)||{}).value||''; const d2=(document.getElementById('qqd-'+id)||{}).value||''; const ans=parseInt((document.getElementById('qqs-'+id)||{}).value||'0'); const opts=[a,b,cv,d2].filter(Boolean); if(q&&opts.length>=2)quiz.push({q,opts,ans:Math.min(ans,opts.length-1)});}); const nid=Date.now(); CUSTOM.push({id:nid,title:title.trim(),cat:cat.trim(),emoji,color,about:about.trim(),steps:totalS||1,dur,rating:'New',badge:emoji,modules,quiz}); renderDash(); renderCourses(); if(document.getElementById('page-profile')?.classList.contains('active')) renderProfile(); toast('"'+title.trim()+'" course created!','success'); const vtab=document.querySelector('.admin-tab'); if(vtab)vtab.click(); resetForm(); }
 function resetForm(){ ['nc-title','nc-about','nc-emoji','nc-dur','nc-ccat'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';}); const cat=document.getElementById('nc-cat'); if(cat)cat.value=''; const col=document.getElementById('nc-color'); if(col)col.value='#2c3e50'; const mb=document.getElementById('mod-builder'); if(mb)mb.innerHTML=''; const qb=document.getElementById('qq-builder'); if(qb)qb.innerHTML=''; MC=0; QC=0; addMod(); }
 
 // ── COURSE EDIT / DELETE ──
