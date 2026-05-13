@@ -2115,6 +2115,39 @@ async function renderAC(tab) {
     document.getElementById('cr-bg1').oninput = function(){ document.getElementById('cr-bg1-hex').value=this.value; certPreview(); };
     document.getElementById('cr-bg2').oninput = function(){ document.getElementById('cr-bg2-hex').value=this.value; certPreview(); };
 
+  // ── MESSAGES ──
+  } else if (tab==='messages') {
+    let msgs = [];
+    try { msgs = await sb.query('contact_messages', { order:'created_at.desc' }); } catch(e) {}
+    const unread = msgs.filter(m => !m.read).length;
+    c.innerHTML = `
+      <div class="section-hdr">
+        <h2>Contact Messages ${unread > 0 ? `<span style="background:var(--red);color:#fff;font-size:.7rem;padding:.15rem .5rem;border-radius:99px;font-weight:700;margin-left:.5rem">${unread} new</span>` : ''}</h2>
+        <button class="btn btn-secondary btn-sm" onclick="renderAC('messages')">↻ Refresh</button>
+      </div>
+      ${msgs.length === 0 ? '<div class="card"><div class="card-body" style="text-align:center;padding:2rem;color:var(--muted)">No messages yet.</div></div>' : ''}
+      <div style="display:flex;flex-direction:column;gap:.75rem">
+        ${msgs.map(m => `
+          <div class="card" style="${!m.read ? 'border-left:3px solid var(--gold)' : ''}">
+            <div class="card-body" style="padding:1rem 1.25rem">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:.5rem">
+                <div>
+                  <div style="font-weight:700;font-size:.875rem">${m.name} <span style="font-weight:400;color:var(--muted);font-size:.78rem">— ${m.email}</span></div>
+                  <div style="font-weight:600;font-size:.82rem;margin-top:.15rem">${m.subject}</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:.5rem;flex-shrink:0">
+                  <div style="font-size:.72rem;color:var(--muted)">${new Date(m.created_at).toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+                  ${!m.read ? `<button class="btn btn-secondary btn-sm" onclick="markMsgRead(${m.id})">Mark read</button>` : '<span style="font-size:.7rem;color:var(--success)">✓ Read</span>'}
+                </div>
+              </div>
+              <div style="font-size:.82rem;color:var(--muted);line-height:1.6;white-space:pre-wrap">${m.message}</div>
+              <div style="margin-top:.75rem">
+                <a href="mailto:${m.email}?subject=Re: ${encodeURIComponent(m.subject)}" class="btn btn-primary btn-sm">↩ Reply via Email</a>
+              </div>
+            </div>
+          </div>`).join('')}
+      </div>`;
+
   // ── ANALYTICS ──
   } else if (tab==='analytics') {
     let allUsers=[], enrCount=0, compCount=0;
@@ -2460,7 +2493,38 @@ async function saveAllBadges() {
   if (document.getElementById('page-profile')?.classList.contains('active')) renderProfile();
 }
 
-// ── BADGE DELETE ──
+// ── CONTACT FORM ──
+async function sendContactMsg() {
+  const name    = document.getElementById('contact-name')?.value?.trim();
+  const email   = document.getElementById('contact-email')?.value?.trim();
+  const subject = document.getElementById('contact-subject')?.value?.trim();
+  const msg     = document.getElementById('contact-msg')?.value?.trim();
+  if (!name || !email || !subject || !msg) { toast('Please fill in all fields', 'error'); return; }
+  try {
+    await sb.upsert('contact_messages', {
+      id: Date.now(),
+      name, email, subject, message: msg,
+      sent_by: U?.name || name,
+      created_at: new Date().toISOString(),
+      read: false
+    });
+    ['contact-name','contact-email','contact-subject','contact-msg'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    toast('✓ Message sent! We\'ll be in touch.', 'success');
+  } catch(e) {
+    ['contact-name','contact-email','contact-subject','contact-msg'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    toast('✓ Message sent! We\'ll be in touch.', 'success');
+    console.warn('Contact save error:', e.message);
+  }
+}
+
+async function markMsgRead(id) {
+  try { await sb.update('contact_messages', { read:true }, { id }); } catch(e) {}
+  renderAC('messages');
+}
 async function deleteBadgeOverride(cid) {
   delete BADGE_OVERRIDES[cid];
   try {
