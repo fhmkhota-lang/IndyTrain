@@ -1316,15 +1316,32 @@ async function enrollCourse() {
     PROG[cid] = 0;
     if (U?.dbId) {
       try {
-        await sb.delete('enrollments', { user_id: U.dbId, course_id: cid });
-        await sb.insert('enrollments', { user_id: U.dbId, course_id: cid, progress: 0, completed: false });
-        await sb.update('users', { enrolled: ENROLLED.length }, { id: U.dbId });
-      } catch(e) { console.warn('Enroll DB error:', e.message); }
+        // Try PATCH first, insert if no row exists
+        const patchRes = await fetch(
+          `${SUPA_URL}/rest/v1/enrollments?user_id=eq.${encodeURIComponent(U.dbId)}&course_id=eq.${cid}`,
+          { method:'PATCH',
+            headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
+            body:JSON.stringify({progress:0,completed:false}) }
+        );
+        const patched = await patchRes.json();
+        if (!Array.isArray(patched) || patched.length===0) {
+          await fetch(`${SUPA_URL}/rest/v1/enrollments`,
+            { method:'POST',
+              headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
+              body:JSON.stringify({user_id:U.dbId,course_id:cid,progress:0,completed:false}) }
+          );
+        }
+        await fetch(`${SUPA_URL}/rest/v1/users?id=eq.${encodeURIComponent(U.dbId)}`,
+          { method:'PATCH',
+            headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'},
+            body:JSON.stringify({enrolled:ENROLLED.length}) }
+        );
+      } catch(e) { console.warn('Enroll DB error:',e.message); }
     }
     toast('Enrolled in ' + CUR.title + '!', 'success');
   }
   const btn = document.getElementById('enroll-btn');
-  if (btn) { btn.textContent = 'Continue Learning'; btn.style.background = ''; }
+  if (btn) { btn.textContent='Continue Learning'; btn.style.background=''; }
   renderDash(); renderCourses();
 }
 
@@ -1383,19 +1400,41 @@ async function awardAll() {
 
   if (U?.dbId) {
     try {
-      // Delete and re-insert to guarantee completed=true is saved
-      // (avoids issues with missing id column or failed updates)
-      await sb.delete('enrollments', { user_id: U.dbId, course_id: cid });
-      await sb.insert('enrollments', { user_id: U.dbId, course_id: cid, progress: 100, completed: true });
-      await sb.upsert('badges', { user_id: U.dbId, course_id: cid });
-      await sb.update('users', { enrolled: ENROLLED.length, completed: COMPLETED.length }, { id: U.dbId });
-    } catch(e) { console.warn('Award DB error:', e.message); }
+      // PATCH by user_id+course_id — confirmed working approach
+      const patchRes = await fetch(
+        `${SUPA_URL}/rest/v1/enrollments?user_id=eq.${encodeURIComponent(U.dbId)}&course_id=eq.${cid}`,
+        { method:'PATCH',
+          headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
+          body:JSON.stringify({progress:100,completed:true}) }
+      );
+      const patched = await patchRes.json();
+      // If no row existed, insert one
+      if (!Array.isArray(patched) || patched.length===0) {
+        await fetch(`${SUPA_URL}/rest/v1/enrollments`,
+          { method:'POST',
+            headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
+            body:JSON.stringify({user_id:U.dbId,course_id:cid,progress:100,completed:true}) }
+        );
+      }
+      // Save badge
+      await fetch(`${SUPA_URL}/rest/v1/badges`,
+        { method:'POST',
+          headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
+          body:JSON.stringify({user_id:U.dbId,course_id:cid}) }
+      );
+      // Update user totals
+      await fetch(`${SUPA_URL}/rest/v1/users?id=eq.${encodeURIComponent(U.dbId)}`,
+        { method:'PATCH',
+          headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'},
+          body:JSON.stringify({enrolled:ENROLLED.length,completed:COMPLETED.length}) }
+      );
+    } catch(e) { console.error('Award DB error:',e); }
   }
   renderDash(); renderCourses();
-  if (document.getElementById('page-programs')?.classList.contains('active')) renderProgs('enrolled');
-  if (document.getElementById('page-profile')?.classList.contains('active')) renderProfile();
-  toast('🏅 Badge earned! 🎓 Certificate ready!', 'success');
-  setTimeout(() => openCert(cid), 300);
+  if(document.getElementById('page-programs')?.classList.contains('active')) renderProgs('enrolled');
+  if(document.getElementById('page-profile')?.classList.contains('active')) renderProfile();
+  toast('🏅 Badge earned! 🎓 Certificate ready!','success');
+  setTimeout(()=>openCert(cid),300);
 }
 
 // ── PROFILE ──
