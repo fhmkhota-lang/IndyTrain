@@ -1409,36 +1409,28 @@ async function awardAll() {
   PROG[cid] = 100;
 
   if (U?.dbId) {
+    // 1. Save enrollment completion — own try/catch
     try {
-      // PATCH by user_id+course_id — confirmed working approach
-      const patchRes = await fetch(
-        `${SUPA_URL}/rest/v1/enrollments?user_id=eq.${encodeURIComponent(U.dbId)}&course_id=eq.${cid}`,
-        { method:'PATCH',
-          headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
-          body:JSON.stringify({progress:100,completed:true}) }
-      );
-      const patched = await patchRes.json();
-      // If no row existed, insert one
-      if (!Array.isArray(patched) || patched.length===0) {
+      const pr = await fetch(`${SUPA_URL}/rest/v1/enrollments?user_id=eq.${encodeURIComponent(U.dbId)}&course_id=eq.${cid}`,
+        {method:'PATCH',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify({progress:100,completed:true})});
+      const patched = await pr.json();
+      if (!Array.isArray(patched)||patched.length===0) {
         await fetch(`${SUPA_URL}/rest/v1/enrollments`,
-          { method:'POST',
-            headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
-            body:JSON.stringify({user_id:U.dbId,course_id:cid,progress:100,completed:true}) }
-        );
+          {method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify({user_id:U.dbId,course_id:cid,progress:100,completed:true})});
       }
-      // Save badge
+    } catch(e) { console.warn('Enrollment save error:',e); }
+
+    // 2. Save badge — ALWAYS runs, own try/catch
+    try {
       await fetch(`${SUPA_URL}/rest/v1/badges`,
-        { method:'POST',
-          headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
-          body:JSON.stringify({user_id:U.dbId,course_id:cid}) }
-      );
-      // Update user totals
+        {method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},body:JSON.stringify({user_id:U.dbId,course_id:cid})});
+    } catch(e) { console.warn('Badge save error:',e); }
+
+    // 3. Update user totals — own try/catch
+    try {
       await fetch(`${SUPA_URL}/rest/v1/users?id=eq.${encodeURIComponent(U.dbId)}`,
-        { method:'PATCH',
-          headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'},
-          body:JSON.stringify({enrolled:ENROLLED.length,completed:COMPLETED.length}) }
-      );
-    } catch(e) { console.error('Award DB error:',e); }
+        {method:'PATCH',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'},body:JSON.stringify({enrolled:ENROLLED.length,completed:COMPLETED.length})});
+    } catch(e) { console.warn('User totals error:',e); }
   }
   renderDash(); renderCourses();
   if(document.getElementById('page-programs')?.classList.contains('active')) renderProgs('enrolled');
