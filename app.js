@@ -701,12 +701,13 @@ const sb = {
     if (!res.ok) { const e=await res.text(); throw new Error(e); }
     return res.json();
   },
-  async insert(table, data, opts={}) {
+  async insert(table, data) {
     const url = `${SUPA_URL}/rest/v1/${table}`;
-    const headers = { 'apikey': SUPA_KEY, 'Authorization': 'Bearer '+SUPA_KEY, 'Content-Type': 'application/json' };
-    if (opts.upsert) { headers['Prefer'] = 'resolution=merge-duplicates'; }
-    else             { headers['Prefer'] = 'return=representation'; }
-    const res = await fetch(url, { method: opts.upsert ? 'POST' : 'POST', headers, body: JSON.stringify(data) });
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer '+SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+      body: JSON.stringify(data)
+    });
     if (!res.ok) { const e=await res.text(); throw new Error(e); }
     return res.json();
   },
@@ -820,6 +821,7 @@ async function doLogin() {
     // Hardcoded admin shortcut
     if ((emailVal==='admin'||emailVal==='faheem.khota@iol.co.za') && passVal==='admin') {
       U = { name:'Faheem Khota', email:'faheem.khota@iol.co.za', role:'admin', ini:'FK', dbId:null };
+      saveSession();
       await loadUserSession();
       await startApp();
       return;
@@ -831,10 +833,45 @@ async function doLogin() {
     if (user.status==='pending')   { toast('Your account is awaiting admin approval.','error'); return; }
     if (user.status==='inactive')  { toast('Your account has been deactivated. Contact your admin.','error'); return; }
     U = { name:user.name, email:user.email, role:user.role, ini:user.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2), dbId:user.id };
+    saveSession();
     await loadUserSession();
     await startApp();
   } catch(e) { toast('Login error: '+e.message,'error'); }
   finally { setLoading(false); }
+}
+
+// ── SESSION PERSISTENCE ──
+function saveSession() {
+  try { localStorage.setItem('va_session', JSON.stringify({ u: U, ts: Date.now() })); } catch(e) {}
+}
+
+function clearSession() {
+  try { localStorage.removeItem('va_session'); } catch(e) {}
+}
+
+async function tryRestoreSession() {
+  try {
+    const raw = localStorage.getItem('va_session');
+    if (!raw) return false;
+    const { u, ts } = JSON.parse(raw);
+    // Expire after 7 days
+    if (!u || Date.now() - ts > 7 * 24 * 60 * 60 * 1000) { clearSession(); return false; }
+    // Verify user still exists and is active in DB
+    if (u.dbId) {
+      const users = await sb.query('users', { eq:{ id: u.dbId } });
+      if (!users.length || users[0].status !== 'active') { clearSession(); return false; }
+      // Refresh user data from DB in case role/name changed
+      const dbUser = users[0];
+      U = { name:dbUser.name, email:dbUser.email, role:dbUser.role, ini:dbUser.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2), dbId:dbUser.id };
+    } else {
+      // Admin shortcut session
+      U = u;
+    }
+    saveSession(); // Refresh timestamp
+    await loadUserSession();
+    await startApp();
+    return true;
+  } catch(e) { clearSession(); return false; }
 }
 
 async function doReg() {
@@ -865,7 +902,9 @@ async function doReg() {
 }
 
 function doLogout() {
+  clearSession();
   U=null; ENROLLED=[]; COMPLETED=[]; BADGES=[]; PROG={}; QS={}; CUR=null; DB_USERS=[];
+  history.replaceState(null, '', location.pathname); // clear hash
   document.getElementById('app').classList.add('hidden');
   document.getElementById('auth-screen').classList.remove('hidden');
   document.getElementById('login-email').value='';
@@ -895,14 +934,16 @@ async function loadUserSession() {
   if (!U?.dbId) return;
   try {
     const enr = await sb.query('enrollments', { eq:{user_id:U.dbId} });
-    ENROLLED  = enr.map(e => e.course_id);
-    // Supabase returns booleans as true/false OR as 't'/'f' strings — handle both
-    COMPLETED = enr.filter(e => e.completed === true || e.completed === 'true' || e.completed === 't' || e.progress >= 100).map(e => e.course_id);
-    PROG      = {};
-    enr.forEach(e => { PROG[e.course_id] = e.progress || 0; });
+    // Normalise course_id to Number — Supabase can return strings or numbers
+    ENROLLED  = enr.map(e => Number(e.course_id));
+    COMPLETED = enr
+      .filter(e => e.completed === true || e.completed === 'true' || e.completed === 't' || Number(e.progress) >= 100)
+      .map(e => Number(e.course_id));
+    PROG = {};
+    enr.forEach(e => { PROG[Number(e.course_id)] = Number(e.progress) || 0; });
     const bdg = await sb.query('badges', { eq:{user_id:U.dbId} });
-    BADGES    = bdg.map(b => b.course_id);
-    console.log('Session loaded — enrolled:', ENROLLED.length, 'completed:', COMPLETED.length, 'badges:', BADGES.length);
+    BADGES = bdg.map(b => Number(b.course_id));
+    console.log('Session loaded — enrolled:', ENROLLED, 'completed:', COMPLETED, 'badges:', BADGES);
   } catch(e) { console.warn('Session load error:', e); }
 }
 
@@ -1149,7 +1190,13 @@ function renderDash() {
     document.querySelector('#page-dashboard .cw').insertBefore(banner, document.querySelector('#page-dashboard .stats-grid'));
   }
   if(ENROLLED.length===0) { di.style.display='block'; g.style.display='none'; }
-  else { di.style.display='none'; g.style.display=''; ENROLLED.slice(0,3).forEach(id=>{const c=allC().find(x=>x.id===id);if(c)g.appendChild(makeCard(c,true));}); }
+  else {
+    di.style.display='none'; g.style.display='';
+    // Show up to 3 in-progress courses on dashboard, then completed ones
+    const inProg = ENROLLED.filter(id=>!COMPLETED.includes(Number(id)));
+    const show = inProg.length ? inProg.slice(0,3) : ENROLLED.slice(0,3);
+    show.forEach(id=>{ const c=allC().find(x=>Number(x.id)===Number(id)); if(c) g.appendChild(makeCard(c,true)); });
+  }
 }
 
 // ── COURSES ──
@@ -1179,7 +1226,7 @@ function getThumb(c) {
   return null;
 }
 function makeCard(c,showP=false) {
-  const isE=ENROLLED.includes(c.id),isDone=COMPLETED.includes(c.id),p=PROG[c.id]||0;
+  const isE=ENROLLED.includes(Number(c.id)),isDone=COMPLETED.includes(Number(c.id)),p=PROG[Number(c.id)]||0;
   const thumb=getThumb(c);
   const div=document.createElement('div');
   // Remove card-level click — only the button triggers enroll/open
@@ -1219,9 +1266,9 @@ function openCourse(id) {
     <div class="cdm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>${CUR.steps} step${CUR.steps!==1?'s':''}</div>
     <div class="cdm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${CUR.dur}</div>
     <div class="cdm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${CUR.rating} rating</div>`;
-  document.getElementById('enroll-btn').textContent = COMPLETED.includes(id) ? '✓ Completed' : ENROLLED.includes(id) ? 'Continue Learning' : 'Enroll Now';
-  document.getElementById('enroll-btn').style.background = COMPLETED.includes(id) ? 'var(--success)' : ENROLLED.includes(id) ? '' : '';
-  document.getElementById('enroll-btn').disabled = COMPLETED.includes(id);
+  document.getElementById('enroll-btn').textContent = COMPLETED.includes(Number(id)) ? '✓ Completed' : ENROLLED.includes(Number(id)) ? 'Continue Learning' : 'Enroll Now';
+  document.getElementById('enroll-btn').style.background = COMPLETED.includes(Number(id)) ? 'var(--success)' : '';
+  document.getElementById('enroll-btn').disabled = COMPLETED.includes(Number(id));
   renderMods();
   const va=document.getElementById('vid-area');
   const vidUrl=(VID_OVERRIDES[id]||{}).url||(typeof DEFAULT_VIDS!=='undefined'?DEFAULT_VIDS[id]:null);
@@ -1232,7 +1279,7 @@ function openCourse(id) {
 }
 function renderMods() {
   const list=document.getElementById('cd-modules'); list.innerHTML='';
-  const done=COMPLETED.includes(CUR.id);
+  const done=COMPLETED.includes(Number(CUR.id));
   (CUR.modules||[]).forEach((mod,i)=>{
     const div=document.createElement('div'); div.className='module-item';
     div.innerHTML=`
@@ -1255,34 +1302,31 @@ function toggleMod(el) { const l=el.nextElementSibling,c=el.querySelector('.mche
 // Opens course and auto-enrolls if not already enrolled
 async function openAndEnroll(id) {
   openCourse(id);
-  if (!ENROLLED.includes(id) && !COMPLETED.includes(id)) {
+  if (!ENROLLED.includes(Number(id)) && !COMPLETED.includes(Number(id))) {
     await enrollCourse();
   }
 }
 
 async function enrollCourse() {
   if (!CUR) return;
-  const alreadyEnrolled = ENROLLED.includes(CUR.id);
+  const alreadyEnrolled = ENROLLED.includes(Number(CUR.id));
   if (!alreadyEnrolled) {
     ENROLLED.push(CUR.id);
     PROG[CUR.id] = 0;
-    // Save to DB if we have a user record
     if (U?.dbId) {
       try {
-        await sb.upsert('enrollments', { user_id:U.dbId, course_id:CUR.id, progress:0, completed:false });
+        const existing = await sb.query('enrollments', { eq:{ user_id:U.dbId, course_id:CUR.id } });
+        if (!existing.length) {
+          await sb.insert('enrollments', { user_id:U.dbId, course_id:CUR.id, progress:0, completed:false });
+        }
         await sb.update('users', { enrolled:ENROLLED.length }, { id:U.dbId });
       } catch(e) { console.warn('Enroll DB error:', e.message); }
     }
     toast('Enrolled in ' + CUR.title + '!', 'success');
   }
-  // Update button
   const btn = document.getElementById('enroll-btn');
-  if (btn) {
-    btn.textContent = 'Continue Learning';
-    btn.style.background = 'var(--success)';
-  }
-  renderDash();
-  renderCourses();
+  if (btn) { btn.textContent = 'Continue Learning'; btn.style.background = ''; }
+  renderDash(); renderCourses();
 }
 
 // ── QUIZ ──
@@ -1334,29 +1378,30 @@ function backToCourse() { nav('course-detail'); }
 async function awardAll() {
   const cid = QS.c.id;
   // Update local state immediately
-  if (!COMPLETED.includes(cid)) COMPLETED.push(cid);
-  if (!BADGES.includes(cid))    BADGES.push(cid);
-  if (!ENROLLED.includes(cid))  ENROLLED.push(cid);
+  if (!COMPLETED.includes(Number(cid))) COMPLETED.push(Number(cid));
+  if (!BADGES.includes(Number(cid)))    BADGES.push(Number(cid));
+  if (!ENROLLED.includes(Number(cid)))  ENROLLED.push(Number(cid));
   PROG[cid] = 100;
+
   if (U?.dbId) {
     try {
-      // Use raw fetch to guarantee completed=true is saved as boolean
-      const res = await fetch(SUPA_URL + '/rest/v1/enrollments', {
-        method: 'POST',
-        headers: {
-          'apikey': SUPA_KEY,
-          'Authorization': 'Bearer ' + SUPA_KEY,
-          'Content-Type': 'application/json',
-          'Prefer': 'resolution=merge-duplicates'
-        },
-        body: JSON.stringify({ user_id: U.dbId, course_id: cid, progress: 100, completed: true })
-      });
-      if (!res.ok) throw new Error(await res.text());
+      // Check if enrollment row already exists
+      const existing = await sb.query('enrollments', { eq:{ user_id:U.dbId, course_id:cid } });
+      if (existing.length) {
+        // Update existing row — most reliable way to set completed:true
+        await sb.update('enrollments', { progress:100, completed:true }, { id:existing[0].id });
+      } else {
+        // Insert new completed enrollment
+        await sb.insert('enrollments', { user_id:U.dbId, course_id:cid, progress:100, completed:true });
+      }
       await sb.upsert('badges', { user_id:U.dbId, course_id:cid });
       await sb.update('users', { enrolled:ENROLLED.length, completed:COMPLETED.length }, { id:U.dbId });
     } catch(e) { console.warn('Award DB error:', e.message); }
   }
   renderDash(); renderCourses();
+  // Refresh My Programs and Profile if they're open
+  if (document.getElementById('page-programs')?.classList.contains('active')) renderProgs('enrolled');
+  if (document.getElementById('page-profile')?.classList.contains('active')) renderProfile();
   toast('🏅 Badge earned! 🎓 Certificate ready!', 'success');
   setTimeout(() => openCert(cid), 300);
 }
@@ -1371,7 +1416,7 @@ function renderProfile() {
   const bg=document.getElementById('prof-badges'); bg.innerHTML='';
   // Use allC() so custom/new courses are always included
   allC().forEach(c=>{
-    const earned = BADGES.includes(c.id);
+    const earned = BADGES.includes(Number(c.id));
     const ov = BADGE_OVERRIDES[c.id] || {};
     const emoji = ov.emoji || c.emoji || '📚';
     const color = ov.color || c.color || '#c8a84b';
@@ -1480,8 +1525,8 @@ function dlCert() {
 function renderProgs(tab) {
   const g=document.getElementById('prog-grid'); g.innerHTML='';
   let cs;
-  if(tab==='enrolled') cs=allC().filter(c=>ENROLLED.includes(c.id)&&!COMPLETED.includes(c.id));
-  else if(tab==='completed') cs=allC().filter(c=>COMPLETED.includes(c.id));
+  if(tab==='enrolled')  cs=allC().filter(c=>ENROLLED.includes(Number(c.id))&&!COMPLETED.includes(Number(c.id)));
+  else if(tab==='completed') cs=allC().filter(c=>COMPLETED.includes(Number(c.id)));
   else cs=allC();
   if(!cs.length){ g.innerHTML=`<div style="color:var(--muted);font-size:.82rem;padding:1.25rem;grid-column:1/-1">${tab==='enrolled'?'No courses in progress. <a href="#" onclick="nav(\'courses\')" style="color:var(--gold)">Browse modules →</a>':tab==='completed'?'No completed courses yet — keep going!':''}</div>`; return; }
   cs.forEach(c=>g.appendChild(makeCard(c,true)));
@@ -2691,3 +2736,13 @@ function previewCertFull() {
 // ── RESPONSIVE ──
 function chkMob(){ document.getElementById('menu-btn').style.display=window.innerWidth<=768?'flex':'none'; }
 window.addEventListener('resize',chkMob); chkMob();
+
+// ── AUTO-RESTORE SESSION ON PAGE LOAD / REFRESH ──
+window.addEventListener('DOMContentLoaded', async () => {
+  const restored = await tryRestoreSession();
+  if (!restored) {
+    // No saved session — show login as normal
+    document.getElementById('auth-screen').classList.remove('hidden');
+    document.getElementById('app').classList.add('hidden');
+  }
+});
