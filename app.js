@@ -1358,7 +1358,8 @@ async function enrollCourse() {
 // ── QUIZ ──
 function startQuiz(c) {
   if(!c||!c.quiz||!c.quiz.length){ toast('No quiz available for this course yet.'); return; }
-  QS={c,qs:c.quiz,cur:0,ans:[],done:false};
+  // Save a copy of the course so it can't be changed by CUR updates
+  QS={c:{...c},qs:c.quiz,cur:0,ans:[],done:false};
   nav('quiz'); renderQuiz();
 }
 function renderQuiz() {
@@ -1485,7 +1486,8 @@ function handleAva(e) { const f=e.target.files[0]; if(!f)return; const url=URL.c
 
 // ── CERTIFICATE ──
 function openCert(cid) {
-  const c = allC().find(x => x.id === cid); if (!c) return;
+  const c = allC().find(x => Number(x.id) === Number(cid));
+  if (!c) { console.warn('openCert: course not found for id', cid); return; }
   renderCertPreview(c.title, U.name);
   document.getElementById('cert-modal').classList.remove('hidden');
 }
