@@ -1309,17 +1309,16 @@ async function openAndEnroll(id) {
 
 async function enrollCourse() {
   if (!CUR) return;
-  const alreadyEnrolled = ENROLLED.includes(Number(CUR.id));
+  const cid = Number(CUR.id);
+  const alreadyEnrolled = ENROLLED.includes(cid);
   if (!alreadyEnrolled) {
-    ENROLLED.push(CUR.id);
-    PROG[CUR.id] = 0;
+    ENROLLED.push(cid);
+    PROG[cid] = 0;
     if (U?.dbId) {
       try {
-        const existing = await sb.query('enrollments', { eq:{ user_id:U.dbId, course_id:CUR.id } });
-        if (!existing.length) {
-          await sb.insert('enrollments', { user_id:U.dbId, course_id:CUR.id, progress:0, completed:false });
-        }
-        await sb.update('users', { enrolled:ENROLLED.length }, { id:U.dbId });
+        await sb.delete('enrollments', { user_id: U.dbId, course_id: cid });
+        await sb.insert('enrollments', { user_id: U.dbId, course_id: cid, progress: 0, completed: false });
+        await sb.update('users', { enrolled: ENROLLED.length }, { id: U.dbId });
       } catch(e) { console.warn('Enroll DB error:', e.message); }
     }
     toast('Enrolled in ' + CUR.title + '!', 'success');
@@ -1376,30 +1375,23 @@ function nextQ() { if(QS.ans[QS.cur]===undefined)return; if(QS.cur<QS.qs.length-
 function prevQ() { if(QS.cur>0){QS.cur--;renderQuiz();} }
 function backToCourse() { nav('course-detail'); }
 async function awardAll() {
-  const cid = QS.c.id;
-  // Update local state immediately
-  if (!COMPLETED.includes(Number(cid))) COMPLETED.push(Number(cid));
-  if (!BADGES.includes(Number(cid)))    BADGES.push(Number(cid));
-  if (!ENROLLED.includes(Number(cid)))  ENROLLED.push(Number(cid));
+  const cid = Number(QS.c.id);
+  if (!COMPLETED.includes(cid)) COMPLETED.push(cid);
+  if (!BADGES.includes(cid))    BADGES.push(cid);
+  if (!ENROLLED.includes(cid))  ENROLLED.push(cid);
   PROG[cid] = 100;
 
   if (U?.dbId) {
     try {
-      // Check if enrollment row already exists
-      const existing = await sb.query('enrollments', { eq:{ user_id:U.dbId, course_id:cid } });
-      if (existing.length) {
-        // Update existing row — most reliable way to set completed:true
-        await sb.update('enrollments', { progress:100, completed:true }, { id:existing[0].id });
-      } else {
-        // Insert new completed enrollment
-        await sb.insert('enrollments', { user_id:U.dbId, course_id:cid, progress:100, completed:true });
-      }
-      await sb.upsert('badges', { user_id:U.dbId, course_id:cid });
-      await sb.update('users', { enrolled:ENROLLED.length, completed:COMPLETED.length }, { id:U.dbId });
+      // Delete and re-insert to guarantee completed=true is saved
+      // (avoids issues with missing id column or failed updates)
+      await sb.delete('enrollments', { user_id: U.dbId, course_id: cid });
+      await sb.insert('enrollments', { user_id: U.dbId, course_id: cid, progress: 100, completed: true });
+      await sb.upsert('badges', { user_id: U.dbId, course_id: cid });
+      await sb.update('users', { enrolled: ENROLLED.length, completed: COMPLETED.length }, { id: U.dbId });
     } catch(e) { console.warn('Award DB error:', e.message); }
   }
   renderDash(); renderCourses();
-  // Refresh My Programs and Profile if they're open
   if (document.getElementById('page-programs')?.classList.contains('active')) renderProgs('enrolled');
   if (document.getElementById('page-profile')?.classList.contains('active')) renderProfile();
   toast('🏅 Badge earned! 🎓 Certificate ready!', 'success');
