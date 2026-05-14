@@ -996,6 +996,11 @@ async function startApp() {
       if (b[0].cert_config)     { try { Object.assign(BRAND.cert, JSON.parse(b[0].cert_config)); } catch(e) {} }
       if (b[0].course_order)    { try { COURSE_ORDER = JSON.parse(b[0].course_order); } catch(e) {} }
       if (b[0].badge_overrides) { try { BADGE_OVERRIDES = JSON.parse(b[0].badge_overrides); } catch(e) {} }
+      if (b[0].resources_data)  { try {
+        const saved = JSON.parse(b[0].resources_data);
+        // Replace RESOURCES array contents with saved version
+        RESOURCES.splice(0, RESOURCES.length, ...saved);
+      } catch(e) {} }
     }
   } catch(e) {}
   // Load video/image overrides
@@ -2332,15 +2337,26 @@ async function saveBatchInvite() {
 let _editResIdx=null;
 function showAddResource() { _editResIdx=null; document.getElementById('res-form-title').textContent='Add Resource'; ['rf-title','rf-url','rf-desc'].forEach(id=>document.getElementById(id).value=''); document.getElementById('rf-emoji').value='📄'; document.getElementById('rf-type').value='Guide'; document.getElementById('res-form').style.display='block'; }
 function editResource(i) { _editResIdx=i; const r=RESOURCES[i]; document.getElementById('res-form-title').textContent='Edit Resource'; document.getElementById('rf-title').value=r.title; document.getElementById('rf-url').value=r.url; document.getElementById('rf-desc').value=r.desc; document.getElementById('rf-emoji').value=r.emoji; document.getElementById('rf-type').value=r.type; document.getElementById('res-form').style.display='block'; }
-function saveResource() {
+async function saveResource() {
   const title=document.getElementById('rf-title').value.trim(); const url=document.getElementById('rf-url').value.trim();
   if(!title||!url){ toast('Please fill in title and URL','error'); return; }
   const r={title,url,emoji:document.getElementById('rf-emoji').value||'📄',type:document.getElementById('rf-type').value,desc:document.getElementById('rf-desc').value.trim()};
   if(_editResIdx!==null){ RESOURCES[_editResIdx]=r; toast('Resource updated!','success'); }
   else { RESOURCES.push(r); toast('Resource added!','success'); }
+  await persistResources();
   renderRes(); document.getElementById('res-form').style.display='none'; renderAC('resources');
 }
-function deleteResource(i) { if(!confirm('Delete "'+RESOURCES[i].title+'"?')) return; RESOURCES.splice(i,1); renderRes(); renderAC('resources'); toast('Resource deleted'); }
+async function deleteResource(i) {
+  if(!confirm('Delete "'+RESOURCES[i].title+'"?')) return;
+  RESOURCES.splice(i,1);
+  await persistResources();
+  renderRes(); renderAC('resources'); toast('Resource deleted');
+}
+async function persistResources() {
+  try {
+    await sb.upsert('branding', { id:1, resources_data: JSON.stringify(RESOURCES) });
+  } catch(e) { console.warn('Resources save error:', e.message); }
+}
 
 // ── BRANDING ──
 async function saveBranding() {
