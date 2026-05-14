@@ -818,9 +818,19 @@ async function doLogin() {
   if (!emailVal||!passVal) { toast('Please enter your email and password','error'); return; }
   setLoading(true, 'Signing in…');
   try {
-    // Hardcoded admin shortcut
+    // Admin shortcut — look up real DB record so progress saves
     if ((emailVal==='admin'||emailVal==='faheem.khota@iol.co.za') && passVal==='admin') {
-      U = { name:'Faheem Khota', email:'faheem.khota@iol.co.za', role:'admin', ini:'FK', dbId:null };
+      try {
+        const admins = await sb.query('users', { eq:{ email:'faheem.khota@iol.co.za' } });
+        if (admins.length) {
+          const a = admins[0];
+          U = { name:a.name, email:a.email, role:'admin', ini:a.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2), dbId:a.id };
+        } else {
+          U = { name:'Faheem Khota', email:'faheem.khota@iol.co.za', role:'admin', ini:'FK', dbId:null };
+        }
+      } catch(e) {
+        U = { name:'Faheem Khota', email:'faheem.khota@iol.co.za', role:'admin', ini:'FK', dbId:null };
+      }
       saveSession();
       await loadUserSession();
       await startApp();
