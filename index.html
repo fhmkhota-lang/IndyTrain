@@ -279,9 +279,23 @@ button { cursor: pointer; }
 .form-group select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right .75rem center; }
 
 /* ── ADMIN ── */
-.admin-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); background: #fff; padding: 0 1.5rem; overflow-x: auto; }
-.admin-tab { padding: .75rem 1.1rem; font-size: .82rem; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; color: var(--muted); transition: all var(--tr); white-space: nowrap; }
-.admin-tab.active { color: var(--ink); border-bottom-color: var(--gold); }
+.admin-nav-bar { display:flex; align-items:center; gap:.25rem; border-bottom:1px solid var(--border); background:#fff; padding:.5rem 1.25rem; flex-wrap:wrap; }
+.admin-nav-group { position:relative; }
+.admin-nav-btn { display:flex; align-items:center; gap:.4rem; padding:.55rem .875rem; border:none; background:none; font-size:.82rem; font-weight:600; color:var(--muted); cursor:pointer; border-radius:8px; transition:all var(--tr); white-space:nowrap; }
+.admin-nav-btn:hover, .admin-nav-btn.active { background:var(--paper); color:var(--ink); }
+.admin-nav-btn.active { color:var(--gold); }
+.admin-nav-parent .admin-nav-chev { transition:transform var(--tr); }
+.admin-nav-parent.open .admin-nav-chev { transform:rotate(180deg); }
+.admin-nav-children { display:none; position:absolute; top:calc(100% + 4px); left:0; background:#fff; border:1px solid var(--border); border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,.1); min-width:200px; z-index:100; padding:.35rem; }
+.admin-nav-parent.open + .admin-nav-children, .admin-nav-children.open { display:block; }
+.admin-nav-child { display:block; width:100%; text-align:left; padding:.55rem .875rem; border:none; background:none; font-size:.82rem; font-weight:500; color:var(--ink); cursor:pointer; border-radius:7px; transition:background var(--tr); white-space:nowrap; }
+.admin-nav-child:hover { background:var(--paper); }
+.admin-nav-child.active { background:rgba(200,168,75,.1); color:var(--gold); font-weight:700; }
+.admin-badge { background:var(--red,#ef4444); color:#fff; font-size:.65rem; font-weight:700; padding:.1rem .35rem; border-radius:99px; }
+/* Legacy tab styles kept for compat */
+.admin-tabs { display:flex; gap:0; border-bottom:1px solid var(--border); background:#fff; padding:0 1.5rem; overflow-x:auto; }
+.admin-tab { padding:.75rem 1.1rem; font-size:.82rem; font-weight:600; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; color:var(--muted); transition:all var(--tr); white-space:nowrap; }
+.admin-tab.active { color:var(--ink); border-bottom-color:var(--gold); }
 .table-wrap { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
 th { padding: .75rem 1.1rem; text-align: left; font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); background: var(--paper); border-bottom: 1px solid var(--border); font-weight: 600; }
@@ -544,7 +558,7 @@ tr:hover td { background: var(--paper); }
           <div style="font-size:2.5rem;margin-bottom:.75rem">📝</div>
           <h3 style="margin-bottom:.4rem;font-size:1rem">Test Your Knowledge</h3>
           <p style="color:var(--muted);font-size:.82rem;margin-bottom:1rem">Complete the assessment to earn your course badge and a downloadable certificate.</p>
-          <button class="btn btn-primary" onclick="startQuiz(CUR)">Start Quiz →</button>
+          <button class="btn btn-primary" onclick="checkAndStartQuiz()">Start Final Quiz →</button>
         </div></div>
       </div>
     </div>
@@ -673,19 +687,45 @@ tr:hover td { background: var(--paper); }
 
 <!-- ADMIN -->
 <div class="page flex-col" id="page-admin">
-  <div class="admin-tabs">
-    <div class="admin-tab active" onclick="switchAT('users',this)">👥 Users</div>
-    <div class="admin-tab" onclick="switchAT('videos',this)">🎥 Courses &amp; Videos</div>
-    <div class="admin-tab" onclick="switchAT('order',this)">↕ Course Order</div>
-    <div class="admin-tab" onclick="switchAT('badges',this)">🏅 Badges</div>
-    <div class="admin-tab" onclick="switchAT('quizeditor',this)">📝 Quiz Editor</div>
-    <div class="admin-tab" onclick="switchAT('create',this)">➕ Create Course</div>
-    <div class="admin-tab" onclick="switchAT('resources',this)">📚 Resources</div>
-    <div class="admin-tab" onclick="switchAT('announce',this)">📢 Announcements</div>
-    <div class="admin-tab" onclick="switchAT('branding',this)">🎨 Branding</div>
-    <div class="admin-tab" onclick="switchAT('certificate',this)">🎓 Certificate</div>
-    <div class="admin-tab" onclick="switchAT('messages',this)">💬 Messages</div>
-    <div class="admin-tab" onclick="switchAT('analytics',this)">📊 Analytics</div>
+  <div class="admin-nav-bar">
+    <div class="admin-nav-group">
+      <button class="admin-nav-btn active" onclick="switchAT('users',this)" data-tab="users">
+        👥 <span>Users</span>
+      </button>
+    </div>
+    <div class="admin-nav-group">
+      <button class="admin-nav-btn admin-nav-parent" onclick="toggleAdminGroup(this)">
+        📚 <span>Courses</span> <svg class="admin-nav-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="admin-nav-children">
+        <button class="admin-nav-child" onclick="switchAT('videos',this)" data-tab="videos">🎥 Courses &amp; Videos</button>
+        <button class="admin-nav-child" onclick="switchAT('quizeditor',this)" data-tab="quizeditor">📝 Quiz Editor</button>
+        <button class="admin-nav-child" onclick="switchAT('order',this)" data-tab="order">↕ Course Order</button>
+        <button class="admin-nav-child" onclick="switchAT('create',this)" data-tab="create">➕ Create Course</button>
+      </div>
+    </div>
+    <div class="admin-nav-group">
+      <button class="admin-nav-btn admin-nav-parent" onclick="toggleAdminGroup(this)">
+        🎨 <span>Branding</span> <svg class="admin-nav-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="admin-nav-children">
+        <button class="admin-nav-child" onclick="switchAT('branding',this)" data-tab="branding">🎨 Branding</button>
+        <button class="admin-nav-child" onclick="switchAT('certificate',this)" data-tab="certificate">🎓 Certificate</button>
+        <button class="admin-nav-child" onclick="switchAT('badges',this)" data-tab="badges">🏅 Badges</button>
+        <button class="admin-nav-child" onclick="switchAT('announce',this)" data-tab="announce">📢 Announcements</button>
+        <button class="admin-nav-child" onclick="switchAT('resources',this)" data-tab="resources">📚 Resources</button>
+      </div>
+    </div>
+    <div class="admin-nav-group">
+      <button class="admin-nav-btn" onclick="switchAT('messages',this)" data-tab="messages" id="admin-msg-btn">
+        💬 <span>Messages</span> <span id="msg-badge" class="admin-badge hidden"></span>
+      </button>
+    </div>
+    <div class="admin-nav-group">
+      <button class="admin-nav-btn" onclick="switchAT('analytics',this)" data-tab="analytics">
+        📊 <span>Analytics</span>
+      </button>
+    </div>
   </div>
   <div class="cw" id="admin-content"></div>
 </div>

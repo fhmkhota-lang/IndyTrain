@@ -94,32 +94,81 @@ const COURSES = [
     modules: [
       { name: "Basics of Writing", steps: [
           { t: "Basics of Writing", d: "Watch the video lesson.", vid: "1ZMO4x50XtQNbY-25_KIl6YCdp3wfrQXF" },
-          { t: "Basics of Writing Quiz", d: "Test your understanding." }
-        ] },
+          { t: "Basics of Writing Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "The inverted pyramid structure is a rigid rule that journalists should never deviate from when writing hard news stories.", opts: ["True", "False"], ans: 1 },
+      { q: "Using active voice and strong verbs is recommended because it makes the narrative more dynamic and engaging.", opts: ["True", "False"], ans: 0 },
+      { q: "A journalist should weave background information toward the top of a story if a reader is unlikely to be familiar with the topic, such as the \"PA case.\"", opts: ["True", "False"], ans: 0 },
+      { q: "Research suggests that if you cannot pass the \"10-word test,\" it may mean you do not actually understand your story.", opts: ["True", "False"], ans: 0 },
+      { q: "When writing a normal, general news story, journalists should primarily use jargon and complicated language to sound intelligent and establish authority", opts: ["True", "False"], ans: 0 },
+      { q: "Which of the following is NOT one of the \"five Ws and the H\" mentioned in connection with the inverted pyramid structure?", opts: ["Who", "Where", "Which", "How"], ans: 0 },
+      { q: "The speaker argues that the first few paragraphs of a story are \"so crucial\" for what purpose?", opts: ["To ensure the reader actually stays and reads the full story.", "To show off the journalist's clever prose.", "To save the most important details for the very end.", "To include all necessary background information for other journalists."], ans: 0 },
+      { q: "What is the recommended way to back up a story's intro to show the reader that the information is not just the writer's opinion?", opts: ["State that you are a journalist writing for a niche market.", "Back it up with a quote from a newsmaker.", "Include many big words to sound intelligent.", "Use passive voice instead of active voice."], ans: 0 },
+      { q: "What is the main difference between active voice and passive voice, as defined in the video?", opts: ["Active voice uses longer sentences, and passive voice uses shorter sentences.", "Active voice is only for hard news, and passive voice is for feature stories.", "In active voice, the subject performs the action of the verb, while in passive voice, the subject receives the action of the verb.", "Active voice avoids strong verbs, while passive voice uses them."], ans: 0 },
+      { q: "To follow the \"show, don't tell\" principle, journalists should use which two elements to illustrate a point rather than simply stating opinions or observations?", opts: ["Flowing sentences and complicated language.", "Jargon and the \"10-word test.\"", "Vivid descriptions and impactful quotes.", "Supporting details and background information."], ans: 0 }
+    ] },
       { name: "Subbing", steps: [
-          { t: "Subbing", d: "Watch the video lesson.", vid: "1qxi0YNYsp8Yj4NpJ6piEoLD7Y_h_neaY" },
-          { t: "Subbing Quiz", d: "Test your understanding." }
-        ] },
+          { t: "Subbing", d: "Watch the video lesson.", vid: "1qxi0YNYsp8Yj4NpJ6piEoLD7Y_h_neaY" }
+        ], quiz: [] },
       { name: "Headline Writing and SEO", steps: [
           { t: "Headline Writing and SEO", d: "Watch the video lesson.", vid: "1uOG4iC1n9uBPbmCx5H7f76sh5CPEV293" },
-          { t: "Headline Writing and SEO Quiz", d: "Test your understanding." }
-        ] },
+          { t: "Headline Writing and SEO Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "What are three essential elements of crafting a compelling headline?", opts: ["Clarity, accuracy, creativity", "Length, complexity, mystery", "Grammar, synonyms, antonyms"], ans: 0 },
+      { q: "What is the primary purpose of a headline?", opts: ["To inform readers about the article content and improve SEO", "To surprise readers with unexpected content", "To create as long a headline as possible"], ans: 0 },
+      { q: "What is a best practice for optimizing headlines for SEO?", opts: ["Including relevant keywords", "Using jargon extensively", "Creating misleading titles"], ans: 0 },
+      { q: "Why is it important to test headlines on different digital platforms?", opts: ["To test effectiveness across different audiences and platforms", "To use the same headline everywhere for consistency", "To ensure the headline uses regional slang"], ans: 0 },
+      { q: "What should be considered to avoid creating clickbait headlines?", opts: ["Balancing creativity with clarity", "Using abundant adjectives", "Exaggerating facts for impact"], ans: 0 }
+    ] },
       { name: "Good For Google", steps: [
           { t: "Good For Google", d: "Watch the video lesson.", vid: "12dMdFE0TDH3yu6_qtk-v8zvPfP_6VWod" },
-          { t: "Good For Google Quiz", d: "Test your understanding." }
-        ] },
+          { t: "Good For Google Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "What does Google reward content for?", opts: ["Rewards for reflection, experimentation, adapability, and transparency", "Rewards for experience, expertise, authority, and trust", "Rewards for innovation, creativity, adaptability, and transparency", "Rewards for speed, accuracy, consistency, and reliability"], ans: 0 },
+      { q: "How can expertise be demonstrated according to the video?", opts: ["Lack of backlinks", "Consistent coverage of a topic", "Frequency of content updates"], ans: 0 },
+      { q: "What strategies were suggested for building authority?", opts: ["Using visuals and headlines effectively", "Hyperlinking to previous relevant stories", "Avoiding external links"], ans: 0 },
+      { q: "What is a recommended practice regarding mobile optimization?", opts: ["Ignoring mobile users", "Optimizing content for mobile", "Focusing solely on desktop design"], ans: 0 },
+      { q: "What content strategies were recommended in the video?", opts: ["Writing engaging summaries", "Using humor in all content", "Employing keywords and descriptive text", "Eliminating all hypertext links"], ans: 0 },
+      { q: "What is a vital strategy for enhancing the appeal of content?", opts: ["Ignoring visual appeal", "Choosing effective visuals and headlines", "Using outdated stock images"], ans: 0 },
+      { q: "Google rewards all of the following things on a topic, EXCEPT:", opts: ["Experience", "Expertise", "Authority", "Visibility"], ans: 0 },
+      { q: "What is the benefit of becoming an authority on a topic?", opts: ["You can write longer headlines.", "Your story gets pushed to the top when someone searches for that specific topic.", "You no longer need to use captions on images.", "You only need to write one story per topic."], ans: 0 },
+      { q: "What is the recommended linking strategy to show Google the depth of your coverage?", opts: ["Link to any story on the internet.", "Link to stories that are only about court cases.", "Link to previous relevant stories, preferably on your website.", "Do not use internal linking."], ans: 0 },
+      { q: "What indicates to Google that a person is an expert on a subject, leading to trust?", opts: ["Writing only one in-depth story per month.", "Forming a \"topic cluster\" by writing five or more stories connected to the same niche or subject.", "Only writing stories that are \"click-baity.\"", "Using the magic wand button in the content management system."], ans: 0 }
+    ] },
       { name: "From Press Release to Story", steps: [
           { t: "From Press Release to Story", d: "Watch the video lesson.", vid: "14-wCMfTE3eL4qVeEuCYnqbBox8Ruq8Ub" },
-          { t: "From Press Release to Story Quiz", d: "Test your understanding." }
-        ] },
+          { t: "From Press Release to Story Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "What is one key skill needed when transforming a press release into a news story?", opts: ["Identifying promotional language and removing it to focus on facts.", "Finding ways to praise the company behind the press release.", "Including every detail from the press release."], ans: 0 },
+      { q: "Which strategy is important for ensuring a news story derived from a press release remains credible?", opts: ["Fact-checking and verifying claims.", "Adding more spin to the story.", "Directly publishing the press release.", "Avoiding journalistic interviews."], ans: 0 },
+      { q: "How can a journalist humanize data and add depth to a story based on a press release?", opts: ["Interviewing secondary sources for additional perspectives.", "Avoiding contact with any sources related to the press release.", "Only publishing the company's point of view."], ans: 0 },
+      { q: "What is the significance of seeking second voices and counter perspectives in a news story?", opts: ["It ensures the story is more rounded and balanced.", "It discredits the press release.", "It saves time by avoiding investigation.", "It promotes biased reporting."], ans: 0 },
+      { q: "Why should journalists find unique angles when reporting on press releases?", opts: ["To discover a unique story angle that captures reader interest.", "To copy the angle suggested in the press release.", "To shorten the story for publication."], ans: 0 },
+      { q: "What is a strategy for humanizing data in a news article?", opts: ["By enhancing images and graphics for the press release.", "By adding testimonies from affected individuals.", "By paraphrasing promotional language."], ans: 0 }
+    ] },
       { name: "Fact Checking and Ethical Sourcing", steps: [
           { t: "Fact Checking and Ethical Sourcing", d: "Watch the video lesson.", vid: "1YH6JvAcjf2KvRRCPppMr07ZadO4P-rZR" },
-          { t: "Fact Checking and Ethical Sourcing Quiz", d: "Test your understanding." }
-        ] },
+          { t: "Fact Checking and Ethical Sourcing Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "What does triangulation mean in the context of verification?", opts: ["Using multiple sources for verification", "Relying on a single trusted source", "Ignoring contradictory evidence"], ans: 0 },
+      { q: "Which approach is crucial for avoiding viral misinformation?", opts: ["To use reverse image search", "To trust content based on its popularity", "To treat all online information with skepticism"], ans: 0 },
+      { q: "What is one method to independently verify an image?", opts: ["Verifying the timestamp of the image", "Checking the number of times the image was shared", "Considering the caption as accurate without further checks"], ans: 0 },
+      { q: "Which of the following are fact-checking tools useful for journalists?", opts: ["Google Fact Check Explorer", "Personal blog opinions", "Wayback Machine"], ans: 0 },
+      { q: "What is direct evidence obtained from original sources called?", opts: ["Primary information", "Secondary information", "Tertiary content"], ans: 0 },
+      { q: "What is a responsible practice when dealing with subjects in a story?", opts: ["Always allowing subjects a right of reply", "Only seeking replies when convenient", "Ignoring subjects if the information is from a trusted source"], ans: 0 }
+    ] },
       { name: "AI in Journalism", steps: [
           { t: "AI in Journalism", d: "Watch the video lesson.", vid: "1uChWCXH-yA8GC2_AMSuAL7S6t5VK1RUS" },
-          { t: "AI in Journalism Quiz", d: "Test your understanding." }
-        ] }
+          { t: "AI in Journalism Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "What tasks can AI help journalists with?", opts: ["Transcription, data sorting, and summarization", "Cooking, painting, and singing", "Gardening, fishing, and swimming"], ans: 0 },
+      { q: "What is crucial when using AI in journalism?", opts: ["Maintaining human oversight, known as the 'human loop'", "Letting AI operate independently without checks", "Replacing all editorial roles with AI"], ans: 0 },
+      { q: "Why should humans verify AI-generated content?", opts: ["To check their work for errors", "To increase the speed of output", "To eliminate all human intervention"], ans: 0 },
+      { q: "Why is fact-checking AI-generated content important?", opts: ["To understand and address potential inaccuracies", "To increase dependence on AI-generated results", "To ignore ethical responsibilities"], ans: 0 },
+      { q: "What ethical practice should journalists adhere to when using AI?", opts: ["Transparency about AI use", "Complete secrecy of AI use", "Relying solely on AI without human input"], ans: 0 },
+      { q: "Which tools are mentioned for AI research and summarization in journalism?", opts: ["Google Journalist Studio and Pinpoint", "Microsoft Translator and Bing", "Photoshop and Illustrator"], ans: 0 },
+      { q: "What does AI 'hallucination' imply in journalism?", opts: ["AI hallucinations can present incorrect information as facts", "AI hallucinations always generate creative graphics", "AI hallucinations are not a real concern in journalism"], ans: 0 }
+    ] }
     ],
     quiz: [
       { q: "The inverted pyramid structure is a rigid rule that journalists should never deviate from when writing hard news stories.", opts: ["True", "False"], ans: 1 },
@@ -134,20 +183,27 @@ const COURSES = [
     id: 2, title: "Pitch Perfect", cat: "Editorial",
     emoji: "🎯", color: "#8e44ad", rating: "New", badge: "🎯",
     steps: 1, dur: "~45 min",
-    about: "Learn how to craft compelling story pitches that capture editors\' attention and get published.",
+    about: "Learn how to craft compelling story pitches that capture editors\\",
     modules: [
       { name: "Pitching Ideas", steps: [
           { t: "Pitching Ideas", d: "Watch the video lesson.", vid: "1zy6uKZyUXl6izuKB090okPqmWWfO8OD8" },
-          { t: "Pitching Ideas Quiz", d: "Test your understanding." }
-        ] }
-    ],
-    quiz: [
-      { q: "What are key elements to consider when crafting a story pitch?", opts: ["Identifying newsworthy angles and understanding audience needs", "Emphasising personal opinions over facts", "Using jargon and complex language", "Focusing solely on the editor\'s preferences"], ans: 0 },
+          { t: "Pitching Ideas Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "What are key elements to consider when crafting a story pitch?", opts: ["Identifying newsworthy angles and understanding audience needs", "Emphasising personal opinions over facts", "Using jargon and complex language", "Focusing solely on the editor's preferences"], ans: 0 },
       { q: "How can you ensure that your story idea captures the attention of your audience?", opts: ["Engage in thorough research to understand the audience", "Focus on making the language as complex as possible", "Ignore current trends and focus on evergreen stories", "Use only personal anecdotes with limited facts"], ans: 0 },
       { q: "Which strategies are effective when structuring a story pitch?", opts: ["Using a clear and engaging introduction", "Including too much technical jargon", "Presenting multiple story ideas at once", "Keeping the pitch concise and to the point"], ans: 0 },
       { q: "What makes a story angle newsworthy?", opts: ["An angle that is relevant and timely", "An angle that supports existing stereotypes", "An angle that is overly complex", "An angle that appeals to a niche audience"], ans: 0 },
       { q: "How can you effectively communicate the value of your story to editors?", opts: ["Highlighting the unique aspects of the story", "Emphasising the difficulty of writing the story", "Being vague about the details", "Assuming the editor knows the story value"], ans: 0 },
-      { q: "How should you present a story idea to make it compelling for publication?", opts: ["By aligning the story idea with the publication\'s goals and audience", "By focusing on the writer\'s personal interest in the topic", "By outlining all possible story angles at once", "By presenting a lengthy background of the story"], ans: 0 }
+      { q: "How should you present a story idea to make it compelling for publication?", opts: ["By aligning the story idea with the publication's goals and audience", "By focusing on the writer's personal interest in the topic", "By outlining all possible story angles at once", "By presenting a lengthy background of the story"], ans: 0 }
+    ] }
+    ],
+    quiz: [
+      { q: "What are key elements to consider when crafting a story pitch?", opts: ["Identifying newsworthy angles and understanding audience needs", "Emphasising personal opinions over facts", "Using jargon and complex language", "Focusing solely on the editor's preferences"], ans: 0 },
+      { q: "How can you ensure that your story idea captures the attention of your audience?", opts: ["Engage in thorough research to understand the audience", "Focus on making the language as complex as possible", "Ignore current trends and focus on evergreen stories", "Use only personal anecdotes with limited facts"], ans: 0 },
+      { q: "Which strategies are effective when structuring a story pitch?", opts: ["Using a clear and engaging introduction", "Including too much technical jargon", "Presenting multiple story ideas at once", "Keeping the pitch concise and to the point"], ans: 0 },
+      { q: "What makes a story angle newsworthy?", opts: ["An angle that is relevant and timely", "An angle that supports existing stereotypes", "An angle that is overly complex", "An angle that appeals to a niche audience"], ans: 0 },
+      { q: "How can you effectively communicate the value of your story to editors?", opts: ["Highlighting the unique aspects of the story", "Emphasising the difficulty of writing the story", "Being vague about the details", "Assuming the editor knows the story value"], ans: 0 },
+      { q: "How should you present a story idea to make it compelling for publication?", opts: ["By aligning the story idea with the publication's goals and audience", "By focusing on the writer's personal interest in the topic", "By outlining all possible story angles at once", "By presenting a lengthy background of the story"], ans: 0 }
     ]
   },
   {
@@ -158,15 +214,29 @@ const COURSES = [
     modules: [
       { name: "Headline Writing and SEO", steps: [
           { t: "Headline Writing and SEO", d: "Watch the video lesson.", vid: "1uOG4iC1n9uBPbmCx5H7f76sh5CPEV293" },
-          { t: "Headline Writing and SEO Quiz", d: "Test your understanding." }
-        ] }
+          { t: "Headline Writing and SEO Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "A good headline is written for which two audiences simultaneously?", opts: ["Editors and Search Engines", "Human Readers and Bots", "Advertisers and Journalists", "Social Media Followers and News Aggregators"], ans: 0 },
+      { q: "What draws in the \"human reader\" audience?", opts: ["Keywords and structure", "Emotion, curiosity, sustainability, and what makes sense", "Long character counts", "Clickbait only"], ans: 0 },
+      { q: "To help search engines categorise content, where should the primary keywords be placed in the headline?", opts: ["Near the end", "In the middle", "Near the start", "Anywhere in the headline"], ans: 0 },
+      { q: "If a story is trending on a platform with a misspelling, what should you do?", opts: ["Create a hashtag for the misspelling.", "Not create a hashtag, but you can add it as a keyword.", "Ignore the misspelling completely.", "Correct the misspelling and use the correct spelling as a keyword."], ans: 0 },
+      { q: "What is the recommended character count range for a headline to prevent it from being cut off in Google's search results?", opts: ["10 to 25 characters", "25 to 55 characters", "55 to 70 characters", "70 to 100 characters"], ans: 0 },
+      { q: "True or false. A headline must never promise something that the article cannot deliver.", opts: ["True", "False"], ans: 0 },
+      { q: "True or false. Keywords are visible to the reader and they do not stay with the story.", opts: ["True", "False"], ans: 0 },
+      { q: "True or false. Headlines should use strong, present-tense verbs to create a sense of immediacy.", opts: ["True", "False"], ans: 0 },
+      { q: "True or false. Headline testing scores from tools like Ron are a strict rule that must be followed.", opts: ["True", "False"], ans: 0 }
+    ] }
     ],
     quiz: [
-      { q: "What are three essential elements of crafting a compelling headline?", opts: ["Clarity, accuracy, creativity", "Length, complexity, mystery", "Grammar, synonyms, antonyms"], ans: 0 },
-      { q: "What is the primary purpose of a headline?", opts: ["To inform readers about the article content and improve SEO", "To surprise readers with unexpected content", "To create as long a headline as possible"], ans: 0 },
-      { q: "What is a best practice for optimizing headlines for SEO?", opts: ["Including relevant keywords", "Using jargon extensively", "Creating misleading titles"], ans: 0 },
-      { q: "Why is it important to test headlines on different digital platforms?", opts: ["To test effectiveness across different audiences and platforms", "To use the same headline everywhere for consistency", "To ensure the headline uses regional slang"], ans: 0 },
-      { q: "What should be considered to avoid creating clickbait headlines?", opts: ["Balancing creativity with clarity", "Using abundant adjectives", "Exaggerating facts for impact"], ans: 0 }
+      { q: "A good headline is written for which two audiences simultaneously?", opts: ["Editors and Search Engines", "Human Readers and Bots", "Advertisers and Journalists", "Social Media Followers and News Aggregators"], ans: 0 },
+      { q: "What draws in the \"human reader\" audience?", opts: ["Keywords and structure", "Emotion, curiosity, sustainability, and what makes sense", "Long character counts", "Clickbait only"], ans: 0 },
+      { q: "To help search engines categorise content, where should the primary keywords be placed in the headline?", opts: ["Near the end", "In the middle", "Near the start", "Anywhere in the headline"], ans: 0 },
+      { q: "If a story is trending on a platform with a misspelling, what should you do?", opts: ["Create a hashtag for the misspelling.", "Not create a hashtag, but you can add it as a keyword.", "Ignore the misspelling completely.", "Correct the misspelling and use the correct spelling as a keyword."], ans: 0 },
+      { q: "What is the recommended character count range for a headline to prevent it from being cut off in Google's search results?", opts: ["10 to 25 characters", "25 to 55 characters", "55 to 70 characters", "70 to 100 characters"], ans: 0 },
+      { q: "True or false. A headline must never promise something that the article cannot deliver.", opts: ["True", "False"], ans: 0 },
+      { q: "True or false. Keywords are visible to the reader and they do not stay with the story.", opts: ["True", "False"], ans: 0 },
+      { q: "True or false. Headlines should use strong, present-tense verbs to create a sense of immediacy.", opts: ["True", "False"], ans: 0 },
+      { q: "True or false. Headline testing scores from tools like Ron are a strict rule that must be followed.", opts: ["True", "False"], ans: 0 }
     ]
   },
   {
@@ -177,8 +247,19 @@ const COURSES = [
     modules: [
       { name: "Good For Google", steps: [
           { t: "Good For Google", d: "Watch the video lesson.", vid: "12dMdFE0TDH3yu6_qtk-v8zvPfP_6VWod" },
-          { t: "Good For Google Quiz", d: "Test your understanding." }
-        ] }
+          { t: "Good For Google Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "What does Google reward content for?", opts: ["Rewards for reflection, experimentation, adapability, and transparency", "Rewards for experience, expertise, authority, and trust", "Rewards for innovation, creativity, adaptability, and transparency", "Rewards for speed, accuracy, consistency, and reliability"], ans: 0 },
+      { q: "How can expertise be demonstrated according to the video?", opts: ["Lack of backlinks", "Consistent coverage of a topic", "Frequency of content updates"], ans: 0 },
+      { q: "What strategies were suggested for building authority?", opts: ["Using visuals and headlines effectively", "Hyperlinking to previous relevant stories", "Avoiding external links"], ans: 0 },
+      { q: "What is a recommended practice regarding mobile optimization?", opts: ["Ignoring mobile users", "Optimizing content for mobile", "Focusing solely on desktop design"], ans: 0 },
+      { q: "What content strategies were recommended in the video?", opts: ["Writing engaging summaries", "Using humor in all content", "Employing keywords and descriptive text", "Eliminating all hypertext links"], ans: 0 },
+      { q: "What is a vital strategy for enhancing the appeal of content?", opts: ["Ignoring visual appeal", "Choosing effective visuals and headlines", "Using outdated stock images"], ans: 0 },
+      { q: "Google rewards all of the following things on a topic, EXCEPT:", opts: ["Experience", "Expertise", "Authority", "Visibility"], ans: 0 },
+      { q: "What is the benefit of becoming an authority on a topic?", opts: ["You can write longer headlines.", "Your story gets pushed to the top when someone searches for that specific topic.", "You no longer need to use captions on images.", "You only need to write one story per topic."], ans: 0 },
+      { q: "What is the recommended linking strategy to show Google the depth of your coverage?", opts: ["Link to any story on the internet.", "Link to stories that are only about court cases.", "Link to previous relevant stories, preferably on your website.", "Do not use internal linking."], ans: 0 },
+      { q: "What indicates to Google that a person is an expert on a subject, leading to trust?", opts: ["Writing only one in-depth story per month.", "Forming a \"topic cluster\" by writing five or more stories connected to the same niche or subject.", "Only writing stories that are \"click-baity.\"", "Using the magic wand button in the content management system."], ans: 0 }
+    ] }
     ],
     quiz: [
       { q: "What does Google reward content for?", opts: ["Rewards for reflection, experimentation, adapability, and transparency", "Rewards for experience, expertise, authority, and trust", "Rewards for innovation, creativity, adaptability, and transparency", "Rewards for speed, accuracy, consistency, and reliability"], ans: 0 },
@@ -201,28 +282,68 @@ const COURSES = [
     modules: [
       { name: "Writing For Radio", steps: [
           { t: "Writing For Radio", d: "Watch the video lesson.", vid: "15iIFEmzIwiP6XRTebzPspthJItHv0h7W" },
-          { t: "Writing For Radio Quiz", d: "Test your understanding." }
-        ] },
+          { t: "Writing For Radio Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "Which of the following is a key takeaway about scriptwriting for broadcasting?", opts: ["Write concise sentences that are easy to read aloud.", "Focus on correct spelling and maintain clarity.", "Use as much complex vocabulary as possible."], ans: 0 },
+      { q: "How should sentences be structured according to the video?", opts: ["Scripts should use short sentences for clarity.", "Scripts should include multiple thoughts per sentence.", "Scripts should include long and detailed sentences."], ans: 0 },
+      { q: "How should timing be handled in broadcasting scripts to keep news fresh?", opts: ["Avoid mentioning specific dates like 'yesterday.'", "Always include 'today' and 'tomorrow' in scripts.", "Use the present tense to narrate past events."], ans: 0 },
+      { q: "When writing for broadcasting, what should be prioritized to aid clarity and understanding?", opts: ["Pronunciation.", "Length.", "Complexity."], ans: 0 },
+      { q: "What is the recommended way to organize information in a broadcasting script?", opts: ["Lead with the most important information first.", "Include all information sorted chronologically.", "Build suspense by saving the most important information for last."], ans: 0 }
+    ] },
       { name: "Podcasting", steps: [
           { t: "Podcasting", d: "Watch the video lesson.", vid: "1LuRP-6fdHMsQnV-jbd4khGcRkPXfQe1T" },
-          { t: "Podcasting Quiz", d: "Test your understanding." }
-        ] },
+          { t: "Podcasting Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "What are the essential elements for creating a successful podcast?", opts: ["Storytelling and Creativity", "Regulations and Legal Compliance", "Narrative Style, Structure and Planning, Audio Quality", "Length and Frequency"], ans: 0 },
+      { q: "Which strategies are important for increasing the success of a podcast?", opts: ["SEO strategies", "Voice acting", "Hooking listeners", "Creating jingles"], ans: 0 },
+      { q: "What is crucial for good audio quality in podcasting?", opts: ["Open-air venues", "Balanced and clear audio", "Only using music", "Minimal editing"], ans: 0 },
+      { q: "What is the standard length of a podcast episode?", opts: ["5 minutes", "30 minutes", "There is no strict standard length", "45 minutes"], ans: 0 },
+      { q: "What are some advantages of podcasting over traditional radio?", opts: ["Chance to pick personal niche", "FCC regulations", "Scheduled programming", "Flexibility in content and style"], ans: 0 },
+      { q: "What is a recommended narrative style for podcasts?", opts: ["Always stay unscripted", "Stick strictly to scripts", "Have a mixture of scripted and unscripted content", "Only interview guests"], ans: 0 }
+    ] },
       { name: "Interview Techniques", steps: [
           { t: "Interview Techniques", d: "Watch the video lesson.", vid: "1DbkOmDWE7aGfjYGAnNb6UwqWpsdMuY8K" },
-          { t: "Interview Techniques Quiz", d: "Test your understanding." }
-        ] },
+          { t: "Interview Techniques Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "What is one key approach to conducting interviews?", opts: ["Treat interviews as conversations", "Prepare interrogative questions", "Avoid any conversation flow"], ans: 0 },
+      { q: "How should you handle equipment concerns during an interview?", opts: ["Ignore the equipment to reduce pressure", "Focus entirely on the equipment and settings", "Constantly reference the recording tools during the interview"], ans: 1 },
+      { q: "Which strategy is recommended for eliciting detailed responses from your guest?", opts: ["Ask open-ended questions", "Use yes/no questions mainly", "Focus on close-ended and predetermined questions"], ans: 0 },
+      { q: "What should you focus on to maintain clarity during the interview?", opts: ["Ask one question at a time", "Ask multiple questions at once", "Ask irrelevant questions"], ans: 0 },
+      { q: "What is an important technical aspect to consider during an outdoor or noisy interview?", opts: ["Ensure sound quality is prioritized", "Use any available recording device with no concern for sound", "Ignore environmental noise completely"], ans: 0 },
+      { q: "How can you make your guest feel more comfortable before starting the interview?", opts: ["Have a pre-interview chat", "Do not inform the guest of any details beforehand", "Immediately start recording without interaction"], ans: 0 }
+    ] },
       { name: "Filing from the Field", steps: [
           { t: "Filing from the Field", d: "Watch the video lesson.", vid: "1oIxRH_WfkFF0LdN338z8U23HNeGcUoqk" },
-          { t: "Filing from the Field Quiz", d: "Test your understanding." }
-        ] },
+          { t: "Filing from the Field Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "What is a correct approach to ensuring preparedness with equipment for field reporting?", opts: ["Carrying spare batteries and chargers.", "Not packing any backup equipment, as it may add extra weight.", "Only ensuring your cell phone is charged."], ans: 0 },
+      { q: "How should you handle connectivity to maintain communication in the field?", opts: ["Checking your connectivity regularly.", "Only checking connectivity when you encounter problems.", "Assuming connectivity is constant once initially tested."], ans: 0 },
+      { q: "Which of the following is essential equipment to carry for field reporting?", opts: ["An emergency kit.", "A collection of novels for downtime.", "Only a laptop and microphone."], ans: 0 },
+      { q: "What are two recommended practices for efficient filing and background knowledge?", opts: ["Filing stories frequently.", "Preparing background information before reporting.", "Only filing stories once the entire report is completed."], ans: 0 },
+      { q: "What is a suggested method to ensure recording focus and avoid distractions?", opts: ["Using airplane mode to avoid distractions.", "Keeping your phone on for all incoming calls regardless.", "Using your phone for non-stop social media updates."], ans: 0 },
+      { q: "Which of the following is a best practice for handling story development?", opts: ["When filing stories, make sure to always overwrite older versions.", "Avoid using captions as they are often ignored.", "Use story shells to manage different sections efficiently."], ans: 0 }
+    ] },
       { name: "Before You Go On-Air", steps: [
           { t: "Before You Go On-Air", d: "Watch the video lesson.", vid: "1se5ihOYdGOmsQH-zB14Q5ZBk_8vXQHx-" },
-          { t: "Before You Go On-Air Quiz", d: "Test your understanding." }
-        ] },
+          { t: "Before You Go On-Air Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "Which preparation step is crucial before going live on air?", opts: ["Check the equipment and connections for optimal functioning.", "Start the broadcast immediately without any checks.", "Ensure the audience is already engaged before starting."], ans: 0 },
+      { q: "What is one best practice regarding audio equipment checks?", opts: ["Avoiding audio feedback loops.", "Maximising the volume to the highest level.", "Using any microphone without checking settings."], ans: 0 },
+      { q: "Which practices contribute to a successful live session?", opts: ["Clear and concise communication with the team.", "Ignoring potential technical issues to focus on content.", "Preparing last-minute without a plan."], ans: 0 },
+      { q: "What is an important reminder for presenters before going live?", opts: ["Have contingency plans for unexpected issues.", "Rely solely on the tech team for successful execution.", "Memorise the entire script without flexibility."], ans: 0 },
+      { q: "What is a recommended procedure regarding equipment tests?", opts: ["Testing equipment prior to the scheduled time.", "Trusting the equipment will work without checks.", "Skipping testing to save time."], ans: 0 }
+    ] },
       { name: "Piece-to-Camera (PTC) Scriptwriting", steps: [
           { t: "Piece-to-Camera (PTC) Scriptwriting", d: "Watch the video lesson.", vid: "1so_ETINsvxLmd1Z2RSlgArcnXy7KA1Fb" },
-          { t: "Piece-to-Camera (PTC) Scriptwriting Quiz", d: "Test your understanding." }
-        ] }
+          { t: "Piece-to-Camera (PTC) Scriptwriting Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "What is the main purpose of a Piece-to-Camera (PTC)?", opts: ["To relay information from a location and present the story in small sections", "To deliver long monologues in a studio", "To introduce every participant in a documentary"], ans: 0 },
+      { q: "When bridging the gap and describing the atmosphere, what should the PTC aim to achieve?", opts: ["To convey the atmosphere and answer 'Why I'm Here'", "To describe every visual detail seen on camera", "To solely provide statistics and data"], ans: 0 },
+      { q: "What are the three components of the 'Three-Sentence Rule'?", opts: ["Observation, context, and transition", "Observation, data, and summary", "Introduction, main body, and conclusion"], ans: 0 },
+      { q: "What is recommended when writing a PTC script regarding language?", opts: ["To make the script complex and jargon-heavy", "To use conversational and simple language", "To strictly adhere to formal language rules"], ans: 0 },
+      { q: "What are important aspects of time and delivery in PTC?", opts: ["Practicing eye contact and leading with important info", "Making it lengthy to cover more content", "Avoiding rehearsal to keep it spontaneous"], ans: 0 },
+      { q: "What are some technical and practical tips for delivering an effective PTC?", opts: ["Proper microphone handling and cleaning the camera lens", "Ignoring technical aspects to focus on content", "Focusing solely on script accuracy without technical concerns"], ans: 0 }
+    ] }
     ],
     quiz: [
       { q: "Which of the following is a key takeaway about scriptwriting for broadcasting?", opts: ["Write concise sentences that are easy to read aloud.", "Focus on correct spelling and maintain clarity.", "Use as much complex vocabulary as possible."], ans: 0 },
@@ -241,28 +362,51 @@ const COURSES = [
     modules: [
       { name: "Repurposing Content for Different Platforms", steps: [
           { t: "Repurposing Content for Different Platforms", d: "Watch the video lesson.", vid: "1sOqkn4Gi-U5mmjAjisVfL_j9j4RMdBda" },
-          { t: "Repurposing Content for Different Platforms Quiz", d: "Test your understanding." }
-        ] },
+          { t: "Repurposing Content for Different Platforms Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "What does 'repurposing content for different platforms' mean?", opts: ["A collection of all your social media posts", "Content adjusted to fit the format and audience of each platform", "A randomly generated set of posts", "Static content used across all platforms"], ans: 0 },
+      { q: "Why is it important to understand platform-specific requirements?", opts: ["Every platform supports articles", "Videos work well on all platforms", "Each platform has specific format and audience preferences", "Images should not be used on any platform"], ans: 0 },
+      { q: "What are some benefits of adapting content formats for different platforms?", opts: ["Reach a broader audience", "Maintain consistency", "Avoid duplication", "Simplify content creation"], ans: 0 },
+      { q: "What is a best practice for maximising reach and engagement on social media?", opts: ["Post identical content on each social media platform", "Adjust content to fit the specific format and audience of each platform", "Only use video content across all platforms", "Ignore engagement metrics and analytics"], ans: 0 },
+      { q: "Which strategies can help enhance engagement on social media channels?", opts: ["Engage with your audience", "Utilise platform-specific features", "Always prioritise quantity over quality", "Ignore the platform algorithms"], ans: 0 }
+    ] },
       { name: "Platform Algorithms and Trends", steps: [
           { t: "Platform Algorithms and Trends", d: "Watch the video lesson.", vid: "1YNsK43hUZp72hACEECt-nP-sv1oYqpFd" },
-          { t: "Platform Algorithms and Trends Quiz", d: "Test your understanding." }
-        ] },
+          { t: "Platform Algorithms and Trends Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "How do platforms like TikTok and Instagram prioritise content for users?", opts: ["Using interest-based clusters", "Focusing only on hashtags", "Favouring accounts with the most followers", "Prioritising time of day postings"], ans: 0 },
+      { q: "When is early engagement most critical for a new post?", opts: ["First 30 minutes after posting", "First 24 hours after posting", "First week after posting"], ans: 0 },
+      { q: "Which statements are true about the current trends in video content on social media?", opts: ["Vertical video is gaining popularity", "Shorter videos are prioritised", "Hooking viewers within the first three seconds is essential"], ans: 0 },
+      { q: "What strategy can content creators utilise for better SEO on platforms?", opts: ["Keyword optimisation in captions and headlines", "Minimal use of hashtags", "Consistent posting schedule"], ans: 0 },
+      { q: "What actions can lead to a shadow ban on social media platforms?", opts: ["Non-compliance with community guidelines", "Frequent external linking", "Content with misleading thumbnails", "Use of prohibited keywords"], ans: 0 }
+    ] },
       { name: "Basic Analytics for Tracking", steps: [
           { t: "Basic Analytics for Tracking", d: "Watch the video lesson.", vid: "1tXr72clUjVipD8d1K1O9ArflxUm8US33" },
-          { t: "Basic Analytics for Tracking Quiz", d: "Test your understanding." }
-        ] },
+          { t: "Basic Analytics for Tracking Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "Which of the following metrics should be prioritized over likes for better engagement analysis?", opts: ["Shares", "Likes", "Comments", "Saves"], ans: 0 },
+      { q: "What does 'Impressions' refer to in social media analytics?", opts: ["The total number of times content is shown.", "The total number of unique users who see your content.", "The number of times users engage with your content."], ans: 0 },
+      { q: "What does 'drop time' refer to in video content analytics?", opts: ["The point where most viewers stop watching a video.", "The total length of the video content.", "The total number of views on the video."], ans: 0 },
+      { q: "How do analytics tools help in improving social media reporting?", opts: ["It helps identify the best time to post for maximum engagement.", "It provides data about followers' demographics.", "It tracks the amount of time users spend on your website.", "It offers details on what types of content generate the most shares."], ans: 0 },
+      { q: "What time range is generally considered optimal for posting on social media to receive higher engagement?", opts: ["10am to 1pm", "3pm to 5pm", "8pm to 10pm"], ans: 0 }
+    ] },
       { name: "Writing Engaging Captions", steps: [
           { t: "Writing Engaging Captions", d: "Watch the video lesson.", vid: "1kxcnr6jIn62Va5a6q2A3e2o4BsF4RET2" },
-          { t: "Writing Engaging Captions Quiz", d: "Test your understanding." }
-        ] }
+          { t: "Writing Engaging Captions Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "What is the primary goal when writing captions for social media?", opts: ["Optimise for both searchability and human engagement.", "Focus solely on search engine optimisation.", "Prioritise human engagement over searchability."], ans: 0 },
+      { q: "What part of the caption is crucial for grabbing attention?", opts: ["The first 80 characters.", "The last 80 characters.", "The entire caption length."], ans: 0 },
+      { q: "What are the purposes of including a call-to-action in a social media post?", opts: ["To encourage user interaction and engagement.", "To increase the post's visibility in algorithms.", "To make the post look more professional."], ans: 0 },
+      { q: "Where should hashtags be placed in a social media caption?", opts: ["At the bottom of the caption.", "At the beginning of the caption.", "In the middle of the caption."], ans: 0 }
+    ] }
     ],
     quiz: [
-      { q: "What does \'repurposing content for different platforms\' mean?", opts: ["A collection of all your social media posts", "Content adjusted to fit the format and audience of each platform", "A randomly generated set of posts", "Static content used across all platforms"], ans: 0 },
+      { q: "What does 'repurposing content for different platforms' mean?", opts: ["A collection of all your social media posts", "Content adjusted to fit the format and audience of each platform", "A randomly generated set of posts", "Static content used across all platforms"], ans: 0 },
       { q: "Why is it important to understand platform-specific requirements?", opts: ["Every platform supports articles", "Videos work well on all platforms", "Each platform has specific format and audience preferences", "Images should not be used on any platform"], ans: 0 },
       { q: "How do platforms like TikTok and Instagram prioritise content for users?", opts: ["Using interest-based clusters", "Focusing only on hashtags", "Favouring accounts with the most followers", "Prioritising time of day postings"], ans: 0 },
       { q: "When is early engagement most critical for a new post?", opts: ["First 30 minutes after posting", "First 24 hours after posting", "First week after posting"], ans: 0 },
       { q: "Which of the following metrics should be prioritized over likes for better engagement analysis?", opts: ["Shares", "Likes", "Comments", "Saves"], ans: 0 },
-      { q: "What does \'Impressions\' refer to in social media analytics?", opts: ["The total number of times content is shown.", "The total number of unique users who see your content.", "The number of times users engage with your content."], ans: 0 },
+      { q: "What does 'Impressions' refer to in social media analytics?", opts: ["The total number of times content is shown.", "The total number of unique users who see your content.", "The number of times users engage with your content."], ans: 0 },
       { q: "What is the primary goal when writing captions for social media?", opts: ["Optimise for both searchability and human engagement.", "Focus solely on search engine optimisation.", "Prioritise human engagement over searchability."], ans: 0 },
       { q: "What part of the caption is crucial for grabbing attention?", opts: ["The first 80 characters.", "The last 80 characters.", "The entire caption length."], ans: 0 }
     ]
@@ -275,28 +419,66 @@ const COURSES = [
     modules: [
       { name: "Tone and Voice", steps: [
           { t: "Tone and Voice", d: "Watch the video lesson.", vid: "1_VLiROfKLUNv_a-M-XmmnFG_Jf3GMGvt" },
-          { t: "Tone and Voice Quiz", d: "Test your understanding." }
-        ] },
+          { t: "Tone and Voice Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "Why is tone important in design?", opts: ["It helps in building brand identity.", "It increases loading speed of the design.", "It simplifies coding tasks."], ans: 0 },
+      { q: "What are some tones that influence audience perception?", opts: ["Professional and formal", "Casual and conversational", "Indifferent and neutral", "Colourful and vibrant"], ans: 0 },
+      { q: "How does voice influence audience perception?", opts: ["It changes the way a message is received.", "It determines the speed of website functionality.", "It helps reduce design costs."], ans: 0 },
+      { q: "What are some strategies for maintaining consistency in tone and voice?", opts: ["Consistent imagery usage", "Using varied fonts and colours frequently", "Maintaining a regular publishing schedule", "Storytelling across all platforms"], ans: 0 },
+      { q: "How can consistency in tone and voice be maintained across a brand?", opts: ["Through narrative cohesion and alignment in messaging.", "By frequently changing logo colors.", "By using a wide variety of fonts."], ans: 0 }
+    ] },
       { name: "Ethical Imagery and Licensing", steps: [
           { t: "Ethical Imagery and Licensing", d: "Watch the video lesson.", vid: "18AEXJ-K84Q-iS8SpiAE4hcAavFkpisXD" },
-          { t: "Ethical Imagery and Licensing Quiz", d: "Test your understanding." }
-        ] },
+          { t: "Ethical Imagery and Licensing Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "Why is it important to verify the source of an image before publishing it in a news story?", opts: ["To avoid the spread of misinformation and maintain credibility", "To increase the speed of publication", "To attract more readers"], ans: 0 },
+      { q: "What are the potential consequences of using copyrighted images without permission?", opts: ["Legal action and fines", "Enhanced credibility of the news site", "Removal of content", "Positive recognition from copyright holders"], ans: 0 },
+      { q: "What steps should journalists take to ensure images are used ethically?", opts: ["Researching image rights and permissions", "Using images that are relevant regardless of context", "Ensuring that the image portrays a biased viewpoint", "Capturing the images independently instead of using third-party sources"], ans: 0 },
+      { q: "When is it acceptable to use stock images in news reporting?", opts: ["When they are relevant to the story and permissions have been sorted", "Whenever they are easy to access", "When original images are unclear"], ans: 0 },
+      { q: "What are the best practices for obtaining consent when using images of individuals?", opts: ["Obtain verbal or written consent from individuals depicted", "Use images freely from public places without informing individuals", "Rely solely on model releases for ethical considerations"], ans: 0 },
+      { q: "Why is transparency important when editing or altering images for news?", opts: ["It helps maintain trust with the audience by being honest about alterations", "It is only concerned with legal obligations", "It prevents any manipulation errors from going unnoticed"], ans: 0 }
+    ] },
       { name: "Mobile-First Design and Social Distribution", steps: [
           { t: "Mobile-First Design and Social Distribution", d: "Watch the video lesson.", vid: "1rYhGihQl9RQ48YG0cZGmsWFGR5i8xHuM" },
-          { t: "Mobile-First Design and Social Distribution Quiz", d: "Test your understanding." }
-        ] },
+          { t: "Mobile-First Design and Social Distribution Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "What is the essential principle of mobile-first design?", opts: ["Designing with the smallest screens in mind first", "Starting with desktop layouts before scaling down", "Ignoring screen size during the design process"], ans: 0 },
+      { q: "What does responsive design primarily involve?", opts: ["Flexible grids and layouts that adapt to different screen sizes", "Fixed-width layouts for consistency", "Using only large images suitable for all screens"], ans: 0 },
+      { q: "Which of the following are best practices for mobile user experience?", opts: ["Using large, readable fonts", "Including as much content as possible to save clicks", "Utilising complex navigation to engage users", "Designing for touch interactions instead of mouse clicks"], ans: 0 },
+      { q: "What is a best practice for content distribution on social media platforms?", opts: ["Unique, engaging, and consistent content across all channels", "Only text-based content for fast loading", "Content solely focused on desktop users"], ans: 0 },
+      { q: "How does a responsive layout benefit mobile design?", opts: ["Improves accessibility and load times", "Makes the site look identical on all devices", "Complicates navigation on mobile devices"], ans: 0 }
+    ] },
       { name: "Branding and Design Principles", steps: [
           { t: "Branding and Design Principles", d: "Watch the video lesson.", vid: "17Xl9OASABt0qd5uRShO_ohs0jc5_L0z7" },
-          { t: "Branding and Design Principles Quiz", d: "Test your understanding." }
-        ] },
+          { t: "Branding and Design Principles Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "What are the core elements of brand identity?", opts: ["A logo, colour palette, and typography", "Product design and website layout", "Non-design elements like pricing strategy", "Advertising and social media strategy"], ans: 0 },
+      { q: "What is the primary purpose of maintaining consistency in branding?", opts: ["To create a cohesive and recognisable brand presence", "To make the brand look colorful and vibrant", "To ensure the brand appeals to everyone"], ans: 0 },
+      { q: "What is the importance of visual hierarchy in design?", opts: ["It guides the viewer’s eye and highlights important information", "It adds colours to the design", "It distracts the viewer from key messages"], ans: 0 },
+      { q: "Which aspects do colors in branding tap into?", opts: ["Psychological impacts that influence feelings and actions", "Pricing strategies", "Cultural symbols and meanings", "Supply chain logistics"], ans: 0 },
+      { q: "Why is choosing the right typography important in branding?", opts: ["Because fonts can communicate different personalities and tones", "Because typography is more important than other elements", "Because only typography can convey information"], ans: 0 }
+    ] },
       { name: "Creating for Formats", steps: [
           { t: "Creating for Formats", d: "Watch the video lesson.", vid: "1MLecgD0KAGMpk02s0tuPLhUG0Bwlgd_H" },
-          { t: "Creating for Formats Quiz", d: "Test your understanding." }
-        ] },
+          { t: "Creating for Formats Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "What is one of the most important considerations when adapting design across different formats?", opts: ["Balance and proportion", "Typography takes second priority", "User Experience and flow", "Consistency across various formats"], ans: 0 },
+      { q: "How should a website design typically be altered for mobile formats?", opts: ["More compact design", "Same as print design", "Increased white space"], ans: 0 },
+      { q: "Which are crucial for ensuring web accessibility?", opts: ["Screen readers", "Consistent icons", "Interactive elements", "Text alternatives for images"], ans: 0 },
+      { q: "What is a key typography best practice for adapting print content to web?", opts: ["Maintaining hierarchical structure", "Using fancy cursive fonts", "Adding more decorative elements"], ans: 0 },
+      { q: "When designing for mobile, what strategies help to maintain user engagement?", opts: ["Sticky navigation bars are always necessary", "Minimised visual clutter", "Links must be replaced with QR codes", "Mobile-first design strategy"], ans: 0 }
+    ] },
       { name: "Accessibility in Design", steps: [
           { t: "Accessibility in Design", d: "Watch the video lesson.", vid: "1u2pVlIq3-C_UoAIxpx86tjdK0KfxQTC7" },
-          { t: "Accessibility in Design Quiz", d: "Test your understanding." }
-        ] }
+          { t: "Accessibility in Design Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "What is the focus of inclusive design?", opts: ["Inclusive design integrates accessibility from the start and focuses on user diversity.", "Inclusive design only addresses the needs of users with disabilities.", "Inclusive design results in a different product for each user group."], ans: 0 },
+      { q: "Which of these are common barriers to accessibility?", opts: ["Vision impairments", "Hearing impairments", "Limited internet access", "Cognitive challenges"], ans: 0 },
+      { q: "What is a key principle of accessible design?", opts: ["It focuses on providing visual cues only.", "It includes designing for accessibility from the beginning.", "It provides solutions after a product is complete."], ans: 0 },
+      { q: "What are some practical strategies for ensuring digital content is accessible?", opts: ["Testing with assistive technologies", "Using high-contrast color schemes", "Ignoring user feedback on accessibility", "Implementing keyboard navigability"], ans: 0 },
+      { q: "Which set of guidelines focuses specifically on web accessibility?", opts: ["Web Content Accessibility Guidelines (WCAG)", "General Data Protection Regulation (GDPR)", "Worldwide User Experience Standards (WUXS)"], ans: 0 },
+      { q: "Why is it important to make digital content accessible?", opts: ["Only if it is required by law", "To ensure equal access for all users, including those with disabilities", "To reduce the number of users accessing a website"], ans: 0 }
+    ] }
     ],
     quiz: [
       { q: "Why is tone important in design?", opts: ["It helps in building brand identity.", "It increases loading speed of the design.", "It simplifies coding tasks."], ans: 0 },
@@ -333,22 +515,36 @@ const COURSES = [
   {
     id: 9, title: "NotebookLM Training", cat: "Editorial",
     emoji: "📓", color: "#2a1a5c", rating: "4.8", badge: "📓",
-    steps: 6, dur: "~1.5 hrs",
-    about: "Use Google's NotebookLM to organise research, synthesise sources, and produce smarter journalism faster. Covers creating notebooks, uploading and querying source documents, the Audio Overview feature, and using NotebookLM for investigative journalism workflows.",
-    modules: [{ name: "Chapter 1", steps: [
-      { t: "Introduction to NotebookLM", d: "What NotebookLM is and how it differs from general AI chatbots. NotebookLM is grounded in your uploaded sources." },
-      { t: "Creating Notebooks and Uploading Sources", d: "Create a notebook, upload documents (PDFs, Google Docs, pasted text, web links), and organise source material." },
-      { t: "Asking Questions of Your Documents", d: "Ask for summaries, specific facts, comparisons between sources, and identifying contradictions." },
-      { t: "Cross-Source Synthesis", d: "Identify themes, contradictions, and information gaps across multiple sources." },
-      { t: "Audio Overview Feature", d: "Generate a spoken-word podcast-style briefing of your source documents — ideal for pre-interview prep." },
-      { t: "Investigative Journalism Workflows", d: "Analysing leaked documents, cross-referencing financial records, and building a research base for long-form journalism." }
-    ]}],
+    steps: 1, dur: "~1.5 hrs",
+    about: "Use Google",
+    modules: [
+      { name: "NotebookLM Training", steps: [
+          { t: "NotebookLM Training", d: "Watch the video lesson.", vid: "1uA5XlGs7okac69O8cDpR8faFWj3jxc40" },
+          { t: "NotebookLM Training Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "What is the journalist’s responsibility when someone makes an accusation in a story?", opts: ["Quote", "Ignore", "Get the other side", "Assume"], ans: 0 },
+      { q: "Which is NOT a story format mentioned in this training module?", opts: ["Hard news", "Feature", "Sponsored content", "Editorial"], ans: 0 },
+      { q: "Is this statement true or false: “It’s acceptable to use information from a social media post as long as you credit the user.”", opts: ["True", "False"], ans: 0 },
+      { q: "Why include more than one voice in a story?", opts: ["Fill space", "Word count", "Build authority", "Confuse the reader"], ans: 0 },
+      { q: "Which intro follows proper news writing?", opts: ["Police responded…", "A major drug bust took place…", "Sources say…", "This is a developing story…"], ans: 0 },
+      { q: "What should you do before including a quote or fact?", opts: ["Translate", "Attribute", "Fact-check", "Add opinion"], ans: 0 },
+      { q: "What’s a tip to make your intro stronger?", opts: ["Use emojis", "Add a quote as second paragraph", "End with summary", "Start with background"], ans: 0 },
+      { q: "What does a feature story allow that hard news does not?", opts: ["Personal opinion", "Colourful/flowy style", "Fiction", "Unverified sources"], ans: 0 },
+      { q: "When is it okay to publish sponsored content without labelling it", opts: ["Well-written", "Sponsor agrees", "Never – must always be indicated", "Blends with editorial"], ans: 0 },
+      { q: "What is the main function of NotebookLM for journalists?", opts: ["Designing infographics", "AI-powered note-taking, summarization, and research", "Social media automation", "Podcast editing"], ans: 0 }
+    ] }
+    ],
     quiz: [
-      { q: "What is the main function of NotebookLM for journalists?", opts: ["Designing infographics", "AI-powered note-taking, summarization, and research", "Social media automation", "Podcast editing"], ans: 1 },
-      { q: "NotebookLM uses your uploaded data to train its models.", opts: ["True", "False"], ans: 1 },
-      { q: "Which of the following content types can you create directly in NotebookLM? (Choose all that apply)", opts: ["Deep-dive podcasts", "Budget proposals", "Study guides", "News quizzes"], ans: 0 },
-      { q: "NotebookLM allows users to collaborate with a virtual research assistant that can cite sources and exclude specific documents.", opts: ["True", "False"], ans: 0 },
-      { q: "What is the limit for uploaded content per notebook in NotebookLM?", opts: ["100MB or 100 files", "500,000 words or 50 files", "1 million words or 20 files", "No limit"], ans: 1 }
+      { q: "What is the journalist’s responsibility when someone makes an accusation in a story?", opts: ["Quote", "Ignore", "Get the other side", "Assume"], ans: 0 },
+      { q: "Which is NOT a story format mentioned in this training module?", opts: ["Hard news", "Feature", "Sponsored content", "Editorial"], ans: 0 },
+      { q: "Is this statement true or false: “It’s acceptable to use information from a social media post as long as you credit the user.”", opts: ["True", "False"], ans: 0 },
+      { q: "Why include more than one voice in a story?", opts: ["Fill space", "Word count", "Build authority", "Confuse the reader"], ans: 0 },
+      { q: "Which intro follows proper news writing?", opts: ["Police responded…", "A major drug bust took place…", "Sources say…", "This is a developing story…"], ans: 0 },
+      { q: "What should you do before including a quote or fact?", opts: ["Translate", "Attribute", "Fact-check", "Add opinion"], ans: 0 },
+      { q: "What’s a tip to make your intro stronger?", opts: ["Use emojis", "Add a quote as second paragraph", "End with summary", "Start with background"], ans: 0 },
+      { q: "What does a feature story allow that hard news does not?", opts: ["Personal opinion", "Colourful/flowy style", "Fiction", "Unverified sources"], ans: 0 },
+      { q: "When is it okay to publish sponsored content without labelling it", opts: ["Well-written", "Sponsor agrees", "Never – must always be indicated", "Blends with editorial"], ans: 0 },
+      { q: "What is the main function of NotebookLM for journalists?", opts: ["Designing infographics", "AI-powered note-taking, summarization, and research", "Social media automation", "Podcast editing"], ans: 0 }
     ]
   },
   {
@@ -374,25 +570,36 @@ const COURSES = [
   {
     id: 11, title: "Journalism 101: Essential Skills", cat: "Editorial",
     emoji: "📡", color: "#1a4a4a", rating: "5.0", badge: "📡",
-    steps: 10, dur: "~5 hrs",
+    steps: 1, dur: "~5 hrs",
     about: "A comprehensive refresher on the core principles and practices of quality journalism. Covers clear and accurate writing, ethical decision-making, effective sourcing, and fact verification. Participants will enhance their storytelling techniques for diverse platforms while adapting to the rapidly changing media landscape.",
-    modules: [{ name: "Chapter 1", steps: [
-      { t: "What is News?", d: "The six pillars of news value: timeliness, significance, proximity, prominence, human interest, and unusualness." },
-      { t: "The Journalist's Role", d: "Holding power to account, informing the public, and giving voice to the voiceless." },
-      { t: "Newsgathering Techniques", d: "Tip-offs, document searches, developing and cultivating sources, and finding stories others miss." },
-      { t: "Effective Interviewing", d: "Plan interviews, establish rapport, ask open and follow-up questions, and manage difficult interviewees." },
-      { t: "Accuracy and Verification", d: "Multi-source confirmation, document checking, and reverse image search." },
-      { t: "Ethics and Decision-Making", d: "When to name a victim, when to publish sensitive information, how to handle anonymous sources." },
-      { t: "Press Freedom and Media Law", d: "Defamation, privacy, contempt of court, and protections offered by the Constitution and Press Code." },
-      { t: "Storytelling for Multiple Platforms", d: "Adapt your storytelling approach for print, web, audio, and video." },
-      { t: "The Modern Newsroom", d: "How modern newsrooms are structured and how to navigate a newsroom hierarchy." },
-      { t: "Your First Byline", d: "Building a portfolio, writing to editors, using freelancing to gain experience." }
-    ]}],
+    modules: [
+      { name: "Journalism 101: Essential Skills", steps: [
+          { t: "Journalism 101: Essential Skills", d: "Watch the video lesson.", vid: "1DbkOmDWE7aGfjYGAnNb6UwqWpsdMuY8K" },
+          { t: "Journalism 101: Essential Skills Quiz", d: "Test your knowledge for this module." }
+        ], quiz: [
+      { q: "What is the journalist’s responsibility when someone makes an accusation in a story?", opts: ["Quote", "Ignore", "Get the other side", "Assume"], ans: 0 },
+      { q: "Which is NOT a story format mentioned in this training module?", opts: ["Hard news", "Feature", "Sponsored content", "Editorial"], ans: 0 },
+      { q: "Is this statement true or false: “It’s acceptable to use information from a social media post as long as you credit the user.”", opts: ["True", "False"], ans: 0 },
+      { q: "Why include more than one voice in a story?", opts: ["Fill space", "Word count", "Build authority", "Confuse the reader"], ans: 0 },
+      { q: "Which intro follows proper news writing?", opts: ["Police responded…", "A major drug bust took place…", "Sources say…", "This is a developing story…"], ans: 0 },
+      { q: "What should you do before including a quote or fact?", opts: ["Translate", "Attribute", "Fact-check", "Add opinion"], ans: 0 },
+      { q: "What’s a tip to make your intro stronger?", opts: ["Use emojis", "Add a quote as second paragraph", "End with summary", "Start with background"], ans: 0 },
+      { q: "What does a feature story allow that hard news does not?", opts: ["Personal opinion", "Colourful/flowy style", "Fiction", "Unverified sources"], ans: 0 },
+      { q: "When is it okay to publish sponsored content without labelling it", opts: ["Well-written", "Sponsor agrees", "Never – must always be indicated", "Blends with editorial"], ans: 0 },
+      { q: "What is the main function of NotebookLM for journalists?", opts: ["Designing infographics", "AI-powered note-taking, summarization, and research", "Social media automation", "Podcast editing"], ans: 0 }
+    ] }
+    ],
     quiz: [
-      { q: "The six pillars of news value include all of the following EXCEPT:", opts: ["Timeliness", "Profitability", "Proximity", "Human interest"], ans: 1 },
-      { q: "What is the primary democratic function of journalism?", opts: ["Generating advertising revenue", "Holding power to account, informing the public, and giving voice to the voiceless", "Entertaining audiences", "Promoting government policies"], ans: 1 },
-      { q: "In journalism, 'multi-source confirmation' means:", opts: ["Getting the same story confirmed by at least two independent sources before publishing", "Having multiple editors review a story", "Interviewing multiple people for one quote", "Using multiple social media platforms"], ans: 0 },
-      { q: "In South African media law, defamation refers to:", opts: ["Criticising government policy", "Publishing a false statement that damages a person's reputation", "Interviewing a source anonymously", "Breaking a story before competitors"], ans: 1 }
+      { q: "What is the journalist’s responsibility when someone makes an accusation in a story?", opts: ["Quote", "Ignore", "Get the other side", "Assume"], ans: 0 },
+      { q: "Which is NOT a story format mentioned in this training module?", opts: ["Hard news", "Feature", "Sponsored content", "Editorial"], ans: 0 },
+      { q: "Is this statement true or false: “It’s acceptable to use information from a social media post as long as you credit the user.”", opts: ["True", "False"], ans: 0 },
+      { q: "Why include more than one voice in a story?", opts: ["Fill space", "Word count", "Build authority", "Confuse the reader"], ans: 0 },
+      { q: "Which intro follows proper news writing?", opts: ["Police responded…", "A major drug bust took place…", "Sources say…", "This is a developing story…"], ans: 0 },
+      { q: "What should you do before including a quote or fact?", opts: ["Translate", "Attribute", "Fact-check", "Add opinion"], ans: 0 },
+      { q: "What’s a tip to make your intro stronger?", opts: ["Use emojis", "Add a quote as second paragraph", "End with summary", "Start with background"], ans: 0 },
+      { q: "What does a feature story allow that hard news does not?", opts: ["Personal opinion", "Colourful/flowy style", "Fiction", "Unverified sources"], ans: 0 },
+      { q: "When is it okay to publish sponsored content without labelling it", opts: ["Well-written", "Sponsor agrees", "Never – must always be indicated", "Blends with editorial"], ans: 0 },
+      { q: "What is the main function of NotebookLM for journalists?", opts: ["Designing infographics", "AI-powered note-taking, summarization, and research", "Social media automation", "Podcast editing"], ans: 0 }
     ]
   },
 
@@ -794,6 +1001,7 @@ const sb = {
 let U = null, CUR = null, ROOM = 'general';
 let ENROLLED = [], COMPLETED = [], BADGES = [];
 let PROG = {};
+let MOD_QUIZ_DONE = {}; // { courseId: Set of modIdx completed }
 let QS = {};
 let VID_OVERRIDES = {};
 let IMG_OVERRIDES = {};
@@ -1202,10 +1410,12 @@ function nav(p, pushState=true) {
   const title = PAGE_TITLES[p] || p;
   document.getElementById('pg-title').textContent = title;
   document.title = BRAND.name + ' — ' + title;
-  // Update the URL hash without triggering the hashchange event
   if (pushState && location.hash !== '#' + p) {
     history.pushState({ page:p }, '', '#' + p);
   }
+  // Close mobile sidebar after navigation
+  const sb = document.getElementById('sidebar');
+  if (sb && window.innerWidth <= 768) sb.classList.remove('open');
   if(p==='profile')  renderProfile();
   if(p==='programs') renderProgs('enrolled');
   if(p==='admin')    renderAdmin();
@@ -1381,15 +1591,15 @@ function playModuleVid(vidId, modIdx) {
 }
 
 function startModuleQuiz(modIdx) {
-  if (!CUR || !CUR.quiz || !CUR.quiz.length) { toast('No quiz available for this module yet.'); return; }
-  const mods = CUR.modules||[];
-  const perMod = Math.ceil(CUR.quiz.length / Math.max(mods.length,1));
-  const start = modIdx * perMod;
-  const end = Math.min(start + perMod, CUR.quiz.length);
-  const modQuiz = CUR.quiz.slice(start, end);
-  if (!modQuiz.length) { toast('No quiz questions for this module yet.'); return; }
-  const modName = mods[modIdx] ? mods[modIdx].name : '';
-  startQuiz({...CUR, title: modName ? `${CUR.title} — ${modName}` : CUR.title, quiz: modQuiz});
+  if (!CUR || !CUR.modules) return;
+  const mod = CUR.modules[modIdx];
+  if (!mod) return;
+  // Use per-module quiz stored in module.quiz
+  const modQuiz = mod.quiz || [];
+  if (!modQuiz.length) { toast('No quiz available for this module yet.'); return; }
+  // Mark as sub-quiz — passing does NOT award certificate, just feedback
+  const modCourse = { ...CUR, title: mod.name, quiz: modQuiz, _isModuleQuiz: true, _parentId: CUR.id, _modIdx: modIdx };
+  startQuiz(modCourse);
 }
 
 function playModuleVid(vidId, modIdx) {
@@ -1402,29 +1612,24 @@ function playModuleVid(vidId, modIdx) {
   toast(`▶ Now playing: ${mod?mod.name:'video'}`, 'success');
 }
 
-function startModuleQuiz(modIdx) {
-  if (!CUR || !CUR.modules) return;
-  const mod = CUR.modules[modIdx];
-  if (!mod) return;
-  // Use the overall course quiz — filtered or full
-  if (!CUR.quiz || !CUR.quiz.length) {
-    toast('No quiz available for this module yet.', 'error');
+
+
+// ── COMPLETION GATE ──
+function checkAndStartQuiz() {
+  if (!CUR || !CUR.quiz || !CUR.quiz.length) { toast('No quiz available yet.'); return; }
+  const mods = CUR.modules || [];
+  // Find modules that have quizzes
+  const quizMods = mods.map((m,i) => ({m,i})).filter(({m}) => m.quiz && m.quiz.length > 0);
+  if (!quizMods.length) { startQuiz(CUR); return; }
+  // Check how many module quizzes have been completed
+  const done = MOD_QUIZ_DONE[CUR.id] || new Set();
+  const notDone = quizMods.filter(({i}) => !done.has(i));
+  if (notDone.length > 0) {
+    const names = notDone.map(({m}) => m.name).join(', ');
+    toast(`Please complete all module quizzes first. Remaining: ${names}`, 'error');
     return;
   }
-  // For multi-module courses, assign quiz questions per module
-  const mods = CUR.modules;
-  const total = CUR.quiz.length;
-  const perMod = Math.ceil(total / mods.length);
-  const start = modIdx * perMod;
-  const end = Math.min(start + perMod, total);
-  const modQuiz = CUR.quiz.slice(start, end);
-  if (!modQuiz.length) {
-    toast('No quiz questions for this module yet.', 'error');
-    return;
-  }
-  // Create a temporary course object with just this module's questions
-  const modCourse = { ...CUR, title: `${CUR.title} — ${mod.name}`, quiz: modQuiz };
-  startQuiz(modCourse);
+  startQuiz(CUR);
 }
 function toggleMod(el) { const l=el.nextElementSibling,c=el.querySelector('.mchev'); l.classList.toggle('hidden'); c.classList.toggle('open'); }
 
@@ -1487,12 +1692,18 @@ function renderQuiz() {
   if(QS.done) {
     const sc=QS.ans.filter((a,i)=>a===QS.qs[i].ans).length;
     const pct=Math.round(sc/QS.qs.length*100),pass=pct>=70;
+    // Track module quiz completion
+    if(pass && QS.c._isModuleQuiz && QS.c._parentId!==undefined && QS.c._modIdx!==undefined) {
+      const pid=QS.c._parentId;
+      if(!MOD_QUIZ_DONE[pid]) MOD_QUIZ_DONE[pid]=new Set();
+      MOD_QUIZ_DONE[pid].add(QS.c._modIdx);
+    }
     body.innerHTML=`
       <div class="question-card" style="text-align:center;padding:2.25rem">
         <div class="score-circle"><div class="score-num">${pct}%</div><div class="score-lbl">${sc}/${QS.qs.length}</div></div>
         <h2 style="font-size:1.35rem;margin-bottom:.4rem">${pass?'🎉 Congratulations!':'Keep Practising'}</h2>
-        <p style="color:var(--muted);margin-bottom:1.25rem;font-size:.875rem">${pass?'You passed with '+pct+'%! Your badge and certificate are ready.':'You need 70% to pass. You scored '+pct+'% — review the course and try again.'}</p>
-        ${pass?`<div style="display:flex;gap:.65rem;justify-content:center;flex-wrap:wrap"><button class="btn btn-primary" onclick="awardAll()">🏅 Claim Badge &amp; Certificate</button><button class="btn btn-secondary" onclick="nav('courses')">Back to Courses</button></div>`:`<div style="display:flex;gap:.65rem;justify-content:center"><button class="btn btn-primary" onclick="startQuiz(QS.c)">Try Again</button><button class="btn btn-secondary" onclick="backToCourse()">Review Course</button></div>`}
+        <p style="color:var(--muted);margin-bottom:1.25rem;font-size:.875rem">${pass?(QS.c._isModuleQuiz?'Module complete! Keep going to unlock the final quiz.':'You passed with '+pct+'%! Your badge and certificate are ready.'):'You need 70% to pass. You scored '+pct+'% — review the course and try again.'}</p>
+        ${pass?(QS.c._isModuleQuiz?`<div style="display:flex;gap:.65rem;justify-content:center"><div style="background:var(--success-bg,#f0fdf4);border:1px solid var(--success);padding:.875rem 1.25rem;border-radius:10px;text-align:center"><div style="font-size:1.5rem;margin-bottom:.3rem">✅</div><div style="font-weight:700;margin-bottom:.2rem">Module Complete!</div><div style="font-size:.82rem;color:var(--muted)">Great work. Complete all modules to earn your course badge and certificate.</div></div></div><div style="display:flex;gap:.65rem;justify-content:center;margin-top:.75rem"><button class="btn btn-primary" onclick="backToCourse()">← Back to Course</button></div>`:`<div style="display:flex;gap:.65rem;justify-content:center;flex-wrap:wrap"><button class="btn btn-primary" onclick="awardAll()">🏅 Claim Badge &amp; Certificate</button><button class="btn btn-secondary" onclick="nav('courses')">Back to Courses</button></div>`):`<div style="display:flex;gap:.65rem;justify-content:center"><button class="btn btn-primary" onclick="startQuiz(QS.c)">Try Again</button><button class="btn btn-secondary" onclick="backToCourse()">Review Course</button></div>`}
         <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.25rem;text-align:left">
           <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.875rem">Review Answers</h4>
           ${QS.qs.map((q,i)=>`<div style="margin-bottom:.875rem;padding:.875rem;background:${QS.ans[i]===q.ans?'#f0fdf4':'#fef2f2'};border:1px solid ${QS.ans[i]===q.ans?'#bbf7d0':'#fecaca'};border-radius:8px">
@@ -1702,7 +1913,21 @@ function renderRes() { const g=document.getElementById('res-grid'); g.innerHTML=
 // ADMIN PANEL
 // ════════════════════════════════════════════════════════════
 function renderAdmin() { renderAC(ADMIN_TAB); }
-function switchAT(tab,el) { document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active')); el.classList.add('active'); ADMIN_TAB=tab; renderAC(tab); }
+function switchAT(tab, el) {
+  // Remove active from all nav buttons and children
+  document.querySelectorAll('.admin-nav-btn, .admin-nav-child, .admin-tab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  // Close all dropdown groups
+  document.querySelectorAll('.admin-nav-parent').forEach(p=>p.classList.remove('open'));
+  ADMIN_TAB = tab;
+  renderAC(tab);
+}
+
+function toggleAdminGroup(btn) {
+  // Close all other groups first
+  document.querySelectorAll('.admin-nav-parent').forEach(p=>{ if(p!==btn) p.classList.remove('open'); });
+  btn.classList.toggle('open');
+}
 
 async function renderAC(tab) {
   const c=document.getElementById('admin-content');
