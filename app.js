@@ -1353,7 +1353,11 @@ function applyBranding() {
   }
   // Page title
   document.title = BRAND.name + ' — ' + BRAND.tagline;
+  document.body.style.visibility = 'visible';
 }
+
+// Safety net — always show page within 2 seconds even if branding fails
+setTimeout(() => { document.body.style.visibility = 'visible'; }, 2000);
 
 function syncUI() {
   ['sb-ava','top-ava'].forEach(id=>document.getElementById(id).textContent=U.ini);
