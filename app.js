@@ -1249,6 +1249,16 @@ async function startApp() {
       BRAND.loginSubtext   = b[0].login_subtext  || BRAND.loginSubtext;
       if (b[0].cert_config)     { try { Object.assign(BRAND.cert, JSON.parse(b[0].cert_config)); } catch(e) {} }
       if (b[0].course_order)    { try { COURSE_ORDER = JSON.parse(b[0].course_order); } catch(e) {} }
+      if (b[0].deleted_courses) { try {
+        const del = JSON.parse(b[0].deleted_courses);
+        window.DELETED_COURSES = del;
+        del.forEach(did => {
+          const bi = COURSES.findIndex(c => Number(c.id) === Number(did));
+          if (bi > -1) COURSES.splice(bi, 1);
+          const ci = CUSTOM.findIndex(c => Number(c.id) === Number(did));
+          if (ci > -1) CUSTOM.splice(ci, 1);
+        });
+      } catch(e) {} }
       if (b[0].badge_overrides) { try { BADGE_OVERRIDES = JSON.parse(b[0].badge_overrides); } catch(e) {} }
       if (b[0].resources_data)  { try {
         const saved = JSON.parse(b[0].resources_data);
@@ -2859,26 +2869,24 @@ function saveEditCourse(id) {
   toast('Course "' + title + '" updated!','success');
 }
 
-function deleteCourse(id) {
+async function deleteCourse(id) {
   const course = allC().find(c => Number(c.id) === Number(id));
   if (!course) return;
   if (!confirm('Delete "' + course.title + '"? This cannot be undone.')) return;
-  // Remove from CUSTOM if it's a custom course
-  const ci = CUSTOM.findIndex(c => Number(c.id) === Number(id));
-  if (ci > -1) CUSTOM.splice(ci, 1);
-  // Remove from built-in COURSES array too
-  const bi = COURSES.findIndex(c => Number(c.id) === Number(id));
-  if (bi > -1) COURSES.splice(bi, 1);
-  // Remove from COURSE_ORDER
-  COURSE_ORDER = COURSE_ORDER.filter(oid => Number(oid) !== Number(id));
-  // Remove from user's enrolled/completed/badges locally
-  ENROLLED  = ENROLLED.filter(eid => Number(eid) !== Number(id));
-  COMPLETED = COMPLETED.filter(cid => Number(cid) !== Number(id));
-  BADGES    = BADGES.filter(bid => Number(bid) !== Number(id));
-  const modal = document.getElementById('edit-course-modal');
-  if (modal) modal.remove();
+  const nid = Number(id);
+  const ci = CUSTOM.findIndex(c => Number(c.id) === nid); if (ci > -1) CUSTOM.splice(ci, 1);
+  const bi = COURSES.findIndex(c => Number(c.id) === nid); if (bi > -1) COURSES.splice(bi, 1);
+  COURSE_ORDER = COURSE_ORDER.filter(o => Number(o) !== nid);
+  ENROLLED = ENROLLED.filter(e => Number(e) !== nid);
+  COMPLETED = COMPLETED.filter(e => Number(e) !== nid);
+  BADGES = BADGES.filter(e => Number(e) !== nid);
+  if (!window.DELETED_COURSES) window.DELETED_COURSES = [];
+  if (!window.DELETED_COURSES.includes(nid)) window.DELETED_COURSES.push(nid);
+  try { await sb.upsert('branding', { id:1, deleted_courses: JSON.stringify(window.DELETED_COURSES) }); }
+  catch(e) { console.warn('Delete save:', e.message); }
+  const modal = document.getElementById('edit-course-modal'); if (modal) modal.remove();
   renderCourses(); renderDash(); renderAC('videos');
-  toast('"' + course.title + '" deleted.', 'success');
+  toast('"'  + course.title + '" deleted for all users.', 'success');
 }
 
 // ── TOAST ──
