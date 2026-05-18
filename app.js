@@ -2169,11 +2169,11 @@ async function renderAC(tab) {
         <button class="btn btn-primary btn-sm" onclick="saveQuizEdits()">✓ Save Quiz</button>
       </div>
 
-      <!-- AI QUIZ GENERATOR -->
+      <!-- QUIZ IMPORTER -->
       <div class="card" style="margin-bottom:1.25rem;border:2px solid var(--gold)">
-        <div class="card-header" style="background:linear-gradient(135deg,var(--gold)15,transparent)">
-          <h3>✨ AI Quiz Generator</h3>
-          <span style="font-size:.75rem;color:var(--muted)">Paste any text — notes, articles, training content — and AI will generate a quiz automatically</span>
+        <div class="card-header">
+          <h3>📋 Import Quiz from Text</h3>
+          <span style="font-size:.75rem;color:var(--muted)">Paste your questions and answers — the system will automatically parse them into a quiz</span>
         </div>
         <div class="card-body">
           <div class="form-group">
@@ -2184,24 +2184,26 @@ async function renderAC(tab) {
             </select>
           </div>
           <div class="form-group">
-            <label>Number of Questions</label>
-            <select id="ai-quiz-count" style="width:100%;padding:.6rem .875rem;border:1px solid var(--border);border-radius:8px;font-size:.875rem;background:#fff">
-              <option value="5">5 questions</option>
-              <option value="8">8 questions</option>
-              <option value="10" selected>10 questions</option>
-              <option value="15">15 questions</option>
-            </select>
+            <label>Paste your quiz here</label>
+            <div style="font-size:.75rem;color:var(--muted);margin-bottom:.5rem">
+              Supports any format — questions ending in <strong>?</strong> or <strong>*</strong>, answer options on separate lines, True/False questions.
+              Open-ended questions (no options) are automatically skipped.
+            </div>
+            <textarea id="ai-quiz-text" style="min-height:200px;font-size:.875rem;font-family:monospace"
+              placeholder="Paste your quiz here. Example:
+
+Which of the following is NOT a goal of the initiative?*
+Advancing quality journalism
+Strengthening business models
+Replacing human editors
+Cultivating a global community
+
+Gemini-generated images are watermarked.*
+True
+False"></textarea>
           </div>
-          <div class="form-group">
-            <label>Paste your content here</label>
-            <textarea id="ai-quiz-text" style="min-height:160px;font-size:.875rem" placeholder="Paste training material, notes, article text, or questions in any format. Examples:
-• A full article or lesson text (AI extracts key concepts)
-• Plain questions without answers (AI generates options)
-• Q&A pairs (AI formats them correctly)
-• Bullet point notes (AI converts to quiz)"></textarea>
-          </div>
-          <button class="btn btn-primary" onclick="generateAIQuiz()" id="ai-gen-btn">
-            ✨ Generate Quiz with AI
+          <button class="btn btn-primary" onclick="parseAndPreviewQuiz()" id="ai-gen-btn">
+            📋 Parse & Preview Quiz
           </button>
           <div id="ai-quiz-preview" style="margin-top:1.25rem"></div>
         </div>
@@ -3046,83 +3048,139 @@ async function markMsgRead(id) {
   try { await sb.update('contact_messages', { read:true }, { id }); } catch(e) {}
   renderAC('messages');
 }
-// ── AI QUIZ GENERATOR ──
-async function generateAIQuiz() {
+// ── QUIZ TEXT PARSER ──
+function parseAndPreviewQuiz() {
   const text = document.getElementById('ai-quiz-text')?.value?.trim();
   const courseId = document.getElementById('ai-quiz-course')?.value;
-  const count = parseInt(document.getElementById('ai-quiz-count')?.value || '10');
   const preview = document.getElementById('ai-quiz-preview');
-  const btn = document.getElementById('ai-gen-btn');
-  if (!text) { toast('Please paste some content first', 'error'); return; }
+  if (!text) { toast('Please paste your quiz content first', 'error'); return; }
   if (!courseId) { toast('Please select a course first', 'error'); return; }
-  btn.disabled = true; btn.textContent = '⏳ Generating...';
-  preview.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--muted)"><div style="font-size:2rem;margin-bottom:.5rem">🤖</div><div>AI is reading your content...</div></div>`;
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514', max_tokens: 2000,
-        messages: [{ role: 'user', content: `You are creating a multiple choice quiz for a professional training platform.
 
-Based on the content below, generate exactly ${count} multiple choice questions.
+  const questions = parseQuizText(text);
+  if (!questions.length) { toast('Could not find any questions — make sure each question ends with a ? or *', 'error'); return; }
 
-Rules:
-- Each question must have exactly 4 answer options
-- Only ONE option is correct
-- Make distractors plausible but clearly wrong
-- Questions should test understanding, not just memorisation
+  window._generatedQuiz = { courseId: Number(courseId), questions };
+  const course = allC().find(c => Number(c.id) === Number(courseId));
 
-Return ONLY valid JSON, nothing else, in this exact format:
-[{"q":"Question?","opts":["Option A","Option B","Option C","Option D"],"ans":0}]
-
-Where "ans" is the 0-based index of the correct answer (0=A, 1=B, 2=C, 3=D).
-
-Content:
-${text}` }]
-      })
-    });
-    const data = await response.json();
-    const raw = data.content?.[0]?.text || '';
-    const jsonMatch = raw.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) throw new Error('Could not parse response');
-    const questions = JSON.parse(jsonMatch[0]);
-    if (!Array.isArray(questions) || !questions.length) throw new Error('No questions generated');
-    window._generatedQuiz = { courseId: Number(courseId), questions };
-    const course = allC().find(c => Number(c.id) === Number(courseId));
-    preview.innerHTML = `
-      <div style="background:var(--paper);border-radius:10px;padding:1.25rem">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
-          <div><div style="font-weight:700">✅ ${questions.length} questions generated for "${course?.title}"</div>
-          <div style="font-size:.78rem;color:var(--muted)">Review, then click Apply to save</div></div>
-          <div style="display:flex;gap:.5rem">
-            <button class="btn btn-secondary btn-sm" onclick="generateAIQuiz()">↻ Regenerate</button>
-            <button class="btn btn-primary btn-sm" onclick="applyGeneratedQuiz()">✓ Apply to Course</button>
-          </div>
+  preview.innerHTML = `
+    <div style="background:var(--paper);border-radius:10px;padding:1.25rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+        <div>
+          <div style="font-weight:700">✅ ${questions.length} questions parsed for "${course?.title}"</div>
+          <div style="font-size:.78rem;color:var(--muted)">Review below — green = correct answer. Click answer options to change which is correct.</div>
         </div>
-        ${questions.map((q,i)=>`
-          <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:.875rem;margin-bottom:.5rem">
-            <div style="font-weight:600;font-size:.875rem;margin-bottom:.4rem">Q${i+1}. ${q.q}</div>
-            ${q.opts.map((opt,oi)=>`<div style="font-size:.82rem;padding:.2rem .5rem;border-radius:4px;background:${oi===q.ans?'#f0fdf4':'transparent'};color:${oi===q.ans?'#16a34a':'var(--muted)'}">
-              ${String.fromCharCode(65+oi)}. ${opt}${oi===q.ans?' ✓':''}</div>`).join('')}
-          </div>`).join('')}
-        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:.5rem" onclick="applyGeneratedQuiz()">
-          ✓ Apply ${questions.length} Questions to "${course?.title}"
-        </button>
-      </div>`;
-  } catch(e) {
-    preview.innerHTML = `<div style="color:#ef4444;padding:1rem;background:#fef2f2;border-radius:8px">✗ ${e.message} — please try again.</div>`;
+        <button class="btn btn-primary btn-sm" onclick="applyGeneratedQuiz()">✓ Apply to Course</button>
+      </div>
+      <div id="parsed-questions-list">
+        ${questions.map((q,i) => renderParsedQuestion(q, i)).join('')}
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:.75rem" onclick="applyGeneratedQuiz()">
+        ✓ Apply ${questions.length} Questions to "${course?.title}"
+      </button>
+    </div>`;
+}
+
+function parseQuizText(text) {
+  const questions = [];
+  // Split into blocks by blank lines or numbered lines
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  
+  let currentQ = null;
+  let currentOpts = [];
+  let currentAns = 0;
+
+  const isQuestion = (line) => {
+    // Ends with ? or * or is a numbered question
+    return line.endsWith('?') || line.endsWith('*') || /^\d+[\.\)]\s/.test(line);
+  };
+
+  const isOption = (line) => {
+    // Starts with A. B. C. D. or bullet or is a short answer option
+    return /^[A-Da-d][\.\)]\s/.test(line) || /^[-•]\s/.test(line) ||
+           (currentQ && !isQuestion(line) && line.length < 120 && 
+            !line.toLowerCase().startsWith('true') && !line.toLowerCase().startsWith('false'));
+  };
+
+  const flush = () => {
+    if (currentQ && currentOpts.length >= 2) {
+      questions.push({ q: currentQ.replace(/\*$/, '').trim(), opts: currentOpts, ans: currentAns });
+    }
+    currentQ = null; currentOpts = []; currentAns = 0;
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    // Skip title lines (no ? or * and not an option)
+    if (!currentQ && !isQuestion(line) && !['true','false'].includes(line.toLowerCase())) continue;
+
+    // True/False standalone question
+    if (['true','false'].includes(line.toLowerCase()) && currentQ) {
+      currentOpts.push(line.charAt(0).toUpperCase() + line.slice(1).toLowerCase());
+      if (line.toLowerCase() === 'true' && currentOpts.length === 1) currentAns = 0;
+      continue;
+    }
+
+    if (isQuestion(line)) {
+      flush();
+      currentQ = line.replace(/^\d+[\.\)]\s*/, '');
+      continue;
+    }
+
+    if (currentQ) {
+      // Strip option prefix A. B. etc
+      const cleaned = line.replace(/^[A-Da-d][\.\)]\s*/, '').replace(/^[-•]\s*/, '').trim();
+      if (cleaned) currentOpts.push(cleaned);
+    }
   }
-  btn.disabled = false; btn.textContent = '✨ Generate Quiz with AI';
+  flush();
+
+  // For True/False questions with only True/False as options
+  questions.forEach(q => {
+    if (q.opts.length === 2 && 
+        q.opts[0].toLowerCase() === 'true' && 
+        q.opts[1].toLowerCase() === 'false') {
+      q.ans = 0; // Default True — admin can change via click
+    }
+  });
+
+  return questions;
+}
+
+function renderParsedQuestion(q, i) {
+  return `<div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:.875rem;margin-bottom:.5rem" id="pq-${i}">
+    <div style="font-weight:600;font-size:.875rem;margin-bottom:.4rem">Q${i+1}. ${q.q}
+      ${q.opts.length < 2 ? '<span style="color:#ef4444;font-size:.72rem;margin-left:.5rem">⚠ Open-ended — skipped (needs options)</span>' : ''}
+    </div>
+    ${q.opts.map((opt,oi)=>`
+      <div onclick="setParsedAns(${i},${oi})" id="pq-${i}-opt-${oi}"
+        style="font-size:.82rem;padding:.35rem .6rem;border-radius:4px;cursor:pointer;margin:.15rem 0;
+               background:${oi===q.ans?'#f0fdf4':'var(--paper)'};
+               color:${oi===q.ans?'#16a34a':'var(--ink)'};
+               border:1px solid ${oi===q.ans?'#16a34a':'var(--border)'}">
+        ${String.fromCharCode(65+oi)}. ${opt}${oi===q.ans?' <strong>✓ Correct</strong>':''}
+      </div>`).join('')}
+    ${q.opts.length >= 2 ? '<div style="font-size:.7rem;color:var(--muted);margin-top:.3rem">👆 Click an option to mark it as correct</div>' : ''}
+  </div>`;
+}
+
+function setParsedAns(qi, oi) {
+  if (!window._generatedQuiz) return;
+  window._generatedQuiz.questions[qi].ans = oi;
+  // Re-render just that question
+  const el = document.getElementById(`pq-${qi}`);
+  if (el) el.outerHTML = renderParsedQuestion(window._generatedQuiz.questions[qi], qi);
 }
 
 async function applyGeneratedQuiz() {
   const gen = window._generatedQuiz; if (!gen) return;
+  // Filter out open-ended questions (less than 2 options)
+  const validQs = gen.questions.filter(q => q.opts.length >= 2);
+  if (!validQs.length) { toast('No valid multiple choice questions to apply', 'error'); return; }
   const course = COURSES.find(c=>Number(c.id)===gen.courseId) || CUSTOM.find(c=>Number(c.id)===gen.courseId);
   if (!course) { toast('Course not found','error'); return; }
-  course.quiz = gen.questions;
-  await persistCourseEdit(gen.courseId, { quiz: gen.questions });
-  toast(`✓ ${gen.questions.length} questions saved to "${course.title}"!`, 'success');
+  course.quiz = validQs;
+  await persistCourseEdit(gen.courseId, { quiz: validQs });
+  toast(`✓ ${validQs.length} questions saved to "${course.title}"!`, 'success');
   document.getElementById('ai-quiz-text').value = '';
   document.getElementById('ai-quiz-preview').innerHTML = '';
   window._generatedQuiz = null;
