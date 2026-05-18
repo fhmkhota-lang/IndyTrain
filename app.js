@@ -1265,6 +1265,17 @@ async function startApp() {
         // Replace RESOURCES array contents with saved version
         RESOURCES.splice(0, RESOURCES.length, ...saved);
       } catch(e) {} }
+      if (b[0].custom_courses)  { try {
+        const saved = JSON.parse(b[0].custom_courses);
+        CUSTOM.splice(0, CUSTOM.length, ...saved);
+      } catch(e) {} }
+      if (b[0].course_edits)    { try {
+        window.COURSE_EDITS = JSON.parse(b[0].course_edits);
+        Object.entries(window.COURSE_EDITS).forEach(([id, fields]) => {
+          const c = COURSES.find(x => Number(x.id) === Number(id));
+          if (c) Object.assign(c, fields);
+        });
+      } catch(e) {} }
     }
   } catch(e) {}
   // Load video/image overrides
@@ -2151,20 +2162,59 @@ async function renderAC(tab) {
 
   // ── QUIZ EDITOR ──
   } else if (tab==='quizeditor') {
-    const quizCourses = allC().filter(c => c.quiz && c.quiz.length > 0);
+    const quizCourses = allC();
     c.innerHTML = `
       <div class="section-hdr">
         <h2>Quiz Editor</h2>
         <button class="btn btn-primary btn-sm" onclick="saveQuizEdits()">✓ Save Quiz</button>
       </div>
-      <p style="color:var(--muted);font-size:.82rem;margin-bottom:1.25rem">Select a course to edit its quiz questions, answer options, and correct answers. Click the radio button next to an answer to mark it as correct (highlighted gold).</p>
+
+      <!-- AI QUIZ GENERATOR -->
+      <div class="card" style="margin-bottom:1.25rem;border:2px solid var(--gold)">
+        <div class="card-header" style="background:linear-gradient(135deg,var(--gold)15,transparent)">
+          <h3>✨ AI Quiz Generator</h3>
+          <span style="font-size:.75rem;color:var(--muted)">Paste any text — notes, articles, training content — and AI will generate a quiz automatically</span>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label>Assign to Course</label>
+            <select id="ai-quiz-course" style="width:100%;padding:.6rem .875rem;border:1px solid var(--border);border-radius:8px;font-size:.875rem;background:#fff">
+              <option value="">— Choose a course —</option>
+              ${quizCourses.map(c => `<option value="${c.id}">${c.title}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Number of Questions</label>
+            <select id="ai-quiz-count" style="width:100%;padding:.6rem .875rem;border:1px solid var(--border);border-radius:8px;font-size:.875rem;background:#fff">
+              <option value="5">5 questions</option>
+              <option value="8">8 questions</option>
+              <option value="10" selected>10 questions</option>
+              <option value="15">15 questions</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Paste your content here</label>
+            <textarea id="ai-quiz-text" style="min-height:160px;font-size:.875rem" placeholder="Paste training material, notes, article text, or questions in any format. Examples:
+• A full article or lesson text (AI extracts key concepts)
+• Plain questions without answers (AI generates options)
+• Q&A pairs (AI formats them correctly)
+• Bullet point notes (AI converts to quiz)"></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="generateAIQuiz()" id="ai-gen-btn">
+            ✨ Generate Quiz with AI
+          </button>
+          <div id="ai-quiz-preview" style="margin-top:1.25rem"></div>
+        </div>
+      </div>
+
+      <!-- MANUAL EDITOR -->
       <div class="card" style="margin-bottom:1.25rem"><div class="card-body">
         <div class="form-group" style="margin:0">
-          <label>Select Course to Edit</label>
+          <label>Or manually edit an existing quiz — select a course:</label>
           <select id="quiz-course-select" onchange="renderQuizEditor()"
-            style="width:100%;padding:.6rem .875rem;border:1px solid var(--border);border-radius:8px;font-size:.875rem;background:#fff;outline:none">
+            style="width:100%;padding:.6rem .875rem;border:1px solid var(--border);border-radius:8px;font-size:.875rem;background:#fff;outline:none;margin-top:.5rem">
             <option value="">— Choose a course —</option>
-            ${quizCourses.map(c => `<option value="${c.id}">${c.title} (${c.quiz.length} questions)</option>`).join('')}
+            ${quizCourses.map(c => `<option value="${c.id}">${c.title} (${(c.quiz||[]).length} questions)</option>`).join('')}
           </select>
         </div>
       </div></div>
@@ -2801,7 +2851,12 @@ async function rmImg(cid){ delete IMG_OVERRIDES[cid]; try{ await sb.delete('imag
 function addMod(){ const list=document.getElementById('mod-builder'); if(!list)return; const id=++MC; const d=document.createElement('div'); d.className='mbi'; d.id='mb-'+id; d.innerHTML=`<div class="mbh"><input type="text" placeholder="Module name" id="mn-${id}"><button class="btn btn-danger btn-sm btn-icon" onclick="document.getElementById('mb-${id}').remove()">✕</button></div><div class="sbl" id="ms-${id}"><div class="sbr"><input type="text" placeholder="Step title" class="sti"><button class="btn btn-danger btn-sm btn-icon" onclick="this.parentElement.remove()">✕</button></div></div><div style="padding:.5rem .875rem;border-top:1px solid var(--border)"><button class="btn btn-secondary btn-sm" onclick="addStep(${id})">+ Add Step</button></div>`; list.appendChild(d); }
 function addStep(mid){ const l=document.getElementById('ms-'+mid); if(!l)return; const d=document.createElement('div'); d.className='sbr'; d.innerHTML=`<input type="text" placeholder="Step title" class="sti"><button class="btn btn-danger btn-sm btn-icon" onclick="this.parentElement.remove()">✕</button>`; l.appendChild(d); }
 function addQQ(){ const list=document.getElementById('qq-builder'); if(!list)return; const id=++QC; const d=document.createElement('div'); d.className='card mb-2'; d.id='qq-'+id; d.innerHTML=`<div class="card-header"><h3 style="font-size:.82rem">Question ${id}</h3><button class="btn btn-danger btn-sm btn-icon" onclick="document.getElementById('qq-${id}').remove()">✕</button></div><div class="card-body" style="padding:1rem"><div class="form-group"><label>Question text</label><input type="text" id="qqt-${id}" placeholder="Enter your question…"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.75rem"><div class="form-group" style="margin:0"><label>Option A</label><input type="text" id="qqa-${id}"></div><div class="form-group" style="margin:0"><label>Option B</label><input type="text" id="qqb-${id}"></div><div class="form-group" style="margin:0"><label>Option C</label><input type="text" id="qqc-${id}"></div><div class="form-group" style="margin:0"><label>Option D</label><input type="text" id="qqd-${id}"></div></div><div class="form-group" style="margin:0"><label>Correct Answer</label><select id="qqs-${id}"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select></div></div>`; list.appendChild(d); }
-function createCourse(){ const title=(document.getElementById('nc-title')||{}).value||''; const cat=(document.getElementById('nc-ccat')||{}).value||(document.getElementById('nc-cat')||{}).value||''; const about=(document.getElementById('nc-about')||{}).value||''; if(!title.trim()||!cat.trim()||!about.trim()){toast('Please fill in Title, Category, and Description','error');return;} const emoji=(document.getElementById('nc-emoji')||{}).value||'📚'; const color=(document.getElementById('nc-color')||{}).value||'#2c3e50'; const dur=(document.getElementById('nc-dur')||{}).value||'~1 hr'; const modules=[]; let totalS=0; document.querySelectorAll('.mbi').forEach(mb=>{const inp=mb.querySelector('input[type="text"]'); const mname=inp?inp.value.trim():'Module'; const steps=[]; mb.querySelectorAll('.sti').forEach(i=>{if(i.value.trim())steps.push({t:i.value.trim(),d:''});}); if(steps.length){modules.push({name:mname,steps});totalS+=steps.length;}}); const quiz=[]; document.querySelectorAll('[id^="qqt-"]').forEach(el=>{const id=el.id.split('-')[1]; const q=el.value.trim(); const a=(document.getElementById('qqa-'+id)||{}).value||''; const b=(document.getElementById('qqb-'+id)||{}).value||''; const cv=(document.getElementById('qqc-'+id)||{}).value||''; const d2=(document.getElementById('qqd-'+id)||{}).value||''; const ans=parseInt((document.getElementById('qqs-'+id)||{}).value||'0'); const opts=[a,b,cv,d2].filter(Boolean); if(q&&opts.length>=2)quiz.push({q,opts,ans:Math.min(ans,opts.length-1)});}); const nid=Date.now(); CUSTOM.push({id:nid,title:title.trim(),cat:cat.trim(),emoji,color,about:about.trim(),steps:totalS||1,dur,rating:'New',badge:emoji,modules,quiz}); renderDash(); renderCourses(); if(document.getElementById('page-profile')?.classList.contains('active')) renderProfile(); toast('"'+title.trim()+'" course created!','success'); const vtab=document.querySelector('.admin-tab'); if(vtab)vtab.click(); resetForm(); }
+async function createCourse(){ const title=(document.getElementById('nc-title')||{}).value||''; const cat=(document.getElementById('nc-ccat')||{}).value||(document.getElementById('nc-cat')||{}).value||''; const about=(document.getElementById('nc-about')||{}).value||''; if(!title.trim()||!cat.trim()||!about.trim()){toast('Please fill in Title, Category, and Description','error');return;} const emoji=(document.getElementById('nc-emoji')||{}).value||'📚'; const color=(document.getElementById('nc-color')||{}).value||'#2c3e50'; const dur=(document.getElementById('nc-dur')||{}).value||'~1 hr'; const modules=[]; let totalS=0; document.querySelectorAll('.mbi').forEach(mb=>{const inp=mb.querySelector('input[type="text"]'); const mname=inp?inp.value.trim():'Module'; const steps=[]; mb.querySelectorAll('.sti').forEach(i=>{if(i.value.trim())steps.push({t:i.value.trim(),d:''});}); if(steps.length){modules.push({name:mname,steps});totalS+=steps.length;}}); const quiz=[]; document.querySelectorAll('[id^="qqt-"]').forEach(el=>{const id=el.id.split('-')[1]; const q=el.value.trim(); const a=(document.getElementById('qqa-'+id)||{}).value||''; const b=(document.getElementById('qqb-'+id)||{}).value||''; const cv=(document.getElementById('qqc-'+id)||{}).value||''; const d2=(document.getElementById('qqd-'+id)||{}).value||''; const ans=parseInt((document.getElementById('qqs-'+id)||{}).value||'0'); const opts=[a,b,cv,d2].filter(Boolean); if(q&&opts.length>=2)quiz.push({q,opts,ans:Math.min(ans,opts.length-1)});}); const nid=Date.now(); CUSTOM.push({id:nid,title:title.trim(),cat:cat.trim(),emoji,color,about:about.trim(),steps:totalS||1,dur,rating:'New',badge:emoji,modules,quiz});
+  // Persist custom courses to Supabase so all users see them
+  try {
+    await sb.upsert('branding', { id:1, custom_courses: JSON.stringify(CUSTOM) });
+  } catch(e) { console.warn('Custom course save error:', e.message); }
+  renderDash(); renderCourses(); if(document.getElementById('page-profile')?.classList.contains('active')) renderProfile(); toast('"'+title.trim()+'" course created for all users!','success'); const vtab=document.querySelector('.admin-nav-btn'); if(vtab)vtab.click(); resetForm(); }
 function resetForm(){ ['nc-title','nc-about','nc-emoji','nc-dur','nc-ccat'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';}); const cat=document.getElementById('nc-cat'); if(cat)cat.value=''; const col=document.getElementById('nc-color'); if(col)col.value='#2c3e50'; const mb=document.getElementById('mod-builder'); if(mb)mb.innerHTML=''; const qb=document.getElementById('qq-builder'); if(qb)qb.innerHTML=''; MC=0; QC=0; addMod(); }
 
 // ── COURSE EDIT / DELETE ──
@@ -2848,8 +2903,9 @@ function openEditCourse(id) {
   document.body.appendChild(modal);
 }
 
-function saveEditCourse(id) {
-  const course = allC().find(c => c.id === id);
+async function saveEditCourse(id) {
+  const nid = Number(id);
+  const course = allC().find(c => Number(c.id) === nid);
   if (!course) return;
   const title  = document.getElementById('ec-title')?.value.trim();
   const cat    = document.getElementById('ec-ccat')?.value.trim() || document.getElementById('ec-cat')?.value;
@@ -2864,9 +2920,21 @@ function saveEditCourse(id) {
   course.color = color;
   course.dur   = dur;
   course.about = about;
+  // Persist to Supabase — save as course_edits so all users see it
+  await persistCourseEdit(nid, { title, cat, emoji, color, dur, about });
   document.getElementById('edit-course-modal').remove();
   renderCourses(); renderDash(); renderAC('videos');
-  toast('Course "' + title + '" updated!','success');
+  toast('Course "' + title + '" updated for all users!', 'success');
+}
+
+async function persistCourseEdit(id, fields) {
+  try {
+    // Load existing edits, merge, save back
+    const existing = window.COURSE_EDITS || {};
+    existing[id] = { ...existing[id], ...fields };
+    window.COURSE_EDITS = existing;
+    await sb.upsert('branding', { id:1, course_edits: JSON.stringify(existing) });
+  } catch(e) { console.warn('Course edit save error:', e.message); }
 }
 
 async function deleteCourse(id) {
@@ -2978,6 +3046,91 @@ async function markMsgRead(id) {
   try { await sb.update('contact_messages', { read:true }, { id }); } catch(e) {}
   renderAC('messages');
 }
+// ── AI QUIZ GENERATOR ──
+async function generateAIQuiz() {
+  const text = document.getElementById('ai-quiz-text')?.value?.trim();
+  const courseId = document.getElementById('ai-quiz-course')?.value;
+  const count = parseInt(document.getElementById('ai-quiz-count')?.value || '10');
+  const preview = document.getElementById('ai-quiz-preview');
+  const btn = document.getElementById('ai-gen-btn');
+  if (!text) { toast('Please paste some content first', 'error'); return; }
+  if (!courseId) { toast('Please select a course first', 'error'); return; }
+  btn.disabled = true; btn.textContent = '⏳ Generating...';
+  preview.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--muted)"><div style="font-size:2rem;margin-bottom:.5rem">🤖</div><div>AI is reading your content...</div></div>`;
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514', max_tokens: 2000,
+        messages: [{ role: 'user', content: `You are creating a multiple choice quiz for a professional training platform.
+
+Based on the content below, generate exactly ${count} multiple choice questions.
+
+Rules:
+- Each question must have exactly 4 answer options
+- Only ONE option is correct
+- Make distractors plausible but clearly wrong
+- Questions should test understanding, not just memorisation
+
+Return ONLY valid JSON, nothing else, in this exact format:
+[{"q":"Question?","opts":["Option A","Option B","Option C","Option D"],"ans":0}]
+
+Where "ans" is the 0-based index of the correct answer (0=A, 1=B, 2=C, 3=D).
+
+Content:
+${text}` }]
+      })
+    });
+    const data = await response.json();
+    const raw = data.content?.[0]?.text || '';
+    const jsonMatch = raw.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) throw new Error('Could not parse response');
+    const questions = JSON.parse(jsonMatch[0]);
+    if (!Array.isArray(questions) || !questions.length) throw new Error('No questions generated');
+    window._generatedQuiz = { courseId: Number(courseId), questions };
+    const course = allC().find(c => Number(c.id) === Number(courseId));
+    preview.innerHTML = `
+      <div style="background:var(--paper);border-radius:10px;padding:1.25rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+          <div><div style="font-weight:700">✅ ${questions.length} questions generated for "${course?.title}"</div>
+          <div style="font-size:.78rem;color:var(--muted)">Review, then click Apply to save</div></div>
+          <div style="display:flex;gap:.5rem">
+            <button class="btn btn-secondary btn-sm" onclick="generateAIQuiz()">↻ Regenerate</button>
+            <button class="btn btn-primary btn-sm" onclick="applyGeneratedQuiz()">✓ Apply to Course</button>
+          </div>
+        </div>
+        ${questions.map((q,i)=>`
+          <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:.875rem;margin-bottom:.5rem">
+            <div style="font-weight:600;font-size:.875rem;margin-bottom:.4rem">Q${i+1}. ${q.q}</div>
+            ${q.opts.map((opt,oi)=>`<div style="font-size:.82rem;padding:.2rem .5rem;border-radius:4px;background:${oi===q.ans?'#f0fdf4':'transparent'};color:${oi===q.ans?'#16a34a':'var(--muted)'}">
+              ${String.fromCharCode(65+oi)}. ${opt}${oi===q.ans?' ✓':''}</div>`).join('')}
+          </div>`).join('')}
+        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:.5rem" onclick="applyGeneratedQuiz()">
+          ✓ Apply ${questions.length} Questions to "${course?.title}"
+        </button>
+      </div>`;
+  } catch(e) {
+    preview.innerHTML = `<div style="color:#ef4444;padding:1rem;background:#fef2f2;border-radius:8px">✗ ${e.message} — please try again.</div>`;
+  }
+  btn.disabled = false; btn.textContent = '✨ Generate Quiz with AI';
+}
+
+async function applyGeneratedQuiz() {
+  const gen = window._generatedQuiz; if (!gen) return;
+  const course = COURSES.find(c=>Number(c.id)===gen.courseId) || CUSTOM.find(c=>Number(c.id)===gen.courseId);
+  if (!course) { toast('Course not found','error'); return; }
+  course.quiz = gen.questions;
+  await persistCourseEdit(gen.courseId, { quiz: gen.questions });
+  toast(`✓ ${gen.questions.length} questions saved to "${course.title}"!`, 'success');
+  document.getElementById('ai-quiz-text').value = '';
+  document.getElementById('ai-quiz-preview').innerHTML = '';
+  window._generatedQuiz = null;
+  document.getElementById('quiz-course-select').value = gen.courseId;
+  renderQuizEditor();
+}
+
+// ── BADGE DELETE ──
 async function deleteBadgeOverride(cid) {
   delete BADGE_OVERRIDES[cid];
   try {
