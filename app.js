@@ -1957,10 +1957,27 @@ async function renderAC(tab) {
 
   // ── USERS ──
   if (tab==='users') {
-    let allUsers=[], pending=[];
+    let allUsers=[], pending=[], enrollmentCounts={};
     try {
-      allUsers = await sb.query('users', { order:'joined.asc' });
+      allUsers = await sb.query('users', { order:'joined.asc', limit:500 });
       pending  = allUsers.filter(u=>u.status==='pending');
+      // Get accurate completed counts directly from enrollments table
+      const completedEnr = await sb.query('enrollments', { eq:{ completed:true } });
+      const enrolledEnr  = await sb.query('enrollments');
+      completedEnr.forEach(e => {
+        if (!enrollmentCounts[e.user_id]) enrollmentCounts[e.user_id] = { enrolled:0, completed:0 };
+        enrollmentCounts[e.user_id].completed++;
+      });
+      enrolledEnr.forEach(e => {
+        if (!enrollmentCounts[e.user_id]) enrollmentCounts[e.user_id] = { enrolled:0, completed:0 };
+        enrollmentCounts[e.user_id].enrolled++;
+      });
+      // Merge accurate counts into user objects
+      allUsers = allUsers.map(u => ({
+        ...u,
+        enrolled:  enrollmentCounts[u.id]?.enrolled  ?? u.enrolled  ?? 0,
+        completed: enrollmentCounts[u.id]?.completed ?? u.completed ?? 0,
+      }));
     } catch(e) { c.innerHTML=`<div style="color:var(--red);padding:1.25rem">Error loading users: ${e.message}</div>`; return; }
 
     const searchVal=window._userSearch||'';
